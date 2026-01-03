@@ -1,0 +1,124 @@
+/* This CSS file is used for the homepage, where it will show the styling of the trainer*/
+
+/* This is for the whole ZBLL set card */
+
+.zbll-set-container {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin: 20px auto;
+  max-width: 300px;
+}
+
+.zbll-set-container:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* This will be for the card header */
+
+.card-header {
+  display: block; /* make the header block so it spans full width */
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+/* Make the container full width */
+.set-toggle-button {
+  width: 100%;
+}
+
+/* Make the button full width */
+.set-toggle-button button {
+  background-color: #0077ff;
+  color: #fff;
+  width: 100%;
+  text-align: left;        /* main text on left */
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* title left, info right */
+}
+
+.set-title {
+  font-weight: bold;
+}
+
+.set-info {
+  display: flex;
+  align-items: center;
+  gap: 5px;       /* small gap between count and arrow */
+  font-weight: normal;
+  font-size: 16px;
+}
+
+.set-info #arrow-T {
+  cursor: pointer;
+  font-size: 18px;
+}
+
+/* This is for the main angle image */
+
+.main-angle-container {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.main-angle-button {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+}
+
+.main-angle-svg {
+    width: 200px;
+    height: auto;
+}
+
+.main-angle-button:hover .main-angle-svg {
+    transform: scale(1.05);
+}
+
+/* This is for the other orientations */
+
+.other-orientations {
+    margin-top: 10px;
+}
+
+.orientation-label {
+    margin-right: 10px;
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.orientation-options {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.orientation-options .case-trigger {
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  padding: 5px;
+  background: #f9f9f9;
+  cursor: pointer;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.orientation-options .case-trigger:hover {
+  border-color: #0077ff;
+  transform: scale(1.05);
+}
+
+.orientation-options img {
+  width: 80px;
+  height: auto;
+  display: block;
+}

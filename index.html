@@ -1,13 +1,130 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZBLL Trainer</title>
-    <link rel="icon" type="image/png" href="logo.png" sizes="72x72">
-    <link rel="stylesheet" href="styles/style.css">
-  </head>
-    <body>
-        <script src="js/index.js"> </script>
-    </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZBLL Trainer</title>
+
+  <link rel="icon" type="image/png" href="images/logo.png" sizes="72x72">
+  <link rel="stylesheet" href="styles/style.css">
+  <link rel="stylesheet" href="styles/homepage.css">
+  <link rel="stylesheet" href="styles/modal.css">
+  <link rel="stylesheet" href="styles/trainer.css">
+</head>
+<body>
+
+  <!-- ZBLL Set: T -->
+  <div class="zbll-set-container" id="container-T">
+
+    <!-- This will serve as the card header where you can click on the button, and
+     and it will either collapse or expand the subsets of the set -->
+    <div class="card-header" id="header-T">
+      <div class="set-toggle-button">
+        <button id="toggle-T">
+          <span class="set-title"><b>T</b></span>
+          <span class="set-info">
+            (<span id="count-T">0</span>/72) 
+            <span id="arrow-T" onclick="toggleSubsets('T');">▼</span>
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <!--This will serve as the image for the main angle of the set -->
+    <div class="set-content" id="content-T">
+      <div class="zbll-card">
+
+        <!-- This is the main angle of the T set, which will always be visible -->
+        <div class="main-angle-container">
+          <button type="button" class="main-angle-button" id="coll-T-0">
+            <img src="svg/T.svg" alt="T" class="main-angle-svg" id="main-T" data-angle="0">
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- This will serve as the section for viewing the other orientations -->
+    <div class="other-orientations">
+      <p class="orientation-label">View Other Orientations:</p>
+
+      <div class="orientation-options" id="orientations-T">
+        <button class="case-trigger" data-angle="90">
+          <img src="svg/T.svg" style="transform: rotate(90deg)">
+        </button>
+
+        <button class="case-trigger" data-angle="180">
+          <img src="svg/T.svg" style="transform: rotate(180deg)">
+        </button>
+
+        <button class="case-trigger" data-angle="270">
+          <img src="svg/T.svg" style="transform: rotate(270deg)">
+        </button>
+      </div>
+    </div>
+
+    <!-- This will serve as the toggleable subsets for T set -->
+    <div class="t-subsets" id="subsets-T" style="display:none;">
+      <!-- 2GLL -->
+      <div class="zbll-card">
+        <p class="subset-title">T – 2GLL</p>
+        <div class="main-image-container">
+          <button type="button" class="main-case-button">
+            <img src="svg/top/T-2GLL.svg" class="main-case-svg subset-orientation" data-set="T">
+          </button>
+        </div>
+      </div>
+
+      <!-- Diag -->
+      <div class="zbll-card">
+        <p class="subset-title">T – Diag</p>
+        <div class="main-image-container">
+          <button type="button" class="main-case-button">
+            <img src="svg/top/T-Diag.svg" class="main-case-svg subset-orientation" data-set="T">
+          </button>
+        </div>
+      </div>
+    </div>
+
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ZBLL Set: U -->
+
+  <!-- ZBLL Set: L -->
+
+  <!-- ZBLL Set: H -->
+
+  <!-- ZBLL Set: Pi -->
+
+  <!-- ZBLL Set: Sune -->
+
+  <!-- ZBLL Set: Antisune -->
+
+  <!-- This will serve as the modal for the subsets within a set -->
+  <div id="zbllWindowBack" class="modal-overlay" onclick="closeZW()">
+  </div>
+
+  <div id="zbllWindow" class="modal-window">
+    <div class="modal-header">
+      <h3 id="zwHeaderMessage"></h3>
+
+      <div class="modal-btns">
+        <button onclick="selectAllZw(true)">All</button>
+        <button onclick="selectAllZw(false)">None</button>
+        <button class="close-x" onclick="closeZW()">&times;</button>
+      </div>
+    </div>
+
+    <div id="zwPics" class="zbll-grid"></div>
+  </div>
+
+
+  <script src="scripts/index.js"></script>
+  <script src="scripts/homepage.js"></script>
+  <script src="scripts/modal.js"></script>  
+</body>
 </html>
