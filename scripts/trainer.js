@@ -18,11 +18,11 @@ if (selectedCasesRaw && selectedCasesRaw.length) {
             set: item.set,
             subset: item.subset,
             caseName: item.caseName,
-            // getSetup: use casemap zbllMap scrambles if available, choose random entry
+            // getSetup: use casemap zbll scrambles if available, choose random entry
             getSetup: function() {
                 try {
-                    if (typeof zbllMap !== 'undefined' && zbllMap[this.set] && zbllMap[this.set][this.subset] && zbllMap[this.set][this.subset][this.caseName]) {
-                        var arr = zbllMap[this.set][this.subset][this.caseName];
+                    if (typeof zbllScrambles !== 'undefined' && zbllScrambles[this.set] && zbllScrambles[this.set][this.subset] && zbllScrambles[this.set][this.subset][this.caseName]) {
+                        var arr = zbllScrambles[this.set][this.subset][this.caseName];
                         if (arr && arr.length) return arr[Math.floor(Math.random()*arr.length)];
                     }
                 } catch (e) {}
