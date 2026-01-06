@@ -25,7 +25,39 @@ const zbllMap = {
     "4": ["CsC","AsA","AsC","AsO","CsA","CsO","CxO","OsA","OsC","OsO","OxC","OxO"],
     "5": ["CsC","AsA","AsC","AsO","CsA","CsO","CxO","OsA","OsC","OsO","OxC","OxO"],
     "6": ["CsC","AsA","AsC","AsO","CsA","CsO","CxO","OsA","OsC","OsO","OxC","OxO"],
-  }
+  },
+  H: {
+    "2GLL": ["CsC","AsA","AsC","AsO","CsA","CsO","CxO","OsA","OsC","OsO","OxC","OxO"],
+    "Diag": ["CsC","AsA","AsC","AsO","CsA","CsO","CxO","OsA","OsC","OsO","OxC","OxO"],
+    "3": ["CsC","AsA","AsC","AsO","CsA","CsO","CxO","OsA","OsC","OsO","OxC","OxO"],
+    "4": ["CsC","AsA","AsC","AsO","CsA","CsO","CxO","OsA","OsC","OsO","OxC","OxO"],
+    "5": ["CsC","AsA","AsC","AsO","CsA","CsO","CxO","OsA","OsC","OsO","OxC","OxO"],
+    "6": ["CsC","AsA","AsC","AsO","CsA","CsO","CxO","OsA","OsC","OsO","OxC","OxO"],
+  },
+  Pi: {
+    "2GLL": ["CsC","AsA","AsC","AsO","CsA","CsO","CxO","OsA","OsC","OsO","OxC","OxO"],
+    "Diag": ["CsC","AsA","AsC","AsO","CsA","CsO","CxO","OsA","OsC","OsO","OxC","OxO"],
+    "3": ["CsC","AsA","AsC","AsO","CsA","CsO","CxO","OsA","OsC","OsO","OxC","OxO"],
+    "4": ["CsC","AsA","AsC","AsO","CsA","CsO","CxO","OsA","OsC","OsO","OxC","OxO"],
+    "5": ["CsC","AsA","AsC","AsO","CsA","CsO","CxO","OsA","OsC","OsO","OxC","OxO"],
+    "6": ["CsC","AsA","AsC","AsO","CsA","CsO","CxO","OsA","OsC","OsO","OxC","OxO"],
+  },
+  Sune: {
+    "2GLL": ["CsC","AsA","AsC","AsO","CsA","CsO","CxO","OsA","OsC","OsO","OxC","OxO"],
+    "Diag": ["CsC","AsA","AsC","AsO","CsA","CsO","CxO","OsA","OsC","OsO","OxC","OxO"],
+    "3": ["CsC","AsA","AsC","AsO","CsA","CsO","CxO","OsA","OsC","OsO","OxC","OxO"],
+    "4": ["CsC","AsA","AsC","AsO","CsA","CsO","CxO","OsA","OsC","OsO","OxC","OxO"],
+    "5": ["CsC","AsA","AsC","AsO","CsA","CsO","CxO","OsA","OsC","OsO","OxC","OxO"],
+    "6": ["CsC","AsA","AsC","AsO","CsA","CsO","CxO","OsA","OsC","OsO","OxC","OxO"],
+  },
+  Antisune: {
+    "2GLL": ["CsC","AsA","AsC","AsO","CsA","CsO","CxO","OsA","OsC","OsO","OxC","OxO"],
+    "Diag": ["CsC","AsA","AsC","AsO","CsA","CsO","CxO","OsA","OsC","OsO","OxC","OxO"],
+    "3": ["CsC","AsA","AsC","AsO","CsA","CsO","CxO","OsA","OsC","OsO","OxC","OxO"],
+    "4": ["CsC","AsA","AsC","AsO","CsA","CsO","CxO","OsA","OsC","OsO","OxC","OxO"],
+    "5": ["CsC","AsA","AsC","AsO","CsA","CsO","CxO","OsA","OsC","OsO","OxC","OxO"],
+    "6": ["CsC","AsA","AsC","AsO","CsA","CsO","CxO","OsA","OsC","OsO","OxC","OxO"],
+  },
 };
 
 document.querySelectorAll(".zbll-set-container").forEach(setContainer => {
