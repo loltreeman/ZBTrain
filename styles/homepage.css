@@ -1,124 +1,545 @@
-/* This CSS file is used for the homepage, where it will show the styling of the trainer*/
+:root {
+    --bg-main: #f8fafc;
+    --card-bg: #ffffff;
+    --accent-blue: #3b82f6;
+    --accent-green: #10b981;
+    --accent-yellow: #eab308;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --border: #e2e8f0;
+    --radius: 18px;
+    --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+}
 
-/* This is for the whole ZBLL set card */
+body {
+    background: var(--bg-main);
+    color: var(--text-main);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    line-height: 1.5;
+    margin: 0;
+    padding: 0;
+}
+
+
+.nav-wrapper {
+    width: 100%;
+    position: sticky;
+    top: 0;
+    background-color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px); 
+    -webkit-backdrop-filter: blur(12px);
+    z-index: 1000;
+    border-bottom: 1px solid var(--border);
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 70px; 
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 40px;
+}
+
+.brand-container {
+    display: flex;
+    align-items: center; 
+    gap: 12px;           
+}
+
+.navbar img {
+    height: 100px; 
+    width: auto;
+    transition: transform 0.3s ease;
+}
+
+.brand-text {
+    font-weight: 800;   
+    font-size: 1.2rem;
+    color: var(--text-main);
+    letter-spacing: -0.5px;
+    white-space: nowrap; 
+}
+
+.navbar img:hover {
+    transform: scale(1.05);
+}
+
+.navbar ul {
+    list-style: none;
+    display: flex;
+    gap: 32px; 
+    align-items: center;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-item a {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.nav-item a:hover {
+    color: var(--accent-blue);
+}
+
+.nav-item a::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: -4px;
+    left: 0;
+    background-color: var(--accent-blue);
+    transition: width 0.3s ease;
+}
+
+.nav-item a:hover::after {
+    width: 100%;
+}
+
+
+@media (max-width: 768px) {
+    .navbar {
+        padding: 0 20px;
+    }
+    .navbar ul {
+        display: none; 
+    }
+}
+
+.layout {
+    display: flex;
+    gap: 30px;
+    max-width: 1400px;
+    margin: 40px auto;
+    padding: 0 40px;
+    align-items: flex-start;
+}
+
+.left-column {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 24px;
+    align-items: start;
+}
+
+.right-column {
+    width: 320px;
+    position: sticky;
+    top: 20px;
+    background: var(--card-bg);
+    padding: 24px;
+    border-radius: 24px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
 
 .zbll-set-container {
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  margin: 20px auto;
-  max-width: 300px;
+    background: var(--card-bg);
+    border-radius: 24px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    border: 1px solid var(--border);
 }
 
-.zbll-set-container:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
-}
 
-/* This will be for the card header */
-
-.card-header {
-  display: block; /* make the header block so it spans full width */
-  width: 100%;
-  margin-bottom: 15px;
-}
-
-/* Make the container full width */
-.set-toggle-button {
-  width: 100%;
-}
-
-/* Make the button full width */
 .set-toggle-button button {
-  background-color: #0077ff;
-  color: #fff;
-  width: 100%;
-  text-align: left;        /* main text on left */
-  border: none;
-  border-radius: 8px;
-  padding: 10px 16px;
-  font-size: 18px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: space-between; /* title left, info right */
-}
-
-.set-title {
-  font-weight: bold;
-}
-
-.set-info {
-  display: flex;
-  align-items: center;
-  gap: 5px;       /* small gap between count and arrow */
-  font-weight: normal;
-  font-size: 16px;
-}
-
-.set-info #arrow-T {
-  cursor: pointer;
-  font-size: 18px;
-}
-
-/* This is for the main angle image */
-
-.main-angle-container {
-    text-align: center;
-    margin-bottom: 15px;
-}
-
-.main-angle-button {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: #fff;
+    width: 100%;
     border: none;
-    background: transparent;
+    padding: 20px 24px;
+    font-size: 20px;
+    font-weight: 800;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    letter-spacing: 0.5px;
+}
+
+.set-toggle-button button:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.main-card {
+    padding: 30px;
+    text-align: center;
+    background: #fcfcfd;
+    border-bottom: 1px solid var(--border);
 }
 
 .main-angle-svg {
     width: 200px;
     height: auto;
+    border: 4px solid transparent;
+    border-radius: 16px;
+    padding: 8px;
 }
 
-.main-angle-button:hover .main-angle-svg {
-    transform: scale(1.05);
+.main-angle-svg.selected-all {
+    border-color: var(--accent-green);
+    filter: drop-shadow(0 0 12px rgba(16, 185, 129, 0.4));
+    background: #f0fdf4;
 }
 
-/* This is for the other orientations */
+.main-angle-svg.selected-some {
+    border-color: var(--accent-yellow);
+    filter: drop-shadow(0 0 12px rgba(234, 179, 8, 0.4));
+    background: #fefce8;
+}
 
 .other-orientations {
-    margin-top: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 20px;
+    background: var(--bg-main);
 }
 
 .orientation-label {
-    margin-right: 10px;
-    text-align: center;
-    font-size: 20px;
-    font-weight: bold;
+    font-size: 18px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+    display: block;
 }
 
 .orientation-options {
     display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
     justify-content: center;
+    gap: 12px;
+    width: 100%;
+}
+
+.case-trigger {
+    flex: 0 1 auto;
+    padding: 10px;
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    background: var(--card-bg);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.case-trigger:hover {
+    border-color: var(--accent-blue);
+    transform: scale(1.08);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+.case-trigger img {
+    width: 50px;
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+.subsets-wrapper {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 10px;
+    padding: 30px;
 }
 
-.orientation-options .case-trigger {
-  border: 2px solid #ccc;
-  border-radius: 8px;
-  padding: 5px;
-  background: #f9f9f9;
-  cursor: pointer;
-  transition: border-color 0.2s ease, transform 0.2s ease;
+.zbll-card {
+    background: var(--card-bg);
+    padding: 10px;
+    border-radius: 20px;
+    border: 2px solid var(--border);
+    text-align: center;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
-.orientation-options .case-trigger:hover {
-  border-color: #0077ff;
-  transform: scale(1.05);
+.zbll-card:hover {
+    background: #fcfcfd;
+    border-color: #cbd5e1;
+    transform: translateY(-6px);
+    box-shadow: 0 12px 24px -4px rgba(0, 0, 0, 0.12);
 }
 
-.orientation-options img {
-  width: 80px;
-  height: auto;
-  display: block;
+.zbll-card:active {
+    transform: translateY(-2px) scale(0.98);
+}
+
+.subset-orientation {
+    width: 140px;
+    height: 140px;
+    object-fit: contain;
+    border: 4px solid transparent;
+    border-radius: 16px;
+    margin-bottom: 16px;
+}
+
+.subset-title {
+    font-size: 20px;
+    font-weight: 1000;
+    color: var(--text-main);
+    margin: 0;
+    pointer-events: none;
+}
+
+.zbll-card.all-selected {
+    border-color: var(--accent-green);
+    background: #f0fdf4;
+}
+
+.zbll-card.all-selected:hover {
+    background: #dcfce7;
+}
+
+.subset-orientation.selected-all {
+    border-color: var(--accent-green);
+    background: #f0fdf4;
+}
+
+.subset-orientation.selected-some {
+    border-color: var(--accent-yellow);
+    background: #fefce8;
+}
+
+.sticky-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    height: 100%;
+    justify-content: space-between;
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+}
+
+.right-column button {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px;
+    border-radius: 14px;
+    font-family: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+}
+
+.right-column .train {
+    background: linear-gradient(135deg, var(--text-main) 0%, #1e293b 100%);
+    color: #fff;
+    font-size: 18px;
+    font-weight: 800;
+    padding: 18px;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.3);
+    letter-spacing: 1px;
+}
+
+.right-column .train:hover:not(:disabled) {
+    background: linear-gradient(135deg, #334155 0%, #475569 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.4);
+}
+
+.right-column .train:disabled {
+    opacity: 0.3;
+    filter: grayscale(1);
+    cursor: not-allowed;
+}
+
+.right-column button.selectToggle,
+.right-column button.collapseToggle {
+    background: var(--bg-main);
+    border: 2px solid var(--border);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-muted);
+}
+
+.right-column button.selectToggle:hover,
+.right-column button.collapseToggle:hover {
+    border-color: var(--accent-blue);
+    color: var(--accent-blue);
+    background: #eff6ff;
+    transform: translateY(-1px);
+}
+
+#selected {
+    text-align: center;
+    font-weight: 1000;
+    font-style: bold;
+    color: var(--accent-blue);
+    margin: 8px 0;
+    font-size: 25px;
+    letter-spacing: 0.5px;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+#presetList {
+  height: 250px;
+}
+
+@media (min-width: 1024px) {
+    .layout {
+        grid-template-columns: 1fr 340px;
+        gap: 40px;
+    }
+
+    .orientation-options {
+        gap: 16px;
+    }
+
+    .case-trigger img {
+        width: 85px;
+        height: 85px;
+    }
+}
+
+@media (max-width: 1023px) {
+    .layout {
+        flex-direction: row;
+        gap: 16px;
+        padding: 16px;
+    }
+
+    .left-column {
+        flex: 2.2;
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .right-column {
+        flex: 0.8;
+        min-width: 100px;
+        padding: 16px;
+        gap: 10px;
+    }
+
+    .orientation-options {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+    }
+
+    .case-trigger img {
+        width: 100%;
+        max-width: 70px;
+    }
+
+    .right-column button {
+        font-size: 13px;
+        padding: 12px 6px;
+    }
+}
+
+@media (max-width: 600px) {
+    .layout {
+        gap: 10px;
+        padding: 10px;
+    }
+
+    .left-column {
+        flex: 2.5;
+    }
+
+    .right-column {
+        flex: 1;
+        min-width: 90px;
+        padding: 12px;
+    }
+
+    .orientation-options {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+
+    .case-trigger img {
+        max-width: 65px;
+    }
+
+    .main-angle-svg {
+        max-width: 100px;
+        margin-bottom: 12px;
+    }
+
+    .right-column button {
+        font-size: 11px;
+        padding: 10px 4px;
+    }
+
+    .set-toggle-button button {
+        padding: 16px 18px;
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .layout {
+        gap: 8px;
+        padding: 8px;
+    }
+
+    .right-column {
+        min-width: 80px;
+        padding: 10px;
+    }
+
+    .orientation-options {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 6px;
+    }
+
+    .case-trigger img {
+        max-width: 55px;
+    }
+
+    .main-angle-svg {
+        max-width: 90px;
+    }
+
+    .right-column button {
+        font-size: 10px;
+        padding: 8px 3px;
+    }
+
+    .set-toggle-button button {
+        padding: 14px 16px;
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 360px) {
+    .orientation-options {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .case-trigger img {
+        max-width: 48px;
+    }
+
+    .right-column button {
+        font-size: 9px;
+        padding: 7px 2px;
+    }
 }

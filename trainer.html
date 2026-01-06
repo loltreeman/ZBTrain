@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>ZBLL Trainer</title>
+    <link rel="icon" type="image/png" href="images/logo.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles/trainer.css">
+</head>
+<body>
+
+    <header class="app-header">
+        <div class="header-center">
+            <div id="scramble-display" class="scramble">
+                <span class="label">Scramble:</span>
+                <span id="current-scramble">Loading...</span>
+            </div>
+        </div>
+
+        <div class="header-bottom-row">
+            <div class="header-left">
+                <button type="button" id="back" class="btn-nav" onclick="goBack()">← Select Cases</button>
+            </div>
+
+            <div class="header-right">
+                <div class="status-header-row">
+                    <div class="status-group">
+                        <p id="numSelected" class="status-item"></p>
+                        <p id="numRecap" class="status-item"></p>
+                    </div>
+                    <div class="toggle-group">
+                        <label class="toggle-label">
+                            <input id="virtualCubeCheckbox" type="checkbox" />
+                            <span>Virtual Cube</span>
+                        </label>
+                        <label class="toggle-label">
+                            <input id="fullCN" type="checkbox"> 
+                            <span>Full Color Neutrality</span>
+                        </label>
+                    </div>
+        </div>
+
+    <hr class="header-divider">
+
+    <div id="customOrientationSection" class="orientation-settings">
+        <span class="settings-title">Custom Orientation:</span>
+        <div class="input-row">
+            <div class="input-wrapper">
+                <label>Pre-Orientation</label>
+                <input type="text" id="colourneutrality1" placeholder="e.g. z2">
+            </div>
+            <div class="input-wrapper">
+                <label>LL Color Rotation</label>
+                <input type="text" id="colourneutrality2" placeholder="y">
+            </div>
+            <div class="input-wrapper">
+                <label>Side Color Rotation</label>
+                <input type="text" id="colourneutrality3" placeholder="z">
+            </div>
+            <a href="scramblingNote.html" class="info-link">Notes on Orientation</a>
+        </div>
+    </div>
+</div>
+        </div>
+    </header>
+
+    <main class="trainer-container">
+        <div class="top-layout-row">
+            
+            <section class="timer-wrapper">
+                <div id="virtualCubeContainer">
+                    <canvas id="canvas" width="500" height="400"></canvas>
+                </div>
+                    
+                <div id="timer" class="timer-display">0.00</div>
+                    <p class="timer-hint">Hold Space to Start</p>
+            </section>
+        
+        <aside class="case-sidebar">
+            <div class="case-card">
+                <div class="case-card-header">
+                    <p id="case-text"></p>
+                    <span id="case-time" class="last-time" hidden></span>
+                </div>
+
+                <div class="case-card-body">
+                    <img id="case-img" src="" alt="Case Diagram">
+                    <h2 id="case-name">---</h2>
+                </div>
+
+                <div class="case-card-footer">
+            <div class="info-grid">
+                <div class="info-block">
+                    <label>Scramble</label>
+                    <p id="case-scram">--</p>
+                </div>
+                
+                <div class="info-block">
+                    <label>Algorithms</label>
+                    <p id="case-algs">--</p>
+                </div>
+        
+            </div>
+
+            <div class="bottom-layout-area">
+        
+
+            <div id="caseStatsContainer">
+                <div class="info-block">
+                    <label>Per-Case Attempts</label>
+                </div>
+                <div id="caseStatsSummary"></div>
+                <div id="caseAttemptsList"></div>
+                
+                <div class="stats-actions">
+                    <button type="button" class="btn-sidebar-alt" onclick="clearCaseAttempts()">Clear All Times for This Case</button>
+                    <button type="button" class="btn-sidebar-alt" onclick="clearAllAttempts()">Clear All Attempts</button>
+                </div>
+            </div>
+        </div>
+    </div>
+        </aside>
+
+    </div> 
+    
+    
+</main>
+
+    <footer class="action-footer">
+        <div class="footer-controls">
+            <button type="button" id="showStats" class="btn-secondary" onclick="showStatsPanel()">Show Stats</button>
+            <button type="button" id="exportCsv" class="btn-secondary" onclick="exportAttemptsCsv()">Export CSV</button>
+        </div>
+    </footer>
+
+    <div id="statsPanel" style="display: none; width: 100%; max-width: 800px; margin: 40px auto; padding: 20px; border-top: 2px solid #eee;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h3 style="margin: 0;">Statistics and Summary</h3>
+        <button type="button" class="btn-sidebar-alt" onclick="hideStatsPanel()">Hide Statistics</button>
+    </div>
+    <div id="statsContent">
+        </div>
+</div>
+
+    <script src="scripts/scrambles.js"></script>
+    <script src="scripts/algorithms.js"></script>
+    <script src="scripts/cube.js"></script>
+    <script src="scripts/cube3x3.js"></script>
+    <script src="scripts/virtualCubeEmbed.js"></script>
+    <script src="scripts/trainer.js"></script>
+</body>
+</html>
+

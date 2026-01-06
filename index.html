@@ -9,122 +9,279 @@
   <link rel="stylesheet" href="styles/style.css">
   <link rel="stylesheet" href="styles/homepage.css">
   <link rel="stylesheet" href="styles/modal.css">
-  <link rel="stylesheet" href="styles/trainer.css">
 </head>
 <body>
 
-  <!-- ZBLL Set: T -->
-  <div class="zbll-set-container" id="container-T">
-
-    <!-- This will serve as the card header where you can click on the button, and
-     and it will either collapse or expand the subsets of the set -->
-    <div class="card-header" id="header-T">
-      <div class="set-toggle-button">
-        <button id="toggle-T">
-          <span class="set-title"><b>T</b></span>
-          <span class="set-info">
-            (<span id="count-T">0</span>/72) 
-            <span id="arrow-T" onclick="toggleSubsets('T');">▼</span>
-          </span>
-        </button>
+  <div class="nav-wrapper">
+    <div class="grad-bar"></div>
+    <nav class="navbar">
+      <div class="brand-container">
+        <img src="images/logo.png" alt="ZBTrain" class="logoimg">
+        <span class="brand-text">ZBTrain - ZBLL Trainer</span>
       </div>
+
+      <div class="menu-toggle" id="mobile-menu">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </div>
+      <ul class="nav no-search">
+        <li class="nav-item"><a href="controls.html">Keyboard Controls</a></li>
+      </ul>
+    </nav>
     </div>
 
-    <!--This will serve as the image for the main angle of the set -->
-    <div class="set-content" id="content-T">
-      <div class="zbll-card">
+  <div class="layout">
+    <main class="left-column">
 
-        <!-- This is the main angle of the T set, which will always be visible -->
-        <div class="main-angle-container">
-          <button type="button" class="main-angle-button" id="coll-T-0">
-            <img src="svg/T.svg" alt="T" class="main-angle-svg" id="main-T" data-angle="0">
-          </button>
+      <!-- This container is purely for the T ZBLL set-->
+      <div class="zbll-set-container" id="container-T">
+        <div class="card-header" id="header-T">
+          <div class="set-toggle-button">
+            <button type="button" onclick="toggleSubsets('T')">
+              <span class="set-title"><b>T</b></span>
+              <span class="set-info">
+                (<span id="count-T">0</span>/72)
+                <span class="subset-arrow" id="arrow-T">▼</span>
+              </span>
+            </button>
+          </div>
         </div>
 
-      </div>
-    </div>
+        <div class="set-content" id="content-T">
+          <div class="zbll-card main-card">
+            <div class="main-angle-container">
+              <button type="button" class="main-angle-button">
+                <img src="svg/T.svg" alt="T" class="main-angle-svg" id="main-T" data-angle="0">
+              </button>
+            </div>
+            
+            <div class="other-orientations">
+              <p class="orientation-label">View Other Orientations:</p>
+              <div class="orientation-options" id="orientations-T">
+                <button class="case-trigger" data-angle="90">
+                  <img src="svg/T.svg" style="transform: rotate(90deg)">
+                </button>
+                <button class="case-trigger" data-angle="180">
+                  <img src="svg/T.svg" style="transform: rotate(180deg)">
+                </button>
+                <button class="case-trigger" data-angle="270">
+                  <img src="svg/T.svg" style="transform: rotate(270deg)">
+                </button>
+              </div>
+            </div>
+          </div>
 
-    <!-- This will serve as the section for viewing the other orientations -->
-    <div class="other-orientations">
-      <p class="orientation-label">View Other Orientations:</p>
+          <div class="subsets-wrapper" id="subsets-T" style="display: none;">
+            <!-- This contains the T-2GLL set -->
+            <div class="zbll-card" data-subset="2GLL">
+              <p class="subset-title">T – 2GLL</p>
+              <div class="main-image-container">
+                <img src="svg/top/T-2GLL.svg" class="main-case-svg subset-orientation">
+              </div>
+            </div>
 
-      <div class="orientation-options" id="orientations-T">
-        <button class="case-trigger" data-angle="90">
-          <img src="svg/T.svg" style="transform: rotate(90deg)">
-        </button>
+            <!-- This contains the T-Diag set -->
+            <div class="zbll-card" data-subset="Diag">
+              <p class="subset-title">T – Diag</p>
+              <div class="main-image-container">
+                <img src="svg/top/T-Diag.svg" class="main-case-svg subset-orientation">
+              </div>
+            </div>
 
-        <button class="case-trigger" data-angle="180">
-          <img src="svg/T.svg" style="transform: rotate(180deg)">
-        </button>
+            <!-- This contains the T-3 set -->
+            <div class="zbll-card" data-subset="3">
+              <p class="subset-title">T – 3</p>
+              <div class="main-image-container">
+                <img src="svg/top/T-3.svg" class="main-case-svg subset-orientation">
+              </div>
+            </div>
 
-        <button class="case-trigger" data-angle="270">
-          <img src="svg/T.svg" style="transform: rotate(270deg)">
-        </button>
-      </div>
-    </div>
+            <!-- This contains the T-4 set -->
+            <div class="zbll-card" data-subset="4">
+              <p class="subset-title">T – 4</p>
+              <div class="main-image-container">
+                <img src="svg/top/T-4.svg" class="main-case-svg subset-orientation">
+              </div>
+            </div>
 
-    <!-- This will serve as the toggleable subsets for T set -->
-    <div class="t-subsets" id="subsets-T" style="display:none;">
-      <!-- 2GLL -->
-      <div class="zbll-card">
-        <p class="subset-title">T – 2GLL</p>
-        <div class="main-image-container">
-          <button type="button" class="main-case-button">
-            <img src="svg/top/T-2GLL.svg" class="main-case-svg subset-orientation" data-set="T">
-          </button>
+            <!-- This contains the T-5 set -->
+            <div class="zbll-card" data-subset="5">
+              <p class="subset-title">T – 5</p>
+              <div class="main-image-container">
+                <img src="svg/top/T-5.svg" class="main-case-svg subset-orientation">
+              </div>
+            </div>
+
+            <!-- This contains the T-6 set -->
+            <div class="zbll-card" data-subset="6">
+              <p class="subset-title">T – 6</p>
+              <div class="main-image-container">
+                <img src="svg/top/T-6.svg" class="main-case-svg subset-orientation">
+              </div>
+            </div>
+           
+
+          </div>
         </div>
       </div>
 
-      <!-- Diag -->
-      <div class="zbll-card">
-        <p class="subset-title">T – Diag</p>
-        <div class="main-image-container">
-          <button type="button" class="main-case-button">
-            <img src="svg/top/T-Diag.svg" class="main-case-svg subset-orientation" data-set="T">
-          </button>
+      <!-- This container is purely for the U ZBLL set -->
+      <div class="zbll-set-container" id="container-U">
+        <div class="card-header" id="header-U">
+          <div class="set-toggle-button">
+            <button type="button" onclick="toggleSubsets('U')">
+              <span class="set-title"><b>U</b></span>
+              <span class="set-info">
+                (<span id="count-U">0</span>/72)
+                <span class="subset-arrow" id="arrow-U">▼</span>
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <div class="set-content" id="content-U">
+          <div class="zbll-card main-card">
+            <div class="main-angle-container">
+              <button type="button" class="main-angle-button">
+                <img src="svg/U.svg" alt="U" class="main-angle-svg" id="main-U" data-angle="0">
+              </button>
+            </div>
+
+            <div class="other-orientations">
+              <p class="orientation-label">View Other Orientations:</p>
+              <div class="orientation-options" id="orientations-U">
+                <button class="case-trigger" data-angle="90">
+                  <img src="svg/U.svg" style="transform: rotate(90deg)">
+                </button>
+                <button class="case-trigger" data-angle="180">
+                  <img src="svg/U.svg" style="transform: rotate(180deg)">
+                </button>
+                <button class="case-trigger" data-angle="270">
+                  <img src="svg/U.svg" style="transform: rotate(270deg)">
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="subsets-wrapper" id="subsets-U" style="display: none;">
+            <div class="zbll-card" data-subset="2GLL">
+              <p class="subset-title">U – 2GLL</p>
+              <div class="main-image-container">
+                <img src="svg/top/U-2GLL.svg" class="main-case-svg subset-orientation">
+              </div>
+            </div>
+
+            <div class="zbll-card" data-subset="Diag">
+              <p class="subset-title">U – Diag</p>
+              <div class="main-image-container">
+                <img src="svg/top/U-Diag.svg" class="main-case-svg subset-orientation">
+              </div>
+            </div>
+
+            <!-- This contains the U-3 set -->
+            <div class="zbll-card" data-subset="3">
+              <p class="subset-title">U – 3</p>
+              <div class="main-image-container">
+                <img src="svg/top/U-3.svg" class="main-case-svg subset-orientation">
+              </div>
+            </div>
+
+            <!-- This contains the U-4 set -->
+            <div class="zbll-card" data-subset="4">
+              <p class="subset-title">U – 4</p>
+              <div class="main-image-container">
+                <img src="svg/top/U-4.svg" class="main-case-svg subset-orientation">
+              </div>
+            </div>
+
+            <!-- This contains the U-5 set -->
+            <div class="zbll-card" data-subset="5">
+              <p class="subset-title">U – 5</p>
+              <div class="main-image-container">
+                <img src="svg/top/U-5.svg" class="main-case-svg subset-orientation">
+              </div>
+            </div>
+
+            <!-- This contains the U-6 set -->
+            <div class="zbll-card" data-subset="6">
+              <p class="subset-title">U – 6</p>
+              <div class="main-image-container">
+                <img src="svg/top/U-6.svg" class="main-case-svg subset-orientation">
+              </div>
+            </div>
+
+          </div>
         </div>
       </div>
-    </div>
 
+    </main>
 
+    <aside class="right-column">
+      <div class="sticky-controls">
+        <button type="button" onclick="loadCases(false)" class="train" id="start" disabled>Start</button>
+        <button type="button" onclick="loadCases(true)" class="train" id="recap" disabled>Recap</button>
+        <p id="selected">0 cases selected</p>
+        <button type="button" onclick="toggleAll(true)" class="selectToggle" id="selectAll">Select All</button>
+        <button type="button" onclick="toggleAll(false)" class="selectToggle" id="deselectAll">Deselect All</button>
+        <button type="button" onclick="toggleExpand(true)" class="collapseToggle" id="open">Expand All</button>
+        <button type="button" onclick="toggleExpand(false)" class="collapseToggle" id="close">Collapse All</button>
       </div>
+
+      <!-- This part of the code is for the preset, credits to masadl | 2017HAYA03 for making this.-->
+      <div id="preset-controls">
+                    <h3>Presets</h3>
+                    <div style="display: flex; gap: 10px; align-items: flex-start;">
+                        <div style="flex: 1;">
+                            <select id="presetList" size="8"
+                                style="width: 100%; border: 1px solid #555;"></select>
+                        </div>
+
+                        <div style="flex: 1; display: flex; flex-direction: column; gap: 5px; align-items: stretch;">
+                            <div>
+                                <label style="font-size: 0.8em; display:block;">Save preset as</label>
+                                <div style="display: flex;">
+                                    <input type="text" id="presetNameInput" style="width: 100%; box-sizing: border-box;"
+                                        placeholder="Name">
+                                    <button id="savePresetBtn" style="padding: 2px 6px; margin: 0 0 0 5px;"
+                                        title="Save">Save</button>
+                                </div>
+                            </div>
+
+                            <button id="loadPresetBtn">Load</button>
+                            <button id="exportPresetsBtn">Export</button>
+                            <button id="importPresetsBtn">Import</button>
+
+                            <div style="display: flex; align-items: center;">
+                                <button id="deletePresetBtn" style="flex: 1;">Delete</button>
+                                <button id="undoDeleteBtn" style="padding: 6px; margin-left: 5px;" title="Undo Delete"
+                                    disabled>Undo</button>
+                            </div>
+
+                            <div style="display: flex; gap: 5px; margin-top: 5px; justify-content: flex-start;">
+                                <button id="moveUpBtn" class="square-btn">▲</button>
+                                <button id="moveDownBtn" class="square-btn">▼</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+    </aside>
+  </div>
+
+  <div id="zbllWindowBack" class="modal-overlay" onclick="closeZW()"></div>
+<div id="zbllWindow" class="modal-window">
+  <div class="modal-header">
+    <h3 id="zwHeaderMessage"></h3>
+    <div class="modal-btns">
+      <button id="modal-select-all">All</button>
+      <button id="modal-select-none">None</button>
+      <button class="close-x" onclick="closeZW()">&times;</button>
     </div>
-
   </div>
+  <div id="zwPics" class="zbll-grid"></div>
+</div>
 
-  <!-- ZBLL Set: U -->
-
-  <!-- ZBLL Set: L -->
-
-  <!-- ZBLL Set: H -->
-
-  <!-- ZBLL Set: Pi -->
-
-  <!-- ZBLL Set: Sune -->
-
-  <!-- ZBLL Set: Antisune -->
-
-  <!-- This will serve as the modal for the subsets within a set -->
-  <div id="zbllWindowBack" class="modal-overlay" onclick="closeZW()">
-  </div>
-
-  <div id="zbllWindow" class="modal-window">
-    <div class="modal-header">
-      <h3 id="zwHeaderMessage"></h3>
-
-      <div class="modal-btns">
-        <button onclick="selectAllZw(true)">All</button>
-        <button onclick="selectAllZw(false)">None</button>
-        <button class="close-x" onclick="closeZW()">&times;</button>
-      </div>
-    </div>
-
-    <div id="zwPics" class="zbll-grid"></div>
-  </div>
-
-
-  <script src="scripts/index.js"></script>
-  <script src="scripts/homepage.js"></script>
-  <script src="scripts/modal.js"></script>  
+<script src="scripts/index.js"></script>
+<script src="scripts/presets.js"></script>
 </body>
 </html>
