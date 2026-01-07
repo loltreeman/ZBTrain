@@ -367,6 +367,74 @@ body {
     border-left: 5px solid var(--accent-green);
     border-radius: 14px;
     padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.mask-content-box input[type="checkbox"] {
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent-green);
+    margin-right: 8px;
+}
+
+.mask-content-box > label {
+    display: flex;
+    align-items: center;
+    font-size: 18px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+#maskSettings {
+    display: none;
+    padding: 12px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#maskSettings label {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-muted);
+    display: block;
+    margin-bottom: 6px;
+    margin-top: 12px;
+}
+
+#maskSettings label:first-of-type {
+    margin-top: 0;
+}
+
+#maskSettings input[type="text"] {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    font-weight: 600;
+    background: #f8fafc;
+    color: var(--text-main);
+    transition: all 0.2s ease;
+}
+
+#maskSettings input[type="text"]:focus {
+    background: white;
+    border-color: var(--accent-green);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+#maskSettings input[type="text"]::placeholder {
+    color: var(--text-muted);
+    opacity: 0.5;
 }
 
 .settings-toggle-list {
@@ -437,7 +505,7 @@ body {
 
 .settings-info-link {
     text-align: center;
-    font-size: 11px;
+    font-size: 16px;
     font-weight: 800;
     color: var(--accent-blue);
     text-decoration: none;

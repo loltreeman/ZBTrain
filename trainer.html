@@ -45,9 +45,21 @@
         <div class="settings-card-body">
             <div class="settings-section">
                 <label class="section-label">Mask Settings</label>
-                <div class="mask-content-box">
-                    <p style="color: var(--text-muted); font-size: 14px; margin:0;">Settings content...</p>
-                </div>
+                    <div class="mask-content-box">
+                        <label>
+                            <input id="useUserDefinedMask" type="checkbox">
+                            <span>Use user defined mask</span>
+                        </label>
+                        
+                        <div id="maskSettings" style="display:none;">
+                            <label>Initial mask</label>
+                            <input id="initialMask" type="text" placeholder="e.g. UF, UFR, BU">
+                            
+                            <label>Final mask</label>
+                            <input id="finalMask" type="text" placeholder="e.g. D, DR, DLB">
+                        </div>
+                    </div>
+                <a href="maskNote.html" class="settings-info-link">Notes on Cube Masks</a>
             </div>
 
             <div class="settings-section">
@@ -61,7 +73,12 @@
                         <input id="fullCN" type="checkbox"> 
                         <span class="toggle-text">Full Color Neutrality</span>
                     </label>
+                <!--<label class="custom-toggle-row" >
+                        <input id="includeRecognitionTime" type="checkbox" />
+                        <span class="toggle-text">Include Recognition Time</span>
+                    </label>-->
                 </div>
+                <a href="controls.html" class="settings-info-link">Keyboard Controls</a>
             </div>
 
             <div class="settings-section">
@@ -167,4 +184,3 @@
     <script src="scripts/trainer.js"></script>
 </body>
 </html>
-

@@ -1,0 +1,234 @@
+:root {
+    --bg-main: #f1f5f9;
+    --card-bg: #ffffff;
+    --accent-initial: #3b82f6;
+    --accent-final: #8b5cf6;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --border: #e2e8f0;
+    --radius: 16px;
+    --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+body {
+    background-color: var(--bg-main);
+    font-family: "JetBrains Mono", monospace;
+    color: var(--text-main);
+    line-height: 1.6;
+    margin: 0;
+    padding: 40px 20px;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.main-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.main-header h1 {
+    font-weight: 800;
+    font-size: 3.5rem;
+    letter-spacing: -0.025em;
+    margin-bottom: 0.5rem;
+}
+
+.main-header p {
+    font-size: 1.2rem;
+    letter-spacing: -0.025em;
+    margin-bottom: 0.5rem;
+}
+
+.mapping-section {
+    background: var(--card-bg);
+    padding: 2rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow);
+}
+
+.mapping-section h3 {
+    font-size: 1.8rem;
+    letter-spacing: -0.025em;
+    margin-bottom: 0.5rem;
+}
+
+.mapping-section p {
+    font-size: 1.3rem;
+    letter-spacing: -0.025em;
+    margin-bottom: 1.5rem;
+}
+
+.diagram-wrapper {
+    background: #0f172a;
+    color: #38bdf8;
+    padding: 2rem;
+    border-radius: 12px;
+    overflow-x: auto;
+    box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+}
+
+.ascii-diagram {
+    font-family: "JetBrains Mono", monospace;
+    margin: 0;
+    font-size: 20px;
+    line-height: 1.2;
+}
+
+.mask-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+}
+
+.mask-card {
+    background: var(--card-bg);
+    padding: 2rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+}
+
+.mask-card.initial {
+    border-top: 6px solid var(--accent-initial);
+    font-size: 1.3rem;
+}
+.mask-card.final {
+    border-top: 6px solid var(--accent-final);
+    font-size: 1.3rem;
+}
+
+.mask-card h2 {
+    font-weight: 800;
+    margin: 0 0 1rem 0;
+}
+
+.initial h2 {
+    color: var(--accent-initial);
+}
+.final h2 {
+    color: var(--accent-final);
+}
+
+.badge {
+    align-self: flex-start;
+    font-size: 1.2rem;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 99px;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+}
+
+.initial .badge {
+    background: #eff6ff;
+    color: var(--accent-initial);
+}
+.final .badge {
+    background: #f5f3ff;
+    color: var(--accent-final);
+}
+
+.mask-table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.mask-table th:first-child,
+.mask-table td:first-child {
+    width: 120px;
+}
+
+code {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.85rem;
+    background: #f1f5f9;
+    padding: 8px;
+    border-radius: 6px;
+    color: #ef4444;
+
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+
+    border: 1px solid var(--border);
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+code::-webkit-scrollbar {
+    height: 4px;
+}
+code::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 10px;
+}
+
+.orientation-instructions {
+    text-align: left;
+}
+
+.instruction-body p {
+    margin-bottom: 1.5rem;
+    color: var(--text-main);
+}
+
+.rotation-sequence {
+    background: #f8fafc;
+    border: 1px dashed var(--accent-initial);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+}
+
+.pill-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+input[type="text"] {
+    background: var(--accent-initial);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-family: "JetBrains Mono", monospace;
+    font-weight: 800;
+    width: 40px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+    pointer-events: none;
+}
+
+.orientation-instructions {
+    border-top: 6px solid var(--accent-initial);
+}
+
+strong {
+    color: var(--accent-initial);
+}
+
+em {
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+@media (max-width: 768px) {
+    .mask-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .main-header h1 {
+        font-size: 1.8rem;
+    }
+}
