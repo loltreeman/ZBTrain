@@ -1,48 +1,51 @@
-
 <!DOCTYPE html>
-<html>
-
-    <head>
-        <title>Algorithm trainer</title>
-        <link rel="icon" type="image/png" href="favicon-32x32.png" sizes="32x32" />
-        <link rel="icon" type="image/png" href="favicon-16x16.png" sizes="16x16" />
-        <link rel="stylesheet" type="text/css" href="style.css">
-    </head>
-
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notes on Orientation</title>
+    <link rel="stylesheet" href="styles/style.css">
+</head>
 <body>
-<div style="width:30%">
+    <main class="container">
+        <header class="main-header">
+            <h1>Notes on Orientation</h1>
+            <p>Configure your pre-orientation settings for consistent scrambling.</p>
+        </header>
 
-If one has the following preorientation settings: <br><br><br>
+        <article class="mask-card orientation-instructions">
+            <h2>If one has the following pre-orientation settings:</h2>
+            <div class="badge">Starting from WCA Orientation</div>
+            
+            <div class="rotation-sequence">
+                <p>Follow this sequence before applying the scramble:</p>
+                <div class="pill-container">
+                    <span>1. First do a</span>
+                    <input type="text" value="z2" readonly />
+                    <span>rotation</span>
+                </div>
+                <div class="pill-container">
+                    <span>2. Then a random number of</span>
+                    <input type="text" value="x2" readonly />
+                    <span>rotations</span>
+                </div>
+                <div class="pill-container">
+                    <span>3. Finally a random number of</span>
+                    <input type="text" value="y" readonly />
+                    <span>rotations</span>
+                </div>
+            </div>
 
-Starting from WCA orientation: <br>
-First do one
-<input type="text" value="z2" size="1" readonly> 
-rotation<br>
+            <div class="instruction-body">
+                <p>To ensure your scrambled cube matches that of the one displayed on screen of the trainer, apply the first rotation (e.g., <strong>z2</strong>) to your cube from the <strong>default orientation</strong> (White top, Green front) before applying the scramble.</p>
+                
+                <p>For the standard Western color scheme, <strong>z2</strong> means starting with <strong>Yellow top, Green front</strong>, instead of White Top, Green Front. This is ideal for CFOP solvers who solve on white cross but want to train cases from the yellow-top perspective.</p>
 
-then do a random number of 
-<input type="text" value="x2" size="1" readonly> 
-rotations, <br>
+                <p>The second and third boxes define <strong>Color Neutrality</strong>. In this example, random <strong>x2</strong> and <strong>y</strong> rotations occur before each scramble. For Roux solvers, this corresponds to <strong>x2/y neutrality</strong>.</p>
 
-and finally do a random number of 
-<input type="text" value="y" size="1" readonly> 
-rotations.<br>
-<br><br>
-
-In order to ensure that the orientation of one's scrambled cube matches that of the one displayed on screen to the right of the trainer, one should apply the rotation from the first box, z2 in this case, to their cube, starting from default orientation (that is, white top, green front, or the custom color scheme being used), before applying the scramble.
-
-<br><br>
-If one uses a cube with the standard western colour scheme, our example here simply means starting every scramble with yellow top, green front, instead of white top, green front. Thus, the first box allows you to define a different default orientation. For example, if you are a CFOP solver who only solves cross on white, putting a z2 in the first box, and leaving other boxes empty, ensures that you will get the correct scramble orientations by ensuring your cube is in the yellow top, green front orientation before every scramble.
-
-<br><br>
-
-The second and third boxes let you define your type of colour neutrality. In this case, a random number of y rotations and a random number of x2 rotations will be applied before each scramble. For Roux solvers, for example, this corresponds to x2/y colour neutrality.
-
-<br><br>
-
-For many algsets, applying rotations before the alg does not significantly affect the difficulty of recognition. As such, it is often enough to leave the last two boxes boxes blank and simply train the algs from one orientation. The random orientation is perhaps more useful for virtual cube training, where all matters of preorientation are handled automatically.
-
-
-
-</div>
+                <p><em>Note:</em> For many algsets, rotating before the scramble doesn't affect how difficult a case can be recognzed. You can leave the random boxes blank to focus on a single orientation. The random orientation is perhaps more useful for virtual cube training, where all matters of preorientation are handled automatically.</p>
+            </div>
+        </article>
+    </main>
 </body>
 </html>

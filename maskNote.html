@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notes on Cube Masks</title>
+    <link rel="icon" type="image/png" href="images/logo.png" sizes="32x32">
+    <link rel="stylesheet" href="styles/style.css">
+</head>
+<body>
+    <main class="container">
+        <header class="main-header">
+            <h1><b>Cube Masking Guide</b></h1>
+            <p>A <strong>Mask</strong> uses sticker labels to modify the cube appearance.</p>
+        </header>
+        
+        <section class="mapping-section">
+            <h3>How It Works</h3>
+            <p>For each face of the cube, they follow the order <strong>URFDLB</strong>. Each of these faces are defined by the diagram below:</p>
+            <div class="diagram-wrapper">
+                <pre class="ascii-diagram">
+               +-------------+
+               | UBL  UB  UBR|
+               | UL   U   UR |
+               | UFL  UF  UFR|
+ +-------------+-------------+-------------+------------+
+ | LUB  LU  LUF| FUL  FU  FUR| RUF  RU  RUB| BUR BU  BUL|
+ | LB   L   LF | FL   F   FR | RF   R   RB | BL  B   BR |
+ | LDB  LD  LDF| FDL  FD  FDR| RFD  RD  RBD| BDR BD  BDL|
+ +-------------+-------------+-------------+------------+
+               | DFL  DF  DFR|
+               | DL   D   DR |
+               | DBL  DB  DBR|
+               +-------------+
+                </pre>
+            </div>
+        </section>
+
+        <div class="mask-grid">
+            <article class="mask-card initial">
+                <h2>Initial Mask</h2>
+                <div class="badge">Applied Before Scramble</div>
+                <p>Functions like removing the stickers on a physical cube. <strong>Grey stickers can be moved.</strong> They can be used to train a substep. e.g. removing all of the side top layer stickers to train OLL, or removing all top layer stickers except the top cross to train ZBLS.</p>
+                
+                <table class="mask-table">
+                    <thead>
+                        <tr><th>Initial Mask</th><th>Input This</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>OLL</td><td><code>.........xxx......xxx...............xxx......xxx......</code></td></tr>
+                        <tr><td>ZBLS</td><td><code>x.x...x.xxxx......xxx...............xxx......xxx......</code></td></tr>
+                    </tbody>
+                </table>
+            </article>
+
+            <article class="mask-card final">
+                <h2>Final Mask</h2>
+                <div class="badge">Applied After Scramble</div>
+                <p>Applied to the scrambled case. <strong>Grey stickers cannot be moved.</strong>They can be used to block vision of parts of the cube in order to practice limited side recognition such as 2-sided PLL recognition.</p>
+                
+                <table class="mask-table">
+                    <thead>
+                        <tr><th>Final Mask</th><th>Input This</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Back Left Side</td><td><code>....................................xxxxxxxxxxxxxxxxxx</code></td></tr>
+                        <tr><td>Back Left + Top Layer</td><td><code>....................................xxx......xxx......</code></td></tr>
+                    </tbody>
+                </table>
+            </article>
+        </div>
+    </main>
+</body>
+</html>
