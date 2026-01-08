@@ -358,3 +358,52 @@ body.dark-mode .footer-link {
 body.dark-mode .footer-link:hover {
     color: var(--accent-green);
 }
+
+body.dark-mode .modal-overlay {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+body.dark-mode .modal-window {
+    background: var(--card-bg);
+    border-color: var(--border);
+}
+
+body.dark-mode .modal-header {
+    background: #0f172a;
+    border-bottom-color: var(--border);
+    color: var(--text-main);
+}
+
+body.dark-mode .modal-header h3 {
+    color: var(--text-main);
+}
+
+body.dark-mode .modal-btns button {
+    background: #334155;
+    color: var(--text-main);
+    border-color: var(--border);
+}
+
+body.dark-mode .modal-btns button:hover {
+    background: var(--accent-blue);
+    color: white;
+}
+
+body.dark-mode .modal-btns .close-x {
+    background: #450a0a;
+    color: var(--accent-red);
+    border-color: #991b1b;
+}
+
+body.dark-mode .modal-btns .close-x:hover {
+    background: var(--accent-red);
+    color: white;
+}
+
+body.dark-mode .zbll-grid {
+    background: var(--card-bg);
+}
+
+body.dark-mode #zwPics {
+    background: var(--card-bg);
+}
