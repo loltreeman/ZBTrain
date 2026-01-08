@@ -110,7 +110,7 @@ body.dark-mode .custom-toggle-row:hover {
 }
 
 body.dark-mode .timer-display {
-    color: var(--text-main);
+    color: white;
 }
 
 body.dark-mode .timer-hint {
