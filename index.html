@@ -1,729 +1,732 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ZBLL Trainer</title>
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZBLL Trainer</title>
 
-  <link rel="icon" type="image/png" href="images/logo.png" sizes="72x72">
-  <link rel="stylesheet" href="styles/homepage.css">
-  <link rel="stylesheet" href="styles/modal.css">
-</head>
-<body>
+    <link rel="icon" type="image/png" href="images/logo.png" sizes="72x72">
+    <link rel="stylesheet" href="styles/homepage.css">
+    <link rel="stylesheet" href="styles/modal.css">
+    <link rel="stylesheet" href="styles/darkmode.css">
+  </head>
+  <body>
 
-  <div class="nav-wrapper">
-    <div class="grad-bar"></div>
-    <nav class="navbar">
-      <div class="brand-container">
-        <img src="images/logo.png" alt="ZBTrain" class="logoimg">
-        <span class="brand-text">ZBTrain - ZBLL Trainer</span>
-      </div>
-    </nav>
-    </div>
-
-  <div class="layout">
-    <main class="left-column">
-
-      <!-- This container is purely for the T ZBLL set-->
-      <div class="zbll-set-container" id="container-T">
-        <div class="card-header" id="header-T">
-          <div class="set-toggle-button">
-            <button type="button" onclick="toggleSubsets('T')">
-              <span class="set-title"><b>T</b></span>
-              <span class="set-info">
-                (<span id="count-T">0</span>/72)
-                <span class="subset-arrow" id="arrow-T">▼</span>
-              </span>
-            </button>
-          </div>
+    <div class="nav-wrapper">
+      <div class="grad-bar"></div>
+      <nav class="navbar">
+        <div class="brand-container">
+          <img src="images/logo.png" alt="ZBTrain" class="logoimg">
+          <span class="brand-text">ZBTrain - ZBLL Trainer</span>
         </div>
+        <button type="button" id="darkModeToggle" class="btn-nav dark-mode-toggle" onclick="toggleDarkMode()">🌙 Dark Mode</button>
+      </nav>
+      </div>
 
-        <div class="set-content" id="content-T">
-          <div class="zbll-card main-card">
-            <div class="main-angle-container">
-              <button type="button" class="main-angle-button">
-                <img src="svg/T.svg" alt="T" class="main-angle-svg" id="main-T" data-angle="0">
+    <div class="layout">
+      <main class="left-column">
+
+        <!-- This container is purely for the T ZBLL set-->
+        <div class="zbll-set-container" id="container-T">
+          <div class="card-header" id="header-T">
+            <div class="set-toggle-button">
+              <button type="button" onclick="toggleSubsets('T')">
+                <span class="set-title"><b>T</b></span>
+                <span class="set-info">
+                  (<span id="count-T">0</span>/72)
+                  <span class="subset-arrow" id="arrow-T">▼</span>
+                </span>
               </button>
             </div>
-            
-            <div class="other-orientations">
-              <p class="orientation-label">View Other Orientations:</p>
-              <div class="orientation-options" id="orientations-T">
-                <button class="case-trigger" data-angle="90">
-                  <img src="svg/T.svg" style="transform: rotate(90deg)">
-                </button>
-                <button class="case-trigger" data-angle="180">
-                  <img src="svg/T.svg" style="transform: rotate(180deg)">
-                </button>
-                <button class="case-trigger" data-angle="270">
-                  <img src="svg/T.svg" style="transform: rotate(270deg)">
-                </button>
-              </div>
-            </div>
           </div>
 
-          <div class="subsets-wrapper" id="subsets-T" style="display: none;">
-            <!-- This contains the T-2GLL set -->
-            <div class="zbll-card" data-subset="2GLL">
-              <p class="subset-title">T – 2GLL</p>
-              <div class="main-image-container">
-                <img src="svg/top/T-2GLL.svg" class="main-case-svg subset-orientation">
-              </div>
-            </div>
-
-            <!-- This contains the T-Diag set -->
-            <div class="zbll-card" data-subset="Diag">
-              <p class="subset-title">T – Diag</p>
-              <div class="main-image-container">
-                <img src="svg/top/T-Diag.svg" class="main-case-svg subset-orientation">
-              </div>
-            </div>
-
-            <!-- This contains the T-3 set -->
-            <div class="zbll-card" data-subset="3">
-              <p class="subset-title">T – 3</p>
-              <div class="main-image-container">
-                <img src="svg/top/T-3.svg" class="main-case-svg subset-orientation">
-              </div>
-            </div>
-
-            <!-- This contains the T-4 set -->
-            <div class="zbll-card" data-subset="4">
-              <p class="subset-title">T – 4</p>
-              <div class="main-image-container">
-                <img src="svg/top/T-4.svg" class="main-case-svg subset-orientation">
-              </div>
-            </div>
-
-            <!-- This contains the T-5 set -->
-            <div class="zbll-card" data-subset="5">
-              <p class="subset-title">T – 5</p>
-              <div class="main-image-container">
-                <img src="svg/top/T-5.svg" class="main-case-svg subset-orientation">
-              </div>
-            </div>
-
-            <!-- This contains the T-6 set -->
-            <div class="zbll-card" data-subset="6">
-              <p class="subset-title">T – 6</p>
-              <div class="main-image-container">
-                <img src="svg/top/T-6.svg" class="main-case-svg subset-orientation">
-              </div>
-            </div>
-           
-
-          </div>
-        </div>
-      </div>
-
-      <!-- This container is purely for the U ZBLL set -->
-      <div class="zbll-set-container" id="container-U">
-        <div class="card-header" id="header-U">
-          <div class="set-toggle-button">
-            <button type="button" onclick="toggleSubsets('U')">
-              <span class="set-title"><b>U</b></span>
-              <span class="set-info">
-                (<span id="count-U">0</span>/72)
-                <span class="subset-arrow" id="arrow-U">▼</span>
-              </span>
-            </button>
-          </div>
-        </div>
-
-        <div class="set-content" id="content-U">
-          <div class="zbll-card main-card">
-            <div class="main-angle-container">
-              <button type="button" class="main-angle-button">
-                <img src="svg/U.svg" alt="U" class="main-angle-svg" id="main-U" data-angle="0">
-              </button>
-            </div>
-
-            <div class="other-orientations">
-              <p class="orientation-label">View Other Orientations:</p>
-              <div class="orientation-options" id="orientations-U">
-                <button class="case-trigger" data-angle="90">
-                  <img src="svg/U.svg" style="transform: rotate(90deg)">
-                </button>
-                <button class="case-trigger" data-angle="180">
-                  <img src="svg/U.svg" style="transform: rotate(180deg)">
-                </button>
-                <button class="case-trigger" data-angle="270">
-                  <img src="svg/U.svg" style="transform: rotate(270deg)">
+          <div class="set-content" id="content-T">
+            <div class="zbll-card main-card">
+              <div class="main-angle-container">
+                <button type="button" class="main-angle-button">
+                  <img src="svg/T.svg" alt="T" class="main-angle-svg" id="main-T" data-angle="0">
                 </button>
               </div>
-            </div>
-          </div>
-
-          <div class="subsets-wrapper" id="subsets-U" style="display: none;">
-            <div class="zbll-card" data-subset="2GLL">
-              <p class="subset-title">U – 2GLL</p>
-              <div class="main-image-container">
-                <img src="svg/top/U-2GLL.svg" class="main-case-svg subset-orientation">
-              </div>
-            </div>
-
-            <div class="zbll-card" data-subset="Diag">
-              <p class="subset-title">U – Diag</p>
-              <div class="main-image-container">
-                <img src="svg/top/U-Diag.svg" class="main-case-svg subset-orientation">
-              </div>
-            </div>
-
-            <!-- This contains the U-3 set -->
-            <div class="zbll-card" data-subset="3">
-              <p class="subset-title">U – 3</p>
-              <div class="main-image-container">
-                <img src="svg/top/U-3.svg" class="main-case-svg subset-orientation">
-              </div>
-            </div>
-
-            <!-- This contains the U-4 set -->
-            <div class="zbll-card" data-subset="4">
-              <p class="subset-title">U – 4</p>
-              <div class="main-image-container">
-                <img src="svg/top/U-4.svg" class="main-case-svg subset-orientation">
-              </div>
-            </div>
-
-            <!-- This contains the U-5 set -->
-            <div class="zbll-card" data-subset="5">
-              <p class="subset-title">U – 5</p>
-              <div class="main-image-container">
-                <img src="svg/top/U-5.svg" class="main-case-svg subset-orientation">
-              </div>
-            </div>
-
-            <!-- This contains the U-6 set -->
-            <div class="zbll-card" data-subset="6">
-              <p class="subset-title">U – 6</p>
-              <div class="main-image-container">
-                <img src="svg/top/U-6.svg" class="main-case-svg subset-orientation">
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </div>
-
-      <!-- This container is purely for the L ZBLL set -->
-      <div class="zbll-set-container" id="container-L">
-        <div class="card-header" id="header-L">
-          <div class="set-toggle-button">
-            <button type="button" onclick="toggleSubsets('L')">
-              <span class="set-title"><b>L</b></span>
-              <span class="set-info">
-                (<span id="count-L">0</span>/72)
-                <span class="subset-arrow" id="arrow-L">▼</span>
-              </span>
-            </button>
-          </div>
-        </div>
-
-        <div class="set-content" id="content-L">
-          <div class="zbll-card main-card">
-            <div class="main-angle-container">
-              <button type="button" class="main-angle-button">
-                <img src="svg/L.svg" alt="L" class="main-angle-svg" id="main-L" data-angle="0">
-              </button>
-            </div>
-
-            <div class="other-orientations">
-              <p class="orientation-label">View Other Orientations:</p>
-              <div class="orientation-options" id="orientations-L">
-                <button class="case-trigger" data-angle="90">
-                  <img src="svg/L.svg" style="transform: rotate(90deg)">
-                </button>
-                <button class="case-trigger" data-angle="180">
-                  <img src="svg/L.svg" style="transform: rotate(180deg)">
-                </button>
-                <button class="case-trigger" data-angle="270">
-                  <img src="svg/L.svg" style="transform: rotate(270deg)">
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div class="subsets-wrapper" id="subsets-L" style="display: none;">
-            <div class="zbll-card" data-subset="2GLL">
-              <p class="subset-title">L – 2GLL</p>
-              <div class="main-image-container">
-                <img src="svg/top/L-2GLL.svg" class="main-case-svg subset-orientation">
-              </div>
-            </div>
-
-            <div class="zbll-card" data-subset="Diag">
-              <p class="subset-title">L – Diag</p>
-              <div class="main-image-container">
-                <img src="svg/top/L-Diag.svg" class="main-case-svg subset-orientation">
-              </div>
-            </div>
-
-            <!-- This contains the L-3 set -->
-            <div class="zbll-card" data-subset="3">
-              <p class="subset-title">L – 3</p>
-              <div class="main-image-container">
-                <img src="svg/top/L-3.svg" class="main-case-svg subset-orientation">
-              </div>
-            </div>
-
-            <!-- This contains the L-4 set -->
-            <div class="zbll-card" data-subset="4">
-              <p class="subset-title">L – 4</p>
-              <div class="main-image-container">
-                <img src="svg/top/L-4.svg" class="main-case-svg subset-orientation">
-              </div>
-            </div>
-
-            <!-- This contains the L-5 set -->
-            <div class="zbll-card" data-subset="5">
-              <p class="subset-title">L – 5</p>
-              <div class="main-image-container">
-                <img src="svg/top/L-5.svg" class="main-case-svg subset-orientation">
-              </div>
-            </div>
-
-            <!-- This contains the L-6 set -->
-            <div class="zbll-card" data-subset="6">
-              <p class="subset-title">L – 6</p>
-              <div class="main-image-container">
-                <img src="svg/top/L-6.svg" class="main-case-svg subset-orientation">
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </div>
-
-      <!-- This container is purely for the H ZBLL set -->
-      <div class="zbll-set-container" id="container-H">
-        <div class="card-header" id="header-H">
-          <div class="set-toggle-button">
-            <button type="button" onclick="toggleSubsets('H')">
-              <span class="set-title"><b>H</b></span>
-              <span class="set-info">
-                (<span id="count-H">0</span>/40)
-                <span class="subset-arrow" id="arrow-H">▼</span>
-              </span>
-            </button>
-          </div>
-        </div>
-
-        <div class="set-content" id="content-H">
-          <div class="zbll-card main-card">
-            <div class="main-angle-container">
-              <button type="button" class="main-angle-button">
-                <img src="svg/H.svg" alt="H" class="main-angle-svg" id="main-H" data-angle="0">
-              </button>
-            </div>
-
-            <div class="other-orientations">
-              <p class="orientation-label">View Other Orientations:</p>
-              <div class="orientation-options" id="orientations-H">
-                <button class="case-trigger" data-angle="90">
-                  <img src="svg/H.svg" style="transform: rotate(90deg)">
-                </button>
-                <button class="case-trigger" data-angle="180">
-                  <img src="svg/H.svg" style="transform: rotate(180deg)">
-                </button>
-                <button class="case-trigger" data-angle="270">
-                  <img src="svg/H.svg" style="transform: rotate(270deg)">
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div class="subsets-wrapper" id="subsets-H" style="display: none;">
-            <div class="zbll-card" data-subset="2GLL">
-              <p class="subset-title">H – 2GLL</p>
-              <div class="main-image-container">
-                <img src="svg/top/H-2GLL.svg" class="main-case-svg subset-orientation">
-              </div>
-            </div>
-
-            <div class="zbll-card" data-subset="Diag">
-              <p class="subset-title">H – Diag</p>
-              <div class="main-image-container">
-                <img src="svg/top/H-Diag.svg" class="main-case-svg subset-orientation">
-              </div>
-            </div>
-
-            <!-- This contains the H-3 set -->
-            <div class="zbll-card" data-subset="3">
-              <p class="subset-title">H – 3</p>
-              <div class="main-image-container">
-                <img src="svg/top/H-3.svg" class="main-case-svg subset-orientation">
-              </div>
-            </div>
-
-            <!-- This contains the H-4 set -->
-            <div class="zbll-card" data-subset="4">
-              <p class="subset-title">H – 4</p>
-              <div class="main-image-container">
-                <img src="svg/top/H-4.svg" class="main-case-svg subset-orientation">
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </div>
-
-      <!-- This container is purely for the Pi ZBLL set -->
-      <div class="zbll-set-container" id="container-Pi">
-        <div class="card-header" id="header-Pi">
-          <div class="set-toggle-button">
-            <button type="button" onclick="toggleSubsets('Pi')">
-              <span class="set-title"><b>Pi</b></span>
-              <span class="set-info">
-                (<span id="count-Pi">0</span>/72)
-                <span class="subset-arrow" id="arrow-Pi">▼</span>
-              </span>
-            </button>
-          </div>
-        </div>
-
-        <div class="set-content" id="content-Pi">
-          <div class="zbll-card main-card">
-            <div class="main-angle-container">
-              <button type="button" class="main-angle-button">
-                <img src="svg/Pi.svg" alt="Pi" class="main-angle-svg" id="main-Pi" data-angle="0">
-              </button>
-            </div>
-
-            <div class="other-orientations">
-              <p class="orientation-label">View Other Orientations:</p>
-              <div class="orientation-options" id="orientations-Pi">
-                <button class="case-trigger" data-angle="90">
-                  <img src="svg/Pi.svg" style="transform: rotate(90deg)">
-                </button>
-                <button class="case-trigger" data-angle="180">
-                  <img src="svg/Pi.svg" style="transform: rotate(180deg)">
-                </button>
-                <button class="case-trigger" data-angle="270">
-                  <img src="svg/Pi.svg" style="transform: rotate(270deg)">
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div class="subsets-wrapper" id="subsets-Pi" style="display: none;">
-            <div class="zbll-card" data-subset="2GLL">
-              <p class="subset-title">Pi – 2GLL</p>
-              <div class="main-image-container">
-                <img src="svg/top/Pi-2GLL.svg" class="main-case-svg subset-orientation">
-              </div>
-            </div>
-
-            <div class="zbll-card" data-subset="Diag">
-              <p class="subset-title">Pi – Diag</p>
-              <div class="main-image-container">
-                <img src="svg/top/Pi-Diag.svg" class="main-case-svg subset-orientation">
-              </div>
-            </div>
-
-            <!-- This contains the Pi-3 set -->
-            <div class="zbll-card" data-subset="3">
-              <p class="subset-title">Pi – 3</p>
-              <div class="main-image-container">
-                <img src="svg/top/Pi-3.svg" class="main-case-svg subset-orientation">
-              </div>
-            </div>
-
-            <!-- This contains the Pi-4 set -->
-            <div class="zbll-card" data-subset="4">
-              <p class="subset-title">Pi – 4</p>
-              <div class="main-image-container">
-                <img src="svg/top/Pi-4.svg" class="main-case-svg subset-orientation">
-              </div>
-            </div>
-
-            <!-- This contains the Pi-5 set -->
-            <div class="zbll-card" data-subset="5">
-              <p class="subset-title">Pi – 5</p>
-              <div class="main-image-container">
-                <img src="svg/top/Pi-5.svg" class="main-case-svg subset-orientation">
-              </div>
-            </div>
-
-            <!-- This contains the Pi-6 set -->
-            <div class="zbll-card" data-subset="6">
-              <p class="subset-title">Pi – 6</p>
-              <div class="main-image-container">
-                <img src="svg/top/Pi-6.svg" class="main-case-svg subset-orientation">
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </div>
-
-      <!-- This container is purely for the Sune ZBLL set -->
-      <div class="zbll-set-container" id="container-Sune">
-        <div class="card-header" id="header-Sune">
-          <div class="set-toggle-button">
-            <button type="button" onclick="toggleSubsets('Sune')">
-              <span class="set-title"><b>Sune</b></span>
-              <span class="set-info">
-                (<span id="count-Sune">0</span>/72)
-                <span class="subset-arrow" id="arrow-Sune">▼</span>
-              </span>
-            </button>
-          </div>
-        </div>
-
-        <div class="set-content" id="content-Sune">
-          <div class="zbll-card main-card">
-            <div class="main-angle-container">
-              <button type="button" class="main-angle-button">
-                <img src="svg/S.svg" alt="Sune" class="main-angle-svg" id="main-Sune" data-angle="0">
-              </button>
-            </div>
-
-            <div class="other-orientations">
-              <p class="orientation-label">View Other Orientations:</p>
-              <div class="orientation-options" id="orientations-Sune">
-                <button class="case-trigger" data-angle="90">
-                  <img src="svg/S.svg" style="transform: rotate(90deg)">
-                </button>
-                <button class="case-trigger" data-angle="180">
-                  <img src="svg/S.svg" style="transform: rotate(180deg)">
-                </button>
-                <button class="case-trigger" data-angle="270">
-                  <img src="svg/S.svg" style="transform: rotate(270deg)">
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div class="subsets-wrapper" id="subsets-Sune" style="display: none;">
-            <div class="zbll-card" data-subset="2GLL">
-              <p class="subset-title">Sune – 2GLL</p>
-              <div class="main-image-container">
-                <img src="svg/top/Sune-2GLL.svg" class="main-case-svg subset-orientation">
-              </div>
-            </div>
-
-            <div class="zbll-card" data-subset="Diag">
-              <p class="subset-title">Sune – Diag</p>
-              <div class="main-image-container">
-                <img src="svg/top/Sune-Diag.svg" class="main-case-svg subset-orientation">
-              </div>
-            </div>
-
-            <!-- This contains the Sune-3 set -->
-            <div class="zbll-card" data-subset="3">
-              <p class="subset-title">Sune – 3</p>
-              <div class="main-image-container">
-                <img src="svg/top/Sune-3.svg" class="main-case-svg subset-orientation">
-              </div>
-            </div>
-
-            <!-- This contains the Sune-4 set -->
-            <div class="zbll-card" data-subset="4">
-              <p class="subset-title">Sune – 4</p>
-              <div class="main-image-container">
-                <img src="svg/top/Sune-4.svg" class="main-case-svg subset-orientation">
-              </div>
-            </div>
-
-            <!-- This contains the Sune-5 set -->
-            <div class="zbll-card" data-subset="5">
-              <p class="subset-title">Sune – 5</p>
-              <div class="main-image-container">
-                <img src="svg/top/Sune-5.svg" class="main-case-svg subset-orientation">
-              </div>
-            </div>
-
-            <!-- This contains the Sune-6 set -->
-            <div class="zbll-card" data-subset="6">
-              <p class="subset-title">Sune – 6</p>
-              <div class="main-image-container">
-                <img src="svg/top/Sune-6.svg" class="main-case-svg subset-orientation">
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </div>
-
-      <!-- This container is purely for the Anitsune ZBLL set -->
-      <div class="zbll-set-container" id="container-Antisune">
-        <div class="card-header" id="header-Antisune">
-          <div class="set-toggle-button">
-            <button type="button" onclick="toggleSubsets('Antisune')">
-              <span class="set-title"><b>Antisune</b></span>
-              <span class="set-info">
-                (<span id="count-Antisune">0</span>/72)
-                <span class="subset-arrow" id="arrow-Antisune">▼</span>
-              </span>
-            </button>
-          </div>
-        </div>
-
-        <div class="set-content" id="content-Antisune">
-          <div class="zbll-card main-card">
-            <div class="main-angle-container">
-              <button type="button" class="main-angle-button">
-                <img src="svg/aS.svg" alt="Antisune" class="main-angle-svg" id="main-Antisune" data-angle="0">
-              </button>
-            </div>
-
-            <div class="other-orientations">
-              <p class="orientation-label">View Other Orientations:</p>
-              <div class="orientation-options" id="orientations-U">
-                <button class="case-trigger" data-angle="90">
-                  <img src="svg/aS.svg" style="transform: rotate(90deg)">
-                </button>
-                <button class="case-trigger" data-angle="180">
-                  <img src="svg/aS.svg" style="transform: rotate(180deg)">
-                </button>
-                <button class="case-trigger" data-angle="270">
-                  <img src="svg/aS.svg" style="transform: rotate(270deg)">
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div class="subsets-wrapper" id="subsets-Antisune" style="display: none;">
-            <div class="zbll-card" data-subset="2GLL">
-              <p class="subset-title">Antisune – 2GLL</p>
-              <div class="main-image-container">
-                <img src="svg/top/Antisune-2GLL.svg" class="main-case-svg subset-orientation">
-              </div>
-            </div>
-
-            <div class="zbll-card" data-subset="Diag">
-              <p class="subset-title">Antisune – Diag</p>
-              <div class="main-image-container">
-                <img src="svg/top/Antisune-Diag.svg" class="main-case-svg subset-orientation">
-              </div>
-            </div>
-
-            <!-- This contains the Antisune-3 set -->
-            <div class="zbll-card" data-subset="3">
-              <p class="subset-title">Anitsune – 3</p>
-              <div class="main-image-container">
-                <img src="svg/top/Antisune-3.svg" class="main-case-svg subset-orientation">
-              </div>
-            </div>
-
-            <!-- This contains the Antisune-4 set -->
-            <div class="zbll-card" data-subset="4">
-              <p class="subset-title">Antisune – 4</p>
-              <div class="main-image-container">
-                <img src="svg/top/Antisune-4.svg" class="main-case-svg subset-orientation">
-              </div>
-            </div>
-
-            <!-- This contains the Antisune-5 set -->
-            <div class="zbll-card" data-subset="5">
-              <p class="subset-title">Antisune – 5</p>
-              <div class="main-image-container">
-                <img src="svg/top/Antisune-5.svg" class="main-case-svg subset-orientation">
-              </div>
-            </div>
-
-            <!-- This contains the Antisune-6 set -->
-            <div class="zbll-card" data-subset="6">
-              <p class="subset-title">Antisune – 6</p>
-              <div class="main-image-container">
-                <img src="svg/top/Antisune-6.svg" class="main-case-svg subset-orientation">
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </div>
-
-    </main>
-
-    <aside class="right-column">
-      <div class="sticky-controls">
-        <button type="button" onclick="loadCases(false)" class="train" id="start" disabled>Start</button>
-        <button type="button" onclick="loadCases(true)" class="train" id="recap" disabled>Recap</button>
-        <p id="selected">0 cases selected</p>
-        <button type="button" onclick="toggleAll(true)" class="selectToggle" id="selectAll">Select All</button>
-        <button type="button" onclick="toggleAll(false)" class="selectToggle" id="deselectAll">Deselect All</button>
-        <button type="button" onclick="toggleExpand(true)" class="collapseToggle" id="open">Expand All</button>
-        <button type="button" onclick="toggleExpand(false)" class="collapseToggle" id="close">Collapse All</button>
-      </div>
-
-      <!-- This part of the code is for the preset, credits to masadl | 2017HAYA03 for making this.-->
-      <div id="preset-controls">
-                    <h3>Presets</h3>
-                    <div style="display: flex; gap: 10px; align-items: flex-start;">
-                        <div style="flex: 1;">
-                            <select id="presetList" size="8"
-                                style="width: 100%; border: 1px solid #555;"></select>
-                        </div>
-
-                        <div style="flex: 1; display: flex; flex-direction: column; gap: 5px; align-items: stretch;">
-                            <div>
-                                <label style="font-size: 0.8em; display:block;">Save preset as</label>
-                                <div style="display: flex;">
-                                    <input type="text" id="presetNameInput" style="width: 100%; box-sizing: border-box;"
-                                        placeholder="Name">
-                                    <button id="savePresetBtn" style="padding: 2px 6px; margin: 0 0 0 5px;"
-                                        title="Save">Save</button>
-                                </div>
-                            </div>
-
-                            <button id="loadPresetBtn">Load</button>
-                            <button id="exportPresetsBtn">Export</button>
-                            <button id="importPresetsBtn">Import</button>
-
-                            <div style="display: flex; align-items: center;">
-                                <button id="deletePresetBtn" style="flex: 1;">Delete</button>
-                                <button id="undoDeleteBtn" style="padding: 6px; margin-left: 5px;" title="Undo Delete"
-                                    disabled>Undo</button>
-                            </div>
-
-                            <div style="display: flex; gap: 5px; margin-top: 5px; justify-content: flex-start;">
-                                <button id="moveUpBtn" class="square-btn">▲</button>
-                                <button id="moveDownBtn" class="square-btn">▼</button>
-                            </div>
-                        </div>
-                    </div>
+              
+              <div class="other-orientations">
+                <p class="orientation-label">View Other Orientations:</p>
+                <div class="orientation-options" id="orientations-T">
+                  <button class="case-trigger" data-angle="90">
+                    <img src="svg/T.svg" style="transform: rotate(90deg)">
+                  </button>
+                  <button class="case-trigger" data-angle="180">
+                    <img src="svg/T.svg" style="transform: rotate(180deg)">
+                  </button>
+                  <button class="case-trigger" data-angle="270">
+                    <img src="svg/T.svg" style="transform: rotate(270deg)">
+                  </button>
                 </div>
-    </aside>
-  </div>
+              </div>
+            </div>
 
-  <div id="zbllWindowBack" class="modal-overlay" onclick="closeZW()"></div>
-<div id="zbllWindow" class="modal-window">
-  <div class="modal-header">
-    <h3 id="zwHeaderMessage"></h3>
-    <div class="modal-btns">
-      <button id="modal-select-all">All</button>
-      <button id="modal-select-none">None</button>
-      <button class="close-x" onclick="closeZW()">&times;</button>
+            <div class="subsets-wrapper" id="subsets-T" style="display: none;">
+              <!-- This contains the T-2GLL set -->
+              <div class="zbll-card" data-subset="2GLL">
+                <p class="subset-title">T – 2GLL</p>
+                <div class="main-image-container">
+                  <img src="svg/top/T-2GLL.svg" class="main-case-svg subset-orientation">
+                </div>
+              </div>
+
+              <!-- This contains the T-Diag set -->
+              <div class="zbll-card" data-subset="Diag">
+                <p class="subset-title">T – Diag</p>
+                <div class="main-image-container">
+                  <img src="svg/top/T-Diag.svg" class="main-case-svg subset-orientation">
+                </div>
+              </div>
+
+              <!-- This contains the T-3 set -->
+              <div class="zbll-card" data-subset="3">
+                <p class="subset-title">T – 3</p>
+                <div class="main-image-container">
+                  <img src="svg/top/T-3.svg" class="main-case-svg subset-orientation">
+                </div>
+              </div>
+
+              <!-- This contains the T-4 set -->
+              <div class="zbll-card" data-subset="4">
+                <p class="subset-title">T – 4</p>
+                <div class="main-image-container">
+                  <img src="svg/top/T-4.svg" class="main-case-svg subset-orientation">
+                </div>
+              </div>
+
+              <!-- This contains the T-5 set -->
+              <div class="zbll-card" data-subset="5">
+                <p class="subset-title">T – 5</p>
+                <div class="main-image-container">
+                  <img src="svg/top/T-5.svg" class="main-case-svg subset-orientation">
+                </div>
+              </div>
+
+              <!-- This contains the T-6 set -->
+              <div class="zbll-card" data-subset="6">
+                <p class="subset-title">T – 6</p>
+                <div class="main-image-container">
+                  <img src="svg/top/T-6.svg" class="main-case-svg subset-orientation">
+                </div>
+              </div>
+            
+
+            </div>
+          </div>
+        </div>
+
+        <!-- This container is purely for the U ZBLL set -->
+        <div class="zbll-set-container" id="container-U">
+          <div class="card-header" id="header-U">
+            <div class="set-toggle-button">
+              <button type="button" onclick="toggleSubsets('U')">
+                <span class="set-title"><b>U</b></span>
+                <span class="set-info">
+                  (<span id="count-U">0</span>/72)
+                  <span class="subset-arrow" id="arrow-U">▼</span>
+                </span>
+              </button>
+            </div>
+          </div>
+
+          <div class="set-content" id="content-U">
+            <div class="zbll-card main-card">
+              <div class="main-angle-container">
+                <button type="button" class="main-angle-button">
+                  <img src="svg/U.svg" alt="U" class="main-angle-svg" id="main-U" data-angle="0">
+                </button>
+              </div>
+
+              <div class="other-orientations">
+                <p class="orientation-label">View Other Orientations:</p>
+                <div class="orientation-options" id="orientations-U">
+                  <button class="case-trigger" data-angle="90">
+                    <img src="svg/U.svg" style="transform: rotate(90deg)">
+                  </button>
+                  <button class="case-trigger" data-angle="180">
+                    <img src="svg/U.svg" style="transform: rotate(180deg)">
+                  </button>
+                  <button class="case-trigger" data-angle="270">
+                    <img src="svg/U.svg" style="transform: rotate(270deg)">
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="subsets-wrapper" id="subsets-U" style="display: none;">
+              <div class="zbll-card" data-subset="2GLL">
+                <p class="subset-title">U – 2GLL</p>
+                <div class="main-image-container">
+                  <img src="svg/top/U-2GLL.svg" class="main-case-svg subset-orientation">
+                </div>
+              </div>
+
+              <div class="zbll-card" data-subset="Diag">
+                <p class="subset-title">U – Diag</p>
+                <div class="main-image-container">
+                  <img src="svg/top/U-Diag.svg" class="main-case-svg subset-orientation">
+                </div>
+              </div>
+
+              <!-- This contains the U-3 set -->
+              <div class="zbll-card" data-subset="3">
+                <p class="subset-title">U – 3</p>
+                <div class="main-image-container">
+                  <img src="svg/top/U-3.svg" class="main-case-svg subset-orientation">
+                </div>
+              </div>
+
+              <!-- This contains the U-4 set -->
+              <div class="zbll-card" data-subset="4">
+                <p class="subset-title">U – 4</p>
+                <div class="main-image-container">
+                  <img src="svg/top/U-4.svg" class="main-case-svg subset-orientation">
+                </div>
+              </div>
+
+              <!-- This contains the U-5 set -->
+              <div class="zbll-card" data-subset="5">
+                <p class="subset-title">U – 5</p>
+                <div class="main-image-container">
+                  <img src="svg/top/U-5.svg" class="main-case-svg subset-orientation">
+                </div>
+              </div>
+
+              <!-- This contains the U-6 set -->
+              <div class="zbll-card" data-subset="6">
+                <p class="subset-title">U – 6</p>
+                <div class="main-image-container">
+                  <img src="svg/top/U-6.svg" class="main-case-svg subset-orientation">
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- This container is purely for the L ZBLL set -->
+        <div class="zbll-set-container" id="container-L">
+          <div class="card-header" id="header-L">
+            <div class="set-toggle-button">
+              <button type="button" onclick="toggleSubsets('L')">
+                <span class="set-title"><b>L</b></span>
+                <span class="set-info">
+                  (<span id="count-L">0</span>/72)
+                  <span class="subset-arrow" id="arrow-L">▼</span>
+                </span>
+              </button>
+            </div>
+          </div>
+
+          <div class="set-content" id="content-L">
+            <div class="zbll-card main-card">
+              <div class="main-angle-container">
+                <button type="button" class="main-angle-button">
+                  <img src="svg/L.svg" alt="L" class="main-angle-svg" id="main-L" data-angle="0">
+                </button>
+              </div>
+
+              <div class="other-orientations">
+                <p class="orientation-label">View Other Orientations:</p>
+                <div class="orientation-options" id="orientations-L">
+                  <button class="case-trigger" data-angle="90">
+                    <img src="svg/L.svg" style="transform: rotate(90deg)">
+                  </button>
+                  <button class="case-trigger" data-angle="180">
+                    <img src="svg/L.svg" style="transform: rotate(180deg)">
+                  </button>
+                  <button class="case-trigger" data-angle="270">
+                    <img src="svg/L.svg" style="transform: rotate(270deg)">
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="subsets-wrapper" id="subsets-L" style="display: none;">
+              <div class="zbll-card" data-subset="2GLL">
+                <p class="subset-title">L – 2GLL</p>
+                <div class="main-image-container">
+                  <img src="svg/top/L-2GLL.svg" class="main-case-svg subset-orientation">
+                </div>
+              </div>
+
+              <div class="zbll-card" data-subset="Diag">
+                <p class="subset-title">L – Diag</p>
+                <div class="main-image-container">
+                  <img src="svg/top/L-Diag.svg" class="main-case-svg subset-orientation">
+                </div>
+              </div>
+
+              <!-- This contains the L-3 set -->
+              <div class="zbll-card" data-subset="3">
+                <p class="subset-title">L – 3</p>
+                <div class="main-image-container">
+                  <img src="svg/top/L-3.svg" class="main-case-svg subset-orientation">
+                </div>
+              </div>
+
+              <!-- This contains the L-4 set -->
+              <div class="zbll-card" data-subset="4">
+                <p class="subset-title">L – 4</p>
+                <div class="main-image-container">
+                  <img src="svg/top/L-4.svg" class="main-case-svg subset-orientation">
+                </div>
+              </div>
+
+              <!-- This contains the L-5 set -->
+              <div class="zbll-card" data-subset="5">
+                <p class="subset-title">L – 5</p>
+                <div class="main-image-container">
+                  <img src="svg/top/L-5.svg" class="main-case-svg subset-orientation">
+                </div>
+              </div>
+
+              <!-- This contains the L-6 set -->
+              <div class="zbll-card" data-subset="6">
+                <p class="subset-title">L – 6</p>
+                <div class="main-image-container">
+                  <img src="svg/top/L-6.svg" class="main-case-svg subset-orientation">
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- This container is purely for the H ZBLL set -->
+        <div class="zbll-set-container" id="container-H">
+          <div class="card-header" id="header-H">
+            <div class="set-toggle-button">
+              <button type="button" onclick="toggleSubsets('H')">
+                <span class="set-title"><b>H</b></span>
+                <span class="set-info">
+                  (<span id="count-H">0</span>/40)
+                  <span class="subset-arrow" id="arrow-H">▼</span>
+                </span>
+              </button>
+            </div>
+          </div>
+
+          <div class="set-content" id="content-H">
+            <div class="zbll-card main-card">
+              <div class="main-angle-container">
+                <button type="button" class="main-angle-button">
+                  <img src="svg/H.svg" alt="H" class="main-angle-svg" id="main-H" data-angle="0">
+                </button>
+              </div>
+
+              <div class="other-orientations">
+                <p class="orientation-label">View Other Orientations:</p>
+                <div class="orientation-options" id="orientations-H">
+                  <button class="case-trigger" data-angle="90">
+                    <img src="svg/H.svg" style="transform: rotate(90deg)">
+                  </button>
+                  <button class="case-trigger" data-angle="180">
+                    <img src="svg/H.svg" style="transform: rotate(180deg)">
+                  </button>
+                  <button class="case-trigger" data-angle="270">
+                    <img src="svg/H.svg" style="transform: rotate(270deg)">
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="subsets-wrapper" id="subsets-H" style="display: none;">
+              <div class="zbll-card" data-subset="2GLL">
+                <p class="subset-title">H – 2GLL</p>
+                <div class="main-image-container">
+                  <img src="svg/top/H-2GLL.svg" class="main-case-svg subset-orientation">
+                </div>
+              </div>
+
+              <div class="zbll-card" data-subset="Diag">
+                <p class="subset-title">H – Diag</p>
+                <div class="main-image-container">
+                  <img src="svg/top/H-Diag.svg" class="main-case-svg subset-orientation">
+                </div>
+              </div>
+
+              <!-- This contains the H-3 set -->
+              <div class="zbll-card" data-subset="3">
+                <p class="subset-title">H – 3</p>
+                <div class="main-image-container">
+                  <img src="svg/top/H-3.svg" class="main-case-svg subset-orientation">
+                </div>
+              </div>
+
+              <!-- This contains the H-4 set -->
+              <div class="zbll-card" data-subset="4">
+                <p class="subset-title">H – 4</p>
+                <div class="main-image-container">
+                  <img src="svg/top/H-4.svg" class="main-case-svg subset-orientation">
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- This container is purely for the Pi ZBLL set -->
+        <div class="zbll-set-container" id="container-Pi">
+          <div class="card-header" id="header-Pi">
+            <div class="set-toggle-button">
+              <button type="button" onclick="toggleSubsets('Pi')">
+                <span class="set-title"><b>Pi</b></span>
+                <span class="set-info">
+                  (<span id="count-Pi">0</span>/72)
+                  <span class="subset-arrow" id="arrow-Pi">▼</span>
+                </span>
+              </button>
+            </div>
+          </div>
+
+          <div class="set-content" id="content-Pi">
+            <div class="zbll-card main-card">
+              <div class="main-angle-container">
+                <button type="button" class="main-angle-button">
+                  <img src="svg/Pi.svg" alt="Pi" class="main-angle-svg" id="main-Pi" data-angle="0">
+                </button>
+              </div>
+
+              <div class="other-orientations">
+                <p class="orientation-label">View Other Orientations:</p>
+                <div class="orientation-options" id="orientations-Pi">
+                  <button class="case-trigger" data-angle="90">
+                    <img src="svg/Pi.svg" style="transform: rotate(90deg)">
+                  </button>
+                  <button class="case-trigger" data-angle="180">
+                    <img src="svg/Pi.svg" style="transform: rotate(180deg)">
+                  </button>
+                  <button class="case-trigger" data-angle="270">
+                    <img src="svg/Pi.svg" style="transform: rotate(270deg)">
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="subsets-wrapper" id="subsets-Pi" style="display: none;">
+              <div class="zbll-card" data-subset="2GLL">
+                <p class="subset-title">Pi – 2GLL</p>
+                <div class="main-image-container">
+                  <img src="svg/top/Pi-2GLL.svg" class="main-case-svg subset-orientation">
+                </div>
+              </div>
+
+              <div class="zbll-card" data-subset="Diag">
+                <p class="subset-title">Pi – Diag</p>
+                <div class="main-image-container">
+                  <img src="svg/top/Pi-Diag.svg" class="main-case-svg subset-orientation">
+                </div>
+              </div>
+
+              <!-- This contains the Pi-3 set -->
+              <div class="zbll-card" data-subset="3">
+                <p class="subset-title">Pi – 3</p>
+                <div class="main-image-container">
+                  <img src="svg/top/Pi-3.svg" class="main-case-svg subset-orientation">
+                </div>
+              </div>
+
+              <!-- This contains the Pi-4 set -->
+              <div class="zbll-card" data-subset="4">
+                <p class="subset-title">Pi – 4</p>
+                <div class="main-image-container">
+                  <img src="svg/top/Pi-4.svg" class="main-case-svg subset-orientation">
+                </div>
+              </div>
+
+              <!-- This contains the Pi-5 set -->
+              <div class="zbll-card" data-subset="5">
+                <p class="subset-title">Pi – 5</p>
+                <div class="main-image-container">
+                  <img src="svg/top/Pi-5.svg" class="main-case-svg subset-orientation">
+                </div>
+              </div>
+
+              <!-- This contains the Pi-6 set -->
+              <div class="zbll-card" data-subset="6">
+                <p class="subset-title">Pi – 6</p>
+                <div class="main-image-container">
+                  <img src="svg/top/Pi-6.svg" class="main-case-svg subset-orientation">
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- This container is purely for the Sune ZBLL set -->
+        <div class="zbll-set-container" id="container-Sune">
+          <div class="card-header" id="header-Sune">
+            <div class="set-toggle-button">
+              <button type="button" onclick="toggleSubsets('Sune')">
+                <span class="set-title"><b>Sune</b></span>
+                <span class="set-info">
+                  (<span id="count-Sune">0</span>/72)
+                  <span class="subset-arrow" id="arrow-Sune">▼</span>
+                </span>
+              </button>
+            </div>
+          </div>
+
+          <div class="set-content" id="content-Sune">
+            <div class="zbll-card main-card">
+              <div class="main-angle-container">
+                <button type="button" class="main-angle-button">
+                  <img src="svg/S.svg" alt="Sune" class="main-angle-svg" id="main-Sune" data-angle="0">
+                </button>
+              </div>
+
+              <div class="other-orientations">
+                <p class="orientation-label">View Other Orientations:</p>
+                <div class="orientation-options" id="orientations-Sune">
+                  <button class="case-trigger" data-angle="90">
+                    <img src="svg/S.svg" style="transform: rotate(90deg)">
+                  </button>
+                  <button class="case-trigger" data-angle="180">
+                    <img src="svg/S.svg" style="transform: rotate(180deg)">
+                  </button>
+                  <button class="case-trigger" data-angle="270">
+                    <img src="svg/S.svg" style="transform: rotate(270deg)">
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="subsets-wrapper" id="subsets-Sune" style="display: none;">
+              <div class="zbll-card" data-subset="2GLL">
+                <p class="subset-title">Sune – 2GLL</p>
+                <div class="main-image-container">
+                  <img src="svg/top/Sune-2GLL.svg" class="main-case-svg subset-orientation">
+                </div>
+              </div>
+
+              <div class="zbll-card" data-subset="Diag">
+                <p class="subset-title">Sune – Diag</p>
+                <div class="main-image-container">
+                  <img src="svg/top/Sune-Diag.svg" class="main-case-svg subset-orientation">
+                </div>
+              </div>
+
+              <!-- This contains the Sune-3 set -->
+              <div class="zbll-card" data-subset="3">
+                <p class="subset-title">Sune – 3</p>
+                <div class="main-image-container">
+                  <img src="svg/top/Sune-3.svg" class="main-case-svg subset-orientation">
+                </div>
+              </div>
+
+              <!-- This contains the Sune-4 set -->
+              <div class="zbll-card" data-subset="4">
+                <p class="subset-title">Sune – 4</p>
+                <div class="main-image-container">
+                  <img src="svg/top/Sune-4.svg" class="main-case-svg subset-orientation">
+                </div>
+              </div>
+
+              <!-- This contains the Sune-5 set -->
+              <div class="zbll-card" data-subset="5">
+                <p class="subset-title">Sune – 5</p>
+                <div class="main-image-container">
+                  <img src="svg/top/Sune-5.svg" class="main-case-svg subset-orientation">
+                </div>
+              </div>
+
+              <!-- This contains the Sune-6 set -->
+              <div class="zbll-card" data-subset="6">
+                <p class="subset-title">Sune – 6</p>
+                <div class="main-image-container">
+                  <img src="svg/top/Sune-6.svg" class="main-case-svg subset-orientation">
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- This container is purely for the Anitsune ZBLL set -->
+        <div class="zbll-set-container" id="container-Antisune">
+          <div class="card-header" id="header-Antisune">
+            <div class="set-toggle-button">
+              <button type="button" onclick="toggleSubsets('Antisune')">
+                <span class="set-title"><b>Antisune</b></span>
+                <span class="set-info">
+                  (<span id="count-Antisune">0</span>/72)
+                  <span class="subset-arrow" id="arrow-Antisune">▼</span>
+                </span>
+              </button>
+            </div>
+          </div>
+
+          <div class="set-content" id="content-Antisune">
+            <div class="zbll-card main-card">
+              <div class="main-angle-container">
+                <button type="button" class="main-angle-button">
+                  <img src="svg/aS.svg" alt="Antisune" class="main-angle-svg" id="main-Antisune" data-angle="0">
+                </button>
+              </div>
+
+              <div class="other-orientations">
+                <p class="orientation-label">View Other Orientations:</p>
+                <div class="orientation-options" id="orientations-U">
+                  <button class="case-trigger" data-angle="90">
+                    <img src="svg/aS.svg" style="transform: rotate(90deg)">
+                  </button>
+                  <button class="case-trigger" data-angle="180">
+                    <img src="svg/aS.svg" style="transform: rotate(180deg)">
+                  </button>
+                  <button class="case-trigger" data-angle="270">
+                    <img src="svg/aS.svg" style="transform: rotate(270deg)">
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="subsets-wrapper" id="subsets-Antisune" style="display: none;">
+              <div class="zbll-card" data-subset="2GLL">
+                <p class="subset-title">Antisune – 2GLL</p>
+                <div class="main-image-container">
+                  <img src="svg/top/Antisune-2GLL.svg" class="main-case-svg subset-orientation">
+                </div>
+              </div>
+
+              <div class="zbll-card" data-subset="Diag">
+                <p class="subset-title">Antisune – Diag</p>
+                <div class="main-image-container">
+                  <img src="svg/top/Antisune-Diag.svg" class="main-case-svg subset-orientation">
+                </div>
+              </div>
+
+              <!-- This contains the Antisune-3 set -->
+              <div class="zbll-card" data-subset="3">
+                <p class="subset-title">Anitsune – 3</p>
+                <div class="main-image-container">
+                  <img src="svg/top/Antisune-3.svg" class="main-case-svg subset-orientation">
+                </div>
+              </div>
+
+              <!-- This contains the Antisune-4 set -->
+              <div class="zbll-card" data-subset="4">
+                <p class="subset-title">Antisune – 4</p>
+                <div class="main-image-container">
+                  <img src="svg/top/Antisune-4.svg" class="main-case-svg subset-orientation">
+                </div>
+              </div>
+
+              <!-- This contains the Antisune-5 set -->
+              <div class="zbll-card" data-subset="5">
+                <p class="subset-title">Antisune – 5</p>
+                <div class="main-image-container">
+                  <img src="svg/top/Antisune-5.svg" class="main-case-svg subset-orientation">
+                </div>
+              </div>
+
+              <!-- This contains the Antisune-6 set -->
+              <div class="zbll-card" data-subset="6">
+                <p class="subset-title">Antisune – 6</p>
+                <div class="main-image-container">
+                  <img src="svg/top/Antisune-6.svg" class="main-case-svg subset-orientation">
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </main>
+
+      <aside class="right-column">
+        <div class="sticky-controls">
+          <button type="button" onclick="loadCases(false)" class="train" id="start" disabled>Start</button>
+          <button type="button" onclick="loadCases(true)" class="train" id="recap" disabled>Recap</button>
+          <p id="selected">0 cases selected</p>
+          <button type="button" onclick="toggleAll(true)" class="selectToggle" id="selectAll">Select All</button>
+          <button type="button" onclick="toggleAll(false)" class="selectToggle" id="deselectAll">Deselect All</button>
+          <button type="button" onclick="toggleExpand(true)" class="collapseToggle" id="open">Expand All</button>
+          <button type="button" onclick="toggleExpand(false)" class="collapseToggle" id="close">Collapse All</button>
+        </div>
+
+        <!-- This part of the code is for the preset, credits to masadl | 2017HAYA03 for making this.-->
+        <div id="preset-controls">
+                      <h3>Presets</h3>
+                      <div style="display: flex; gap: 10px; align-items: flex-start;">
+                          <div style="flex: 1;">
+                              <select id="presetList" size="8"
+                                  style="width: 100%; border: 1px solid #555;"></select>
+                          </div>
+
+                          <div style="flex: 1; display: flex; flex-direction: column; gap: 5px; align-items: stretch;">
+                              <div>
+                                  <label style="font-size: 0.8em; display:block;">Save preset as</label>
+                                  <div style="display: flex;">
+                                      <input type="text" id="presetNameInput" style="width: 100%; box-sizing: border-box;"
+                                          placeholder="Name">
+                                      <button id="savePresetBtn" style="padding: 2px 6px; margin: 0 0 0 5px;"
+                                          title="Save">Save</button>
+                                  </div>
+                              </div>
+
+                              <button id="loadPresetBtn">Load</button>
+                              <button id="exportPresetsBtn">Export</button>
+                              <button id="importPresetsBtn">Import</button>
+
+                              <div style="display: flex; align-items: center;">
+                                  <button id="deletePresetBtn" style="flex: 1;">Delete</button>
+                                  <button id="undoDeleteBtn" style="padding: 6px; margin-left: 5px;" title="Undo Delete"
+                                      disabled>Undo</button>
+                              </div>
+
+                              <div style="display: flex; gap: 5px; margin-top: 5px; justify-content: flex-start;">
+                                  <button id="moveUpBtn" class="square-btn">▲</button>
+                                  <button id="moveDownBtn" class="square-btn">▼</button>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+      </aside>
     </div>
-  </div>
-  <div id="zwPics" class="zbll-grid"></div>
-</div>
 
-<footer class="site-footer">
-    <div class="footer-row">
-      <span>
-        Created by
-        <a href="https://www.worldcubeassociation.org/persons/2016NAGU02" target="_blank" rel="noopener" class="footer-link">Christian Naguio</a>
-      </span>
-      <span class="footer-separator">|</span>
-      <a href="https://github.com/loltreeman/ZBTrain" target="_blank" rel="noopener" class="footer-link">
-        <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/github.svg" alt="GitHub" class="footer-icon">
-        GitHub
-      </a>
-      <span class="footer-separator">|</span>
-      <span>Last updated: January 2026</span>
-      <span class="footer-separator">|</span>
-      <span>My ZBLL Sheet:
-        <a href="https://docs.google.com/spreadsheets/d/1pyB2bGwk0q0BnMybOqWPwOMTMX2WIEH0--qecpG5fCM/edit?usp=sharing" target="_blank" rel="noopener" class="footer-link">
-          Trix's ZBLL Sheet
+    <div id="zbllWindowBack" class="modal-overlay" onclick="closeZW()"></div>
+  <div id="zbllWindow" class="modal-window">
+    <div class="modal-header">
+      <h3 id="zwHeaderMessage"></h3>
+      <div class="modal-btns">
+        <button id="modal-select-all">All</button>
+        <button id="modal-select-none">None</button>
+        <button class="close-x" onclick="closeZW()">&times;</button>
+      </div>
+    </div>
+    <div id="zwPics" class="zbll-grid"></div>
+  </div>
+
+  <footer class="site-footer">
+      <div class="footer-row">
+        <span>
+          Created by
+          <a href="https://www.worldcubeassociation.org/persons/2016NAGU02" target="_blank" rel="noopener" class="footer-link">Christian Naguio</a>
+        </span>
+        <span class="footer-separator">|</span>
+        <a href="https://github.com/loltreeman/ZBTrain" target="_blank" rel="noopener" class="footer-link">
+          <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/github.svg" alt="GitHub" class="footer-icon">
+          GitHub
         </a>
-      </span> 
-      <span class="footer-separator">|</span>
-    </div>
-  </footer>
+        <span class="footer-separator">|</span>
+        <span>Last updated: January 2026</span>
+        <span class="footer-separator">|</span>
+        <span>My ZBLL Sheet:
+          <a href="https://docs.google.com/spreadsheets/d/1pyB2bGwk0q0BnMybOqWPwOMTMX2WIEH0--qecpG5fCM/edit?usp=sharing" target="_blank" rel="noopener" class="footer-link">
+            Trix's ZBLL Sheet
+          </a>
+        </span> 
+        <span class="footer-separator">|</span>
+      </div>
+    </footer>
 
-<script src="scripts/index.js"></script>
-<script src="scripts/presets.js"></script>
-</body>
-</html>
+  <script src="scripts/index.js"></script>
+  <script src="scripts/presets.js"></script>
+  <script src="scripts/darkmode.js"></script>
+  </body>
+  </html>

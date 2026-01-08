@@ -6,6 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styles/trainer.css">
+    <link rel="stylesheet" href="styles/darkmode.css">
 </head>
 <body>
 
@@ -20,7 +21,10 @@
         <div class="header-bottom-row">
             <div class="header-left">
                 <button type="button" id="back" class="btn-nav" onclick="goBack()">← Select Cases</button>
+                <button type="button" id="toggleSettings" class="btn-nav mobile-only" onclick="toggleSettings()">⚙ Settings</button>
+                <button type="button" id="darkModeToggle" class="btn-nav dark-mode-toggle" onclick="toggleDarkMode()">🌙 Dark Mode</button>
             </div>
+
 
             <div class="header-right">
                 <div class="status-header-row">
@@ -40,6 +44,7 @@
         <div class="settings-card-header">
             <p class="settings-label-sm">Configuration</p>
             <h2 class="settings-title-lg">Trainer Settings</h2>
+            <button class="mobile-only btn-sidebar-alt" onclick="toggleSettings()" style="width: auto; padding: 5px 10px;">✕</button>
         </div>
 
         <div class="settings-card-body">
@@ -124,7 +129,7 @@
                         </div>
 
                         <div class="case-card-body">
-                            <img id="case-img" src="" alt="Case Diagram">
+                            <img id="case-img" src="" alt="Case Image">
                             <h2 id="case-name">---</h2>
                         </div>
 
@@ -169,7 +174,7 @@
 
     <div id="statsPanel" style="display: none; width: 100%; max-width: 800px; margin: 40px auto; padding: 20px; border-top: 2px solid #eee;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-        <h3 style="margin: 0;">Statistics and Summary</h3>
+        <h3>Statistics and Summary</h3>
         <button type="button" class="btn-sidebar-alt" onclick="hideStatsPanel()">Hide Statistics</button>
     </div>
     <div id="statsContent">
@@ -182,5 +187,6 @@
     <script src="scripts/cube3x3.js"></script>
     <script src="scripts/virtualCubeEmbed.js"></script>
     <script src="scripts/trainer.js"></script>
+    <script src="scripts/darkmode.js"></script>
 </body>
 </html>
