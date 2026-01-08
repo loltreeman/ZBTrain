@@ -1,3 +1,7 @@
+:root {
+    --timer-idle: #000000; 
+}
+
 body.dark-mode {
     --bg-main: #0f172a;
     --card-bg: #1e293b;
@@ -8,6 +12,7 @@ body.dark-mode {
     --text-muted: #94a3b8;
     --border: #334155;
     --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+    --timer-idle: var(--text-main);
 }
 
 body.dark-mode {

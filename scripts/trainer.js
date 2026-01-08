@@ -706,7 +706,7 @@ function handleTouchEnd(event) {
     }
 
     //change text to black
-    timerRef.style.color = "black";
+    timerRef.style.color = "";
 
     //start or stop timer depending on value of timerStatus
     if (timerStatus === "Stop") {
@@ -753,7 +753,7 @@ function handleKeyDown(event) {
     if (event.key === "Escape" && timerStatus === "Start") {
         clearInterval(int); // Stop the clock
         timerStatus = "Stop";
-        timerRef.style.color = "black";
+        timerRef.style.color = "";
 
         // log the solve and move to next case internally
         if (recap) removeElement(prevCase);
@@ -820,7 +820,7 @@ function handleKeyUp(event) {
 
     if (event.key === " ") {
         event.preventDefault();
-        timerRef.style.color = "black";
+        timerRef.style.color = "";
         clearTimeout(holdTimer);
         holdTimer = null;
 
