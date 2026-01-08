@@ -670,7 +670,12 @@ document.addEventListener("touchend", handleTouchEnd, false);
 document.addEventListener("keydown", handleKeyDown, false);
 document.addEventListener("keyup", handleKeyUp, false);
 
-function handleTouchStart() {
+function handleTouchStart(event) {
+    // Only allow timer interaction if touching the timer area
+    if (!event.target.closest('.timer-wrapper') && !event.target.closest('.timer-display')) {
+        return;
+    }
+    
     if (event.target.tagName === "BUTTON") {
         // do nothing if again button clicked
         return;
@@ -689,7 +694,12 @@ function handleTouchStart() {
     }
 }
 
-function handleTouchEnd() {
+function handleTouchEnd(event) {
+    // Only allow timer interaction if touching the timer area
+    if (!event.target.closest('.timer-wrapper') && !event.target.closest('.timer-display')) {
+        return;
+    }
+    
     if (event.target.tagName === "BUTTON") {
         // do nothing if again button clicked
         return;
@@ -1418,3 +1428,16 @@ includeRecognitionTime.addEventListener("click", function () {
     localStorage.setItem("includeRecognitionTime", this.checked);
     isIncludeRecognitionTime = includeRecognitionTime.checked;
 });
+
+function toggleSettings() {
+    const sidebar = document.getElementById('settingsSidebar');
+    if (window.innerWidth <= 1200) {
+        sidebar.classList.toggle('active');
+        
+        if (sidebar.classList.contains('active')) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'auto';
+        }
+    }
+}

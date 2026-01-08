@@ -219,3 +219,29 @@
         border-radius: 12px;
     }
 }
+
+/* 1. Desktop / Large Screen (1300px and down) */
+@media (max-width: 1300px) {
+    
+}
+
+/* 2. Large Tablet (1024px and down) */
+@media (max-width: 1024px) {
+    
+}
+
+/* 3. Tablet (768px and down) */
+@media (max-width: 768px) {
+    
+}
+
+/* 4. Landscape Mobile (666px and down) */
+@media (max-width: 666px) {
+    
+}
+
+/* 5. Mobile (360px and down) */
+@media (max-width: 360px) {
+    
+}
+
