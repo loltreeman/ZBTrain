@@ -249,7 +249,7 @@ body {
 
 .set-title,
 .set-info {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 1000;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     margin: 0;
@@ -265,21 +265,14 @@ body {
 .main-angle-svg {
     width: 140px;
     height: auto;
-    border: 4px solid transparent;
-    border-radius: 16px;
-    padding: 8px;
 }
 
 .main-angle-svg.selected-all {
-    border-color: var(--accent-green);
-    filter: drop-shadow(0 0 12px rgba(16, 185, 129, 0.4));
-    background: #f0fdf4;
+    background-color: var(--accent-green);
 }
 
 .main-angle-svg.selected-some {
-    border-color: var(--accent-yellow);
-    filter: drop-shadow(0 0 12px rgba(234, 179, 8, 0.4));
-    background: #fefce8;
+    background-color: var(--accent-yellow);
 }
 
 .other-orientations {
@@ -564,9 +557,9 @@ body {
     }
 
     .left-column {
-        flex: 2.2;
+        flex: 2.1;
         grid-template-columns: 1fr;
-        gap: 16px;
+        gap: 10px;
     }
 
     .right-column {
