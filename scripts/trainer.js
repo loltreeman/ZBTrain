@@ -705,7 +705,6 @@ function handleTouchEnd(event) {
         return;
     }
 
-    //change text to black
     timerRef.style.color = "";
 
     //start or stop timer depending on value of timerStatus
@@ -1079,7 +1078,7 @@ if (window.virtualCube && typeof window.virtualCube.onSolve === "function") {
             }
 
             timerStatus = "Paused"; // Spacebar will now acknowledge the result
-            timerRef.style.color = "black";
+            timerRef.style.color = "";
 
             // 2. Prevent the timer from instantly restarting if space is bumped
             lockoutActive = true;
