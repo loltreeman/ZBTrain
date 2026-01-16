@@ -350,6 +350,10 @@ function showStatsPanel() {
 
     panel.style.display = "block";
 
+    setTimeout(function() {
+        panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+
     // compute per-case stats
     var byCase = {};
     attempts.forEach((a) => {
@@ -1193,6 +1197,14 @@ function parseMaskInput(maskInput) {
         var s = parts[i].trim().toUpperCase();
         if (s.length === 0) continue;
 
+        // Check if this is a piece mask (ends with !)
+        if (s.endsWith("!")) {
+            var pieceNotation = s.slice(0, -1); // Remove the !
+            var expandedStickers = expandPieceMask(pieceNotation);
+            stickers = stickers.concat(expandedStickers);
+            continue;
+        }
+
         if (s.length === 3) {
             var normalized = s.split("").sort().join("");
             var firstChar = s[0];
@@ -1211,6 +1223,21 @@ function parseMaskInput(maskInput) {
         }
     }
 
+    return stickers;
+}
+
+function expandPieceMask(pieceNotation) {
+    var stickers = [];
+    var normalized = pieceNotation.split("").sort().join("");
+    
+    // find all stickers that belong to this piece
+    for (var key in stickerToCubie3Map) {
+        var keyNormalized = key.split("").sort().join("");
+        if (keyNormalized === normalized) {
+            stickers.push(key);
+        }
+    }
+    
     return stickers;
 }
 
