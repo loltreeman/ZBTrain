@@ -6,11 +6,12 @@
     --text-main: #1e293b;
     --text-muted: #64748b;
     --border-color: #e2e8f0;
-    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+        0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
 .modal-overlay {
-    display: none; 
+    display: none;
     position: fixed;
     inset: 0;
     background: rgba(15, 23, 42, 0.75);
@@ -40,7 +41,8 @@
     border: 1px solid var(--border-color);
     opacity: 0;
     visibility: hidden;
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+        opacity 0.2s ease;
 }
 
 .modal-overlay.modal-active,
@@ -54,7 +56,6 @@
     transform: translate(-50%, -50%) scale(1) !important;
 }
 
-
 .modal-header {
     padding: 24px 32px;
     background: var(--modal-header-bg);
@@ -63,7 +64,7 @@
     justify-content: space-between;
     align-items: center;
     position: relative;
-    flex-shrink: 0; 
+    flex-shrink: 0;
 }
 
 .modal-header h3 {
@@ -90,7 +91,7 @@
     color: var(--text-main);
     cursor: pointer;
     transition: all 0.2s;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .modal-btns button:not(.close-x):hover {
@@ -134,7 +135,6 @@
     border-radius: 16px;
     padding: 12px;
     aspect-ratio: 1 / 1;
-    background-color: #fff;
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
@@ -155,13 +155,15 @@
 }
 
 .zbllItem.selected {
-    background-color: #f0fdf4;
-    border-color: var(--accent-green);
+    background-color: var(--accent-green);
 }
 
-.selected-all { background-color: var(--accent-green) !important; color: white !important; }
-.selected-some { background-color: #eab308 !important; color: white !important; }
-
+.selected-all {
+    background-color: var(--accent-green) !important;
+}
+.selected-some {
+    background-color: #eab308 !important;
+}
 
 @media (max-width: 900px) {
     .zbll-grid {
@@ -171,11 +173,10 @@
     }
 }
 
-
 @media (max-width: 600px) {
     .modal-window {
         width: 95%;
-        max-height: 90vh; 
+        max-height: 90vh;
         border-radius: 20px;
     }
 
@@ -188,7 +189,7 @@
 
     .modal-header h3 {
         font-size: 16px;
-        max-width: 80%; 
+        max-width: 80%;
     }
 
     .close-x {
@@ -203,7 +204,7 @@
     }
 
     .modal-btns button:not(.close-x) {
-        flex: 1; 
+        flex: 1;
         padding: 12px 0;
         font-size: 13px;
     }
@@ -220,28 +221,18 @@
     }
 }
 
-/* 1. Desktop / Large Screen (1300px and down) */
 @media (max-width: 1300px) {
-    
 }
 
-/* 2. Large Tablet (1024px and down) */
 @media (max-width: 1024px) {
-    
 }
 
-/* 3. Tablet (768px and down) */
 @media (max-width: 768px) {
-    
 }
 
-/* 4. Landscape Mobile (666px and down) */
+
 @media (max-width: 666px) {
-    
 }
 
-/* 5. Mobile (360px and down) */
 @media (max-width: 360px) {
-    
 }
-
