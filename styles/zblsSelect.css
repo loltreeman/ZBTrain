@@ -1,0 +1,434 @@
+/* Hide checkbox inputs */
+input[type="checkbox"][name="case"] {
+    display: none;
+}
+
+/* ═══════════════════════════════════════════════════════
+   TOGGLE GROUP CONTAINER
+   ═══════════════════════════════════════════════════════ */
+
+.toggleGroup {
+    background: var(--card-bg);
+    border: 2px solid var(--border);
+    border-radius: 24px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+}
+
+.toggleGroup:hover {
+    border-color: var(--accent-blue);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+/* ═══════════════════════════════════════════════════════
+   COLLAPSIBLE HEADER
+   ═══════════════════════════════════════════════════════ */
+
+.collapsible {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    width: 100%;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.collapsible:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+}
+
+.header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 24px;
+    gap: 16px;
+}
+
+.header-title {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+}
+
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.subset-btn {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.subset-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-1px);
+}
+
+.subset-btn:active {
+    transform: translateY(0);
+}
+
+.collapse-icon {
+    font-size: 20px;
+    display: inline-block;
+    transition: transform 0.3s ease;
+    margin-left: 8px;
+}
+
+.toggleGroup.expanded .collapse-icon {
+    transform: rotate(90deg);
+}
+
+/* ═══════════════════════════════════════════════════════
+   PREVIEW ROW (Collapsed State Only)
+   ═══════════════════════════════════════════════════════ */
+
+.preview-row {
+    display: flex;
+    justify-content: center;
+    padding: 16px 24px 20px 24px;
+    background: var(--bg-main);
+}
+
+.preview-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 140px;
+    height: 140px;
+    border-radius: 16px;
+    background: var(--card-bg);
+    border: 3px solid var(--border);
+    padding: 12px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.preview-label:hover {
+    border-color: var(--accent-blue);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.2);
+}
+
+.preview-label .preview {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════════════════
+   GRID CONTAINER (Collapsed = Hidden, Expanded = Visible)
+   ═══════════════════════════════════════════════════════ */
+
+.grid-container {
+    display: none; 
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 16px;
+    padding: 24px;
+    background: var(--bg-main);
+}
+
+.toggleGroup.expanded {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    grid-template-rows: auto auto; /* Header is row 1, Content is row 2 */
+}
+
+.toggleGroup.expanded .preview-row {
+    grid-column: 1 / 2;
+    grid-row: 2; /* Sits in row 2 */
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+    background: var(--bg-main);
+    border-right: 1px solid var(--border);
+}
+
+.toggleGroup.expanded .grid-container {
+    display: grid;
+    grid-column: 2 / 3;
+    grid-row: 2; /* Sits in row 2 next to the preview */
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0;
+    padding: 0;
+}
+
+/* Header spans the full top width or just the left? 
+   Based on your request "stick to left and right", we let it span both columns */
+.toggleGroup.expanded .collapsible {
+    grid-column: 1 / 3;
+    border-radius: 24px 24px 0 0;
+}
+
+.toggleGroup.expanded .preview-label {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1/1;
+    cursor: default;
+    border: none;
+    background: transparent;
+}
+
+
+.toggleGroup.expanded .grid-item {
+    border: 0.5px solid #e5e7eb; /* Subtle table lines */
+    border-radius: 0; /* Square edges look better for tables */
+    margin: 0;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Image left, Checkbox right */
+    transition: background 0.2s ease;
+}
+
+/* Hover effect for the whole row */
+.toggleGroup.expanded .grid-item:hover {
+    background-color: #f9fafb;
+}
+
+/* Remove the "floating checkmark" from your previous version */
+input[type="checkbox"]:checked + label::after {
+    display: none !important;
+}
+
+/* ═══════════════════════════════════════════════════════
+   GRID ITEM STYLING (Table-like cells)
+   ═══════════════════════════════════════════════════════ */
+
+.grid-item {
+    border: 1px solid #ddd;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Pushes checkbox to the right */
+}
+
+/* Hide algorithms in the selection view */
+.grid-item .alg {
+    display: none;
+}
+
+.grid-item label.thumb {
+    width: 80px;
+    height: 80px;
+    border: none;
+    padding: 0;
+}
+
+.grid-item label.thumb:hover {
+    transform: none; 
+    box-shadow: none;
+}
+
+.toggleGroup.expanded input[type="checkbox"][name="case"] {
+    display: block;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: var(--accent-blue);
+}
+
+input[type="checkbox"]:checked + label::after {
+    display: none;
+}
+
+/* ═══════════════════════════════════════════════════════
+   GRID ITEMS (Individual Cases)
+   ═══════════════════════════════════════════════════════ */
+
+.grid-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    padding: 8px 10px;
+    background: transparent;
+    border-radius: 8px;
+    min-height: 76px;
+}
+
+.grid-item label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    padding: 6px;
+    border-radius: 8px;
+    background: var(--card-bg);
+    border: 2px solid var(--border);
+    transition: all 0.18s ease;
+}
+
+.grid-item label:hover {
+    transform: translateY(-6px) scale(1.05);
+    border-color: var(--accent-blue);
+    box-shadow: 0 12px 24px rgba(59, 130, 246, 0.25);
+    background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%);
+    z-index: 10;
+}
+
+
+.grid-item label img {
+    width: 100%;
+    height: auto;
+    max-width: 120px;
+    object-fit: contain;
+    pointer-events: none;
+    user-select: none;
+}
+
+
+/* ═══════════════════════════════════════════════════════
+   IMPROVED SELECTED STATE
+   ═══════════════════════════════════════════════════════ */
+
+/* Highlight the entire background of the grid cell when checked */
+.grid-item:has(input[type="checkbox"]:checked) {
+    background-color: rgba(16, 185, 129, 0.1); /* Very light green tint for the row */
+    border-color: var(--accent-green);
+}
+
+/* Make the image label background a solid, clear green */
+input[type="checkbox"]:checked + label.thumb {
+    background: #dcfce7 ; /* Solid light green */
+    border: 2px solid #22c55e !important; /* Solid emerald border */
+    box-shadow: inset 0 0 10px rgba(34, 197, 94, 0.2);
+}
+
+/* Ensure the image doesn't look washed out */
+input[type="checkbox"]:checked + label.thumb img {
+    filter: drop-shadow(0 0 2px rgba(0,0,0,0.1));
+}
+
+
+/* ═══════════════════════════════════════════════════════
+   UTILITY STATES
+   ═══════════════════════════════════════════════════════ */
+
+.grid-container.loading {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.grid-container:empty::after {
+    content: 'No cases available';
+    display: block;
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-muted);
+    font-size: 14px;
+    font-weight: 600;
+    grid-column: 1 / -1;
+}
+
+.right-column {
+    width: 280px;
+    position: sticky;
+    top: 20px;
+    background: var(--card-bg);
+    padding: 24px;
+    border-radius: 24px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.sticky-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    height: 100%;
+    justify-content: space-between;
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+}
+
+.right-column button {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px;
+    border-radius: 14px;
+    font-family: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+}
+
+.right-column .train {
+    background: linear-gradient(135deg, var(--text-main) 0%, #1e293b 100%);
+    color: #fff;
+    font-size: 18px;
+    font-weight: 800;
+    padding: 18px;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.3);
+    letter-spacing: 1px;
+}
+
+.right-column .train:hover:not(:disabled) {
+    background: linear-gradient(135deg, #334155 0%, #475569 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.4);
+}
+
+.right-column .train:disabled {
+    opacity: 0.3;
+    filter: grayscale(1);
+    cursor: not-allowed;
+}
+
+.right-column button.selectToggle,
+.right-column button.collapseToggle {
+    background: var(--bg-main);
+    border: 2px solid var(--border);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-muted);
+}
+
+.right-column button.selectToggle:hover,
+.right-column button.collapseToggle:hover {
+    border-color: var(--accent-blue);
+    color: var(--accent-blue);
+    background: #eff6ff;
+    transform: translateY(-1px);
+}
+
+#selected {
+    text-align: center;
+    font-weight: 1000;
+    font-style: bold;
+    color: var(--accent-blue);
+    margin: 8px 0;
+    font-size: 25px;
+    letter-spacing: 0.5px;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+#presetList {
+    height: 250px;
+}

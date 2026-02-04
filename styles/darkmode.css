@@ -412,3 +412,37 @@ body.dark-mode .zbll-grid {
 body.dark-mode #zwPics {
     background: var(--card-bg);
 }
+
+body.dark-mode .hero {
+    background: var(--bg-main);
+}
+
+body.dark-mode .training-section {
+    background: #0f172a;
+}
+
+body.dark-mode .card-container {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+body.dark-mode .content .title h2 {
+    color: #f1f5f9;
+}
+
+body.dark-mode .content .description p {
+    color: #94a3b8;
+}
+
+body.dark-mode .card-container:hover {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+    border-color: #3b82f6;
+}
+
+body.dark-mode .cta-button {
+    background: linear-gradient(135deg, #387be7 0%, #2563eb 100%);
+}
+
+body.dark-mode .cta-button:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+}

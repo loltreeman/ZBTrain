@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZBLS Trainer</title>
+
+  <link rel="icon" type="image/png" href="images/logo.png" sizes="72x72">
+  <link rel="stylesheet" href="styles/homepage.css">
+  <link rel="stylesheet" href="styles/zblsSelect.css">
+  <link rel="stylesheet" href="styles/darkmode.css">
+</head>
+<body>
+
+  <div class="nav-wrapper">
+    <div class="grad-bar"></div>
+    <nav class="navbar">
+      <div class="brand-container">
+        <img src="images/logo.png" alt="ZBTrain" class="logoimg">
+        <span class="brand-text">ZBTrain - ZBLS Trainer</span>
+      </div>
+      <button type="button" id="darkModeToggle" class="btn-nav dark-mode-toggle" onclick="toggleDarkMode()">🌙 Dark Mode</button>
+    </nav>
+  </div>
+
+  <div class="layout">
+    <main class="left-column">
+
+      <div class="toggleGroup" data-group="F2L1">
+        <div class="collapsible" id="F2L1Button" role="button" tabindex="0" aria-expanded="false">
+          <div class="header-row">
+            <div class="header-title">
+              <b>F2L 1</b> (<span id="F2L1Count">0</span>/8)
+            </div>
+            <div class="header-controls">
+              <button type="button" class="subset-btn" data-subset="F2L1" data-action="all">All</button>
+              <button type="button" class="subset-btn" data-subset="F2L1" data-action="none">None</button>
+              <span class="collapse-icon">▸</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="preview-row">
+          <label for="F2L1-1" class="preview-label">
+            <img class="preview" src="images/ZBLS/F2L%201-1.png" alt="F2L 1 preview">
+          </label>
+        </div>
+
+        <div class="grid-container" data-subset="F2L1">
+                    <div class="grid-item">
+                        <input type="checkbox" id="F2L1-1" class="F2L1" name="case">
+                        <label for="F2L1-1" class="thumb">
+                            <img src="images/ZBLS/F2L%201-1.png" alt="F2L 1-1">
+                        </label>
+                        <div class="alg" data-case="F2L1-1"></div>
+                    </div>
+                    <div class="grid-item">
+                        <input type="checkbox" id="F2L1-2" class="F2L1" name="case">
+                        <label for="F2L1-2" class="thumb">
+                            <img src="images/ZBLS/F2L%201-2.png" alt="F2L 1-2">
+                        </label>
+                        <div class="alg" data-case="F2L1-2"></div>
+                    </div>
+                    <div class="grid-item">
+                        <input type="checkbox" id="F2L1-3" class="F2L1" name="case">
+                        <label for="F2L1-3" class="thumb">
+                            <img src="images/ZBLS/F2L%201-3.png" alt="F2L 1-3">
+                        </label>
+                        <div class="alg" data-case="F2L1-3"></div>
+                    </div>
+                    <div class="grid-item">
+                        <input type="checkbox" id="F2L1-4" class="F2L1" name="case">
+                        <label for="F2L1-4" class="thumb">
+                            <img src="images/ZBLS/F2L%201-4.png" alt="F2L 1-4">
+                        </label>
+                        <div class="alg" data-case="F2L1-4"></div>
+                    </div>
+                    <div class="grid-item">
+                        <input type="checkbox" id="F2L1-5" class="F2L1" name="case">
+                        <label for="F2L1-5" class="thumb">
+                            <img src="images/ZBLS/F2L%201-5.png" alt="F2L 1-5">
+                        </label>
+                        <div class="alg" data-case="F2L1-5"></div>
+                    </div>
+                    <div class="grid-item">
+                        <input type="checkbox" id="F2L1-6" class="F2L1" name="case">
+                        <label for="F2L1-6" class="thumb">
+                            <img src="images/ZBLS/F2L%201-6.png" alt="F2L 1-6">
+                        </label>
+                        <div class="alg" data-case="F2L1-6"></div>
+                    </div>
+                    <div class="grid-item">
+                        <input type="checkbox" id="F2L1-7" class="F2L1" name="case">
+                        <label for="F2L1-7" class="thumb">
+                            <img src="images/ZBLS/F2L%201-7.png" alt="F2L 1-7">
+                        </label>
+                        <div class="alg" data-case="F2L1-7"></div>
+                    </div>
+                    <div class="grid-item">
+                        <input type="checkbox" id="F2L1-8" class="F2L1" name="case">
+                        <label for="F2L1-8" class="thumb">
+                            <img src="images/ZBLS/F2L%201-8.png" alt="F2L 1-8">
+                        </label>
+                        <div class="alg" data-case="F2L1-8"></div>
+                    </div>   
+                </div>
+      </div>
+
+           <div class="toggleGroup" data-group="F2L2">
+        <div class="collapsible" id="F2L2Button" role="button" tabindex="0" aria-expanded="false">
+          <div class="header-row">
+            <div class="header-title">
+              <b>F2L 2</b> (<span id="F2L2Count">0</span>/8)
+            </div>
+            <div class="header-controls">
+              <button type="button" class="subset-btn" data-subset="F2L2" data-action="all">All</button>
+              <button type="button" class="subset-btn" data-subset="F2L2" data-action="none">None</button>
+              <span class="collapse-icon">▸</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="preview-row">
+          <label for="F2L2-1" class="preview-label">
+            <img class="preview" src="images/ZBLS/F2L%202-1.png" alt="F2L 2 preview">
+          </label>
+        </div>
+
+        <div class="grid-container" data-subset="F2L2">
+                    <div class="grid-item">
+                        <input type="checkbox" id="F2L2-1" class="F2L2" name="case">
+                        <label for="F2L2-1" class="thumb">
+                            <img src="images/ZBLS/F2L%202-1.png" alt="F2L 2-1">
+                        </label>
+                        <div class="alg" data-case="F2L2-1"></div>
+                    </div>
+                    <div class="grid-item">
+                        <input type="checkbox" id="F2L2-2" class="F2L2" name="case">
+                        <label for="F2L2-2" class="thumb">
+                            <img src="images/ZBLS/F2L%202-2.png" alt="F2L 2-2">
+                        </label>
+                        <div class="alg" data-case="F2L2-2"></div>
+                    </div>
+                    <div class="grid-item">
+                        <input type="checkbox" id="F2L2-3" class="F2L2" name="case">
+                        <label for="F2L2-3" class="thumb">
+                            <img src="images/ZBLS/F2L%202-3.png" alt="F2L 2-3">
+                        </label>
+                        <div class="alg" data-case="F2L2-3"></div>
+                    </div>
+                    <div class="grid-item">
+                        <input type="checkbox" id="F2L2-4" class="F2L2" name="case">
+                        <label for="F2L2-4" class="thumb">
+                            <img src="images/ZBLS/F2L%202-4.png" alt="F2L 2-4">
+                        </label>
+                        <div class="alg" data-case="F2L2-4"></div>
+                    </div>
+                    <div class="grid-item">
+                        <input type="checkbox" id="F2L2-5" class="F2L2" name="case">
+                        <label for="F2L2-5" class="thumb">
+                            <img src="images/ZBLS/F2L%202-5.png" alt="F2L 2-5">
+                        </label>
+                        <div class="alg" data-case="F2L2-5"></div>
+                    </div>
+                    <div class="grid-item">
+                        <input type="checkbox" id="F2L2-6" class="F2L2" name="case">
+                        <label for="F2L2-6" class="thumb">
+                            <img src="images/ZBLS/F2L%202-6.png" alt="F2L 2-6">
+                        </label>
+                        <div class="alg" data-case="F2L2-6"></div>
+                    </div>
+                    <div class="grid-item">
+                        <input type="checkbox" id="F2L2-7" class="F2L2" name="case">
+                        <label for="F2L2-7" class="thumb">
+                            <img src="images/ZBLS/F2L%202-7.png" alt="F2L 2-7">
+                        </label>
+                        <div class="alg" data-case="F2L2-7"></div>
+                    </div>
+                    <div class="grid-item">
+                        <input type="checkbox" id="F2L2-8" class="F2L2" name="case">
+                        <label for="F2L2-8" class="thumb">
+                            <img src="images/ZBLS/F2L%202-8.png" alt="F2L 2-8">
+                        </label>
+                        <div class="alg" data-case="F2L2-8"></div>
+                    </div>   
+                </div>
+      </div>
+
+
+           <div class="toggleGroup" data-group="F2L3">
+        <div class="collapsible" id="F2L3Button" role="button" tabindex="0" aria-expanded="false">
+          <div class="header-row">
+            <div class="header-title">
+              <b>F2L 3</b> (<span id="F2L3Count">0</span>/8)
+            </div>
+            <div class="header-controls">
+              <button type="button" class="subset-btn" data-subset="F2L3" data-action="all">All</button>
+              <button type="button" class="subset-btn" data-subset="F2L3" data-action="none">None</button>
+              <span class="collapse-icon">▸</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="preview-row">
+          <label for="F2L3-1" class="preview-label">
+            <img class="preview" src="images/ZBLS/F2L%203-1.png" alt="F2L 3 preview">
+          </label>
+        </div>
+
+        <div class="grid-container" data-subset="F2L3">
+                    <div class="grid-item">
+                        <input type="checkbox" id="F2L3-1" class="F2L3" name="case">
+                        <label for="F2L3-1" class="thumb">
+                            <img src="images/ZBLS/F2L%203-1.png" alt="F2L 3-1">
+                        </label>
+                        <div class="alg" data-case="F2L3-1"></div>
+                    </div>
+                    <div class="grid-item">
+                        <input type="checkbox" id="F2L3-2" class="F2L3" name="case">
+                        <label for="F2L3-2" class="thumb">
+                            <img src="images/ZBLS/F2L%203-2.png" alt="F2L 3-2">
+                        </label>
+                        <div class="alg" data-case="F2L3-2"></div>
+                    </div>
+                    <div class="grid-item">
+                        <input type="checkbox" id="F2L3-3" class="F2L3" name="case">
+                        <label for="F2L3-3" class="thumb">
+                            <img src="images/ZBLS/F2L%203-3.png" alt="F2L 3-3">
+                        </label>
+                        <div class="alg" data-case="F2L3-3"></div>
+                    </div>
+                    <div class="grid-item">
+                        <input type="checkbox" id="F2L3-4" class="F2L3" name="case">
+                        <label for="F2L3-4" class="thumb">
+                            <img src="images/ZBLS/F2L%203-4.png" alt="F2L 3-4">
+                        </label>
+                        <div class="alg" data-case="F2L3-4"></div>
+                    </div>
+                    <div class="grid-item">
+                        <input type="checkbox" id="F2L3-5" class="F2L3" name="case">
+                        <label for="F2L3-5" class="thumb">
+                            <img src="images/ZBLS/F2L%203-5.png" alt="F2L 3-5">
+                        </label>
+                        <div class="alg" data-case="F2L3-5"></div>
+                    </div>
+                    <div class="grid-item">
+                        <input type="checkbox" id="F2L3-6" class="F2L3" name="case">
+                        <label for="F2L3-6" class="thumb">
+                            <img src="images/ZBLS/F2L%203-6.png" alt="F2L 3-6">
+                        </label>
+                        <div class="alg" data-case="F2L3-6"></div>
+                    </div>
+                    <div class="grid-item">
+                        <input type="checkbox" id="F2L3-7" class="F2L3" name="case">
+                        <label for="F2L3-7" class="thumb">
+                            <img src="images/ZBLS/F2L%203-7.png" alt="F2L 3-7">
+                        </label>
+                        <div class="alg" data-case="F2L3-7"></div>
+                    </div>
+                    <div class="grid-item">
+                        <input type="checkbox" id="F2L3-8" class="F2L3" name="case">
+                        <label for="F2L3-8" class="thumb">
+                            <img src="images/ZBLS/F2L%203-8.png" alt="F2L 3-8">
+                        </label>
+                        <div class="alg" data-case="F2L3-8"></div>
+                    </div>   
+                </div>
+      </div>
+
+
+           <div class="toggleGroup" data-group="F2L4">
+        <div class="collapsible" id="F2L4Button" role="button" tabindex="0" aria-expanded="false">
+          <div class="header-row">
+            <div class="header-title">
+              <b>F2L 4</b> (<span id="F2L4Count">0</span>/8)
+            </div>
+            <div class="header-controls">
+              <button type="button" class="subset-btn" data-subset="F2L4" data-action="all">All</button>
+              <button type="button" class="subset-btn" data-subset="F2L4" data-action="none">None</button>
+              <span class="collapse-icon">▸</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="preview-row">
+          <label for="F2L4-1" class="preview-label">
+            <img class="preview" src="images/ZBLS/F2L%204-1.png" alt="F2L 4 preview">
+          </label>
+        </div>
+
+        <div class="grid-container" data-subset="F2L4">
+                    <div class="grid-item">
+                        <input type="checkbox" id="F2L4-1" class="F2L4" name="case">
+                        <label for="F2L4-1" class="thumb">
+                            <img src="images/ZBLS/F2L%204-1.png" alt="F2L 4-1">
+                        </label>
+                        <div class="alg" data-case="F2L4-1"></div>
+                    </div>
+                    <div class="grid-item">
+                        <input type="checkbox" id="F2L4-2" class="F2L4" name="case">
+                        <label for="F2L4-2" class="thumb">
+                            <img src="images/ZBLS/F2L%204-2.png" alt="F2L 4-2">
+                        </label>
+                        <div class="alg" data-case="F2L4-2"></div>
+                    </div>
+                    <div class="grid-item">
+                        <input type="checkbox" id="F2L4-3" class="F2L4" name="case">
+                        <label for="F2L4-3" class="thumb">
+                            <img src="images/ZBLS/F2L%204-3.png" alt="F2L 4-3">
+                        </label>
+                        <div class="alg" data-case="F2L4-3"></div>
+                    </div>
+                    <div class="grid-item">
+                        <input type="checkbox" id="F2L4-4" class="F2L4" name="case">
+                        <label for="F2L4-4" class="thumb">
+                            <img src="images/ZBLS/F2L%204-4.png" alt="F2L 4-4">
+                        </label>
+                        <div class="alg" data-case="F2L4-4"></div>
+                    </div>
+                    <div class="grid-item">
+                        <input type="checkbox" id="F2L4-5" class="F2L4" name="case">
+                        <label for="F2L4-5" class="thumb">
+                            <img src="images/ZBLS/F2L%204-5.png" alt="F2L 4-5">
+                        </label>
+                        <div class="alg" data-case="F2L4-5"></div>
+                    </div>
+                    <div class="grid-item">
+                        <input type="checkbox" id="F2L4-6" class="F2L4" name="case">
+                        <label for="F2L4-6" class="thumb">
+                            <img src="images/ZBLS/F2L%204-6.png" alt="F2L 4-6">
+                        </label>
+                        <div class="alg" data-case="F2L4-6"></div>
+                    </div>
+                    <div class="grid-item">
+                        <input type="checkbox" id="F2L4-7" class="F2L4" name="case">
+                        <label for="F2L4-7" class="thumb">
+                            <img src="images/ZBLS/F2L%204-7.png" alt="F2L 4-7">
+                        </label>
+                        <div class="alg" data-case="F2L4-7"></div>
+                    </div>
+                    <div class="grid-item">
+                        <input type="checkbox" id="F2L4-8" class="F2L4" name="case">
+                        <label for="F2L4-8" class="thumb">
+                            <img src="images/ZBLS/F2L%204-8.png" alt="F2L 4-8">
+                        </label>
+                        <div class="alg" data-case="F2L4-8"></div>
+                    </div>   
+                </div>
+      </div>
+
+
+    </main>
+
+    <aside class="right-column">
+      <div class="sticky-controls">
+        <button type="button" onclick="loadCases(false)" class="train" id="start" disabled>Start</button>
+        <button type="button" onclick="loadCases(true)" class="train" id="recap" disabled>Recap</button>
+        <p id="selected">0 cases selected</p>
+        <button type="button" onclick="toggleAll(true)" class="selectToggle" id="selectAll">Select All</button>
+        <button type="button" onclick="toggleAll(false)" class="selectToggle" id="deselectAll">Deselect All</button>
+        <button type="button" onclick="toggleExpand(true)" class="collapseToggle" id="open">Expand All</button>
+        <button type="button" onclick="toggleExpand(false)" class="collapseToggle" id="close">Collapse All</button>
+      </div>
+
+      <!-- Presets section -->
+      <div id="preset-controls">
+        <h3>Presets</h3>
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <div style="flex: 1;">
+            <select id="presetList" size="8" style="width: 100%; border: 1px solid #555;"></select>
+          </div>
+
+          <div style="flex: 1; display: flex; flex-direction: column; gap: 5px; align-items: stretch;">
+            <div>
+              <label style="font-size: 0.8em; display:block;">Save preset as</label>
+              <div style="display: flex;">
+                <input type="text" id="presetNameInput" style="width: 100%; box-sizing: border-box;" placeholder="Name">
+                <button id="savePresetBtn" style="padding: 2px 6px; margin: 0 0 0 5px;" title="Save">Save</button>
+              </div>
+            </div>
+
+            <button id="loadPresetBtn">Load</button>
+            <button id="exportPresetsBtn">Export</button>
+            <button id="importPresetsBtn">Import</button>
+
+            <div style="display: flex; align-items: center;">
+              <button id="deletePresetBtn" style="flex: 1;">Delete</button>
+              <button id="undoDeleteBtn" style="padding: 6px; margin-left: 5px;" title="Undo Delete" disabled>Undo</button>
+            </div>
+
+            <div style="display: flex; gap: 5px; margin-top: 5px; justify-content: flex-start;">
+              <button id="moveUpBtn" class="square-btn">▲</button>
+              <button id="moveDownBtn" class="square-btn">▼</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-row">
+      <span>
+        Created by
+        <a href="https://www.worldcubeassociation.org/persons/2016NAGU02" target="_blank" rel="noopener" class="footer-link">Christian Naguio</a>
+      </span>
+      <span class="footer-separator">|</span>
+      <a href="https://github.com/loltreeman/ZBTrain" target="_blank" rel="noopener" class="footer-link">
+        <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/github.svg" alt="GitHub" class="footer-icon">
+        GitHub
+      </a>
+      <span class="footer-separator">|</span>
+      <span>Last updated: January 2026</span>
+      <span class="footer-separator">|</span>
+      <span>My ZBLL Sheet:
+        <a href="https://docs.google.com/spreadsheets/d/1pyB2bGwk0q0BnMybOqWPwOMTMX2WIEH0--qecpG5fCM/edit?usp=sharing" target="_blank" rel="noopener" class="footer-link">
+          Trix's ZBLL Sheet
+        </a>
+      </span> 
+      <span class="footer-separator">|</span>
+      <span>S1neWav's FR ZBLS Sheet:
+        <a href="docs.google.com/spreadsheets/d/1UpyXOJjrnFboJv-o1SuuWrkGOqaEGqnN/edit?gid=1483906934#gid=1483906934" target="_blank" rel="noopener" class="footer-link">
+          S1neWav's ZBLS Sheet
+        </a>
+      </span> 
+    </div>
+  </footer>
+
+  <script src="scripts/zblsSelect.js"></script>
+  <script src="scripts/presets.js"></script>
+  <script src="scripts/darkmode.js"></script>
+</body>
+</html>
