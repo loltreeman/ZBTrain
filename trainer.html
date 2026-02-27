@@ -10,6 +10,7 @@
 </head>
 <body>
 
+    <div id="slowModeBanner" style="display:none;"></div>
     <header class="app-header">
         <div class="header-center">
             <div id="scramble-display" class="scramble">
@@ -116,6 +117,7 @@
                 
                 <div id="timer" class="timer-display">0.00</div>
                 <p class="timer-hint">Hold Space to Start</p>
+                <div id="splitDisplay" style="display:none;"></div>   
                 
             </div>
         </section>
@@ -168,6 +170,7 @@
     <footer class="action-footer">
         <div class="footer-controls">
             <button type="button" id="showStats" class="btn-secondary" onclick="showStatsPanel()">Show Stats</button>
+            <button type="button" id="showSlowBtn"  class="btn-secondary" onclick="showSlowCasesPanel()">Slow Cases</button>
             <button type="button" id="exportCsv" class="btn-secondary" onclick="exportAttemptsCsv()">Export CSV</button>
         </div>
     </footer>
@@ -179,6 +182,31 @@
     </div>
     <div id="statsContent">
         </div>
+        </div>
+
+<div id="slowModeBanner" style="display:none;"></div>
+
+<div id="slowCasesPanel" style="display:none; width:100%; max-width:800px; margin:30px auto; padding:24px; background:var(--card-bg); border:1px solid var(--border); border-radius:20px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <div>
+            <h3 style="margin:0; font-size:22px; font-weight:800;">Slow Cases</h3>
+            <p id="slowCasesCount" style="margin:4px 0 0; font-size:13px; color:var(--text-muted);"></p>
+        </div>
+        <button type="button" class="btn-sidebar-alt" onclick="hideSlowCasesPanel()">Hide</button>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px; padding:12px 16px; background:var(--bg-main); border-radius:12px; border:1px solid var(--border);">
+        <label style="font-size:13px; font-weight:700; color:var(--text-muted); white-space:nowrap;">Threshold:</label>
+        <input type="range" id="thresholdSlider" min="1" max="15" step="0.5" style="flex:1; accent-color:var(--accent-blue);">
+        <span id="thresholdLabel" style="font-family:'JetBrains Mono',monospace; font-weight:800; font-size:16px; color:var(--accent-blue); min-width:40px; text-align:right;"></span>
+    </div>
+
+    <div id="slowCasesList" style="display:flex; flex-direction:column; gap:6px; max-height:400px; overflow-y:auto; margin-bottom:16px;"></div>
+
+    <button type="button" id="trainSlowBtn" class="btn-secondary" onclick="trainSlowCases()" disabled>
+        Train These Cases
+    </button>
+</div>
 </div>
 
     <script src="scripts/scrambles.js"></script>
@@ -187,6 +215,7 @@
     <script src="scripts/cube3x3.js"></script>
     <script src="scripts/virtualCubeEmbed.js"></script>
     <script src="scripts/trainer.js"></script>
+    <script src="scripts/slowcases.js"></script>
     <script src="scripts/darkmode.js"></script>
 </body>
 </html>

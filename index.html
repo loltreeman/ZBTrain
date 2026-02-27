@@ -640,6 +640,8 @@
 
       <aside class="right-column">
         <div class="sticky-controls">
+          <button type="button" id="heatmapToggle">🗺 Show Heatmap</button>
+          <div id="heatmapLegend"></div>
           <button type="button" onclick="loadCases(false)" class="train" id="start" disabled>Start</button>
           <button type="button" onclick="loadCases(true)" class="train" id="recap" disabled>Recap</button>
           <p id="selected">0 cases selected</p>
@@ -728,5 +730,6 @@
   <script src="scripts/index.js"></script>
   <script src="scripts/presets.js"></script>
   <script src="scripts/darkmode.js"></script>
+  <script src="scripts/heatmap.js"></script>
   </body>
   </html>

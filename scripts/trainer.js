@@ -5,6 +5,10 @@ var currentlyDisplayedCase = null; // Track what is actually on the results scre
 var justFinishedSolve = false; // Add this with your other global variables
 var lockoutActive = false; // Prevents accidental double-starts
 var currentOrientation = ""; // To track the orientation used for the current scramble
+var solveStartTime = null; // performance.now() when timer starts
+var firstMoveTime = null; // performance.now() when first cube move happens
+var currentRecogTime = null; // seconds (string) of recognition time
+var currentExecTime = null; // seconds (string) of execution time
 
 if (selectedCasesRaw && selectedCasesRaw.length) {
     recap = JSON.parse(sessionStorage.getItem("recapMode")) || false;
@@ -143,7 +147,10 @@ function trainerSetup() {
 
     setTimeout(function () {
         try {
-            if (window.virtualCube && typeof window.virtualCube.resize === "function") {
+            if (
+                window.virtualCube &&
+                typeof window.virtualCube.resize === "function"
+            ) {
                 window.virtualCube.resize();
             }
         } catch (e) {}
@@ -161,6 +168,20 @@ function trainerSetup() {
     } else {
         displayCaseCount(toTrain, "numSelected", "selected");
     }
+}
+
+function shuffleArray(arr) {
+    for (var i = arr.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = tmp;
+    }
+    return arr;
+}
+
+if (recap) {
+    shuffleArray(toRecap);
 }
 
 const fullCNCheckbox = document.getElementById("fullCN");
@@ -199,12 +220,14 @@ function onVirtualCheckboxChange(e) {
         // Wait for the browser to paint the container, then resize
         setTimeout(function () {
             try {
-                if (window.virtualCube && typeof window.virtualCube.resize === "function") {
+                if (
+                    window.virtualCube &&
+                    typeof window.virtualCube.resize === "function"
+                ) {
                     window.virtualCube.resize();
                 }
             } catch (e) {}
         }, 50);
-
     } else {
         hideVirtualCube();
     }
@@ -218,7 +241,6 @@ function saveAttempts() {
 
 // render case-specific attempts/stats in the sidebar and under the timer
 function renderCaseAttempts(caseObj) {
-    // fallback to currentlyDisplayedCase if caseObj is null
     var targetCase = caseObj || currentlyDisplayedCase;
     if (!targetCase) return;
 
@@ -229,40 +251,110 @@ function renderCaseAttempts(caseObj) {
     if (!summaryEl || !listEl) return;
 
     var filtered = attempts
-        .map((a, i) => Object.assign({}, a, { _idx: i }))
-        .filter((a) => a.caseName === name);
+        .map(function (a, i) {
+            return Object.assign({}, a, { _idx: i });
+        })
+        .filter(function (a) {
+            return a.caseName === name;
+        });
 
     var count = filtered.length;
-    var total = filtered.reduce((s, a) => s + (a.time || 0), 0);
+    var total = filtered.reduce(function (s, a) {
+        return s + (a.time || 0);
+    }, 0);
     var avg = count ? total / count : 0;
-    var min = count ? Math.min(...filtered.map((a) => a.time)) : 0;
-    var max = count ? Math.max(...filtered.map((a) => a.time)) : 0;
+    var min = count
+        ? Math.min.apply(
+              null,
+              filtered.map(function (a) {
+                  return a.time;
+              })
+          )
+        : 0;
+    var max = count
+        ? Math.max.apply(
+              null,
+              filtered.map(function (a) {
+                  return a.time;
+              })
+          )
+        : 0;
 
-    // to update the summary
-    summaryEl.innerHTML = `
-        <div class="stat-square"><span class="stat-label">Attempts</span><span class="stat-value">${count}</span></div>
-        <div class="stat-square"><span class="stat-label">Average</span><span class="stat-value">${avg.toFixed(
-            2
-        )}s</span></div>
-        <div class="stat-square"><span class="stat-label">Best</span><span class="stat-value">${
-            count ? min.toFixed(2) : "-"
-        }</span></div>
-        <div class="stat-square"><span class="stat-label">Worst</span><span class="stat-value">${
-            count ? max.toFixed(2) : "-"
-        }</span></div>
-    `;
+    // Recog/exec averages — only from attempts that have split data
+    var splitAttempts = filtered.filter(function (a) {
+        return a.recogTime != null && a.execTime != null;
+    });
+    var avgRecog = "-",
+        avgExec = "-";
+    if (splitAttempts.length) {
+        var totalRecog = splitAttempts.reduce(function (s, a) {
+            return s + a.recogTime;
+        }, 0);
+        var totalExec = splitAttempts.reduce(function (s, a) {
+            return s + a.execTime;
+        }, 0);
+        avgRecog = (totalRecog / splitAttempts.length).toFixed(2) + "s";
+        avgExec = (totalExec / splitAttempts.length).toFixed(2) + "s";
+    }
 
-    // to update the tag list
+    summaryEl.innerHTML =
+        '<div class="stat-square"><span class="stat-label">Attempts</span><span class="stat-value">' +
+        count +
+        "</span></div>" +
+        '<div class="stat-square"><span class="stat-label">Average</span><span class="stat-value">' +
+        (count ? avg.toFixed(2) + "s" : "-") +
+        "</span></div>" +
+        '<div class="stat-square"><span class="stat-label">Best</span><span class="stat-value">' +
+        (count ? min.toFixed(2) + "s" : "-") +
+        "</span></div>" +
+        '<div class="stat-square"><span class="stat-label">Worst</span><span class="stat-value">' +
+        (count ? max.toFixed(2) + "s" : "-") +
+        "</span></div>" +
+        // Split row — only show if we have split data
+        (splitAttempts.length
+            ? '<div class="stat-square stat-recog"><span class="stat-label">Avg Recog</span><span class="stat-value recog-value">' +
+              avgRecog +
+              "</span></div>" +
+              '<div class="stat-square stat-exec"><span class="stat-label">Avg Exec</span><span class="stat-value exec-value">' +
+              avgExec +
+              "</span></div>"
+            : "");
+
+    // Attempt tags — show recog/exec as tooltip
     listEl.innerHTML = "";
     filtered
         .slice()
         .reverse()
-        .forEach((a) => {
-            const timeTag = document.createElement("span");
-            timeTag.className = "clickable-tag";
-            timeTag.innerHTML = a.time.toFixed(2);
-            timeTag.onclick = () => deleteAttempt(a._idx); // Simplified call
-            listEl.appendChild(timeTag);
+        .forEach(function (a) {
+            var tag = document.createElement("span");
+            tag.className = "clickable-tag";
+            tag.innerHTML = a.time.toFixed(2);
+
+            // Show split as tooltip if available
+            if (a.recogTime != null) {
+                var execDisplay =
+                    a.execTime != null ? a.execTime.toFixed(2) : "?";
+                tag.title =
+                    "Recog: " +
+                    a.recogTime.toFixed(2) +
+                    "s  |  Exec: " +
+                    execDisplay +
+                    "s";
+                tag.innerHTML +=
+                    '<span class="tag-split">' +
+                    '<span class="tag-recog">' +
+                    a.recogTime.toFixed(2) +
+                    "</span>" +
+                    '<span class="tag-exec">' +
+                    execDisplay +
+                    "</span>" +
+                    "</span>";
+            }
+
+            tag.onclick = function () {
+                deleteAttempt(a._idx);
+            };
+            listEl.appendChild(tag);
         });
 }
 
@@ -309,6 +401,11 @@ function clearAllAttempts() {
 function logAttempt(caseObj, timeStr, result) {
     var time = parseFloat(timeStr) || 0;
     var ts = new Date().toISOString();
+
+    // Parse recog/exec from globals set during the solve
+    var recogTime = currentRecogTime ? parseFloat(currentRecogTime) : null;
+    var execTime = currentExecTime ? parseFloat(currentExecTime) : null;
+
     var entry = {
         timestamp: ts,
         caseName:
@@ -323,12 +420,18 @@ function logAttempt(caseObj, timeStr, result) {
                 ? caseObj._orientation
                 : null,
         time: time,
+        recogTime: recogTime,
+        execTime: execTime,
         result: result || "OK",
+        solvedByVirtualCube: !!virtualSolvedByCube,
     };
-    // mark whether this attempt was solved using the virtual cube
-    entry.solvedByVirtualCube = !!virtualSolvedByCube;
-    // reset flag after logging
+
     virtualSolvedByCube = false;
+
+    // Reset split globals for next solve
+    currentRecogTime = null;
+    currentExecTime = null;
+
     attempts.push(entry);
     saveAttempts();
 }
@@ -371,56 +474,100 @@ function exportAttemptsCsv() {
 function showStatsPanel() {
     var panel = document.getElementById("statsPanel");
     var content = document.getElementById("statsContent");
-
     panel.style.display = "block";
-
-    setTimeout(function() {
-        panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setTimeout(function () {
+        panel.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 100);
 
-    // compute per-case stats
+    // Per-case stats
     var byCase = {};
-    attempts.forEach((a) => {
+    attempts.forEach(function (a) {
         var key = a.caseName || a.set + "-" + a.subset + "-" + a.caseId;
         if (!byCase[key])
-            byCase[key] = { count: 0, total: 0, min: Infinity, max: 0 };
+            byCase[key] = {
+                count: 0,
+                total: 0,
+                min: Infinity,
+                max: 0,
+                recogTotal: 0,
+                execTotal: 0,
+                splitCount: 0,
+            };
         byCase[key].count++;
         byCase[key].total += a.time;
         byCase[key].min = Math.min(byCase[key].min, a.time);
         byCase[key].max = Math.max(byCase[key].max, a.time);
+        if (a.recogTime != null) {
+            byCase[key].recogTotal += a.recogTime;
+            byCase[key].execTotal += a.execTime;
+            byCase[key].splitCount++;
+        }
     });
 
     var html = "<h4>Per-case stats</h4>";
     html +=
-        '<table style="width:100%;border-collapse:collapse"><tr><th>Case</th><th>Count</th><th>Avg</th><th>Best</th><th>Worst</th></tr>';
+        "<table><tr><th>Case</th><th>Count</th><th>Avg</th><th>Best</th><th>Worst</th><th>Avg Recog</th><th>Avg Exec</th></tr>";
     Object.keys(byCase)
         .sort()
-        .forEach((k) => {
+        .forEach(function (k) {
             var s = byCase[k];
             var avg = s.count ? (s.total / s.count).toFixed(2) : "-";
-            html += `<tr><td>${k}</td><td>${s.count}</td><td>${avg}</td><td>${
-                s.min === Infinity ? "-" : s.min.toFixed(2)
-            }</td><td>${s.max.toFixed(2)}</td></tr>`;
+            var avgRecog = s.splitCount
+                ? (s.recogTotal / s.splitCount).toFixed(2)
+                : "-";
+            var avgExec = s.splitCount
+                ? (s.execTotal / s.splitCount).toFixed(2)
+                : "-";
+            html +=
+                "<tr>" +
+                "<td>" +
+                k +
+                "</td>" +
+                "<td>" +
+                s.count +
+                "</td>" +
+                "<td>" +
+                avg +
+                "</td>" +
+                "<td>" +
+                (s.min === Infinity ? "-" : s.min.toFixed(2)) +
+                "</td>" +
+                "<td>" +
+                s.max.toFixed(2) +
+                "</td>" +
+                '<td class="recog-col">' +
+                avgRecog +
+                "</td>" +
+                '<td class="exec-col">' +
+                avgExec +
+                "</td>" +
+                "</tr>";
         });
     html += "</table>";
 
-    //subset stats
+    // Per-subset stats
     var bySubset = {};
-    attempts.forEach((a) => {
+    attempts.forEach(function (a) {
         var key = (a.set || "") + "-" + (a.subset || "");
         if (!bySubset[key]) bySubset[key] = { count: 0, total: 0 };
         bySubset[key].count++;
         bySubset[key].total += a.time;
     });
     html += "<h4>Per-subset stats</h4>";
-    html +=
-        '<table style="width:100%;border-collapse:collapse"><tr><th>Subset</th><th>Count</th><th>Avg</th></tr>';
+    html += "<table><tr><th>Subset</th><th>Count</th><th>Avg</th></tr>";
     Object.keys(bySubset)
         .sort()
-        .forEach((k) => {
+        .forEach(function (k) {
             var s = bySubset[k];
             var avg = s.count ? (s.total / s.count).toFixed(2) : "-";
-            html += `<tr><td>${k}</td><td>${s.count}</td><td>${avg}</td></tr>`;
+            html +=
+                "<tr><td>" +
+                k +
+                "</td><td>" +
+                s.count +
+                "</td><td>" +
+                avg +
+                "</td></tr>";
         });
     html += "</table>";
 
@@ -438,24 +585,23 @@ function hideStatsPanel() {
  * @returns {zbllCase} - the case that was generated
  */
 function generateScramble() {
-    var c;
     var arr = recap ? toRecap : toTrain;
+    if (!arr || arr.length === 0) return prevCase; // safety guard
 
-    // Pick random case
-    var rNum = Math.floor(Math.random() * arr.length);
-    c = arr[rNum];
+    var c;
+    var attempts = 0;
+    do {
+        var rNum = Math.floor(Math.random() * arr.length);
+        c = arr[rNum];
+        attempts++;
+    } while (c === prevCase && arr.length > 1 && attempts < 10);
+
     c._orientation = c._orientation || 0;
 
-    // gt the raw moves
     var rawScramble = c.getSetup();
-
-    // udate Header (WITH label)
     scrambleRef.innerHTML = `<span class="label">Scramble:</span> ${rawScramble}`;
-
-    // store the moves for the sidebar
     prevScramble = rawScramble;
 
-    // Do NOT apply scramble immediately to the cube. The cube will be reset and scrambled when timing starts.
     return c;
 }
 
@@ -574,51 +720,6 @@ function removeElement(c) {
     }
 }
 
-function getAlgList() {
-    var algs = prevCase.getAlgsArray();
-
-    if (!algs || algs.length === 0) {
-        return "<p class='no-algs'>No algorithms found.</p>";
-    }
-
-    // Map each algorithm string into a styled div with click handler
-    return algs
-        .map(
-            (alg, idx) =>
-                `<div class="alg-entry" onclick="editAlgorithm(${idx})">${alg}</div>`
-        )
-        .join("");
-}
-
-function editAlgorithm(index) {
-    if (!currentlyDisplayedCase) return;
-
-    var algs = currentlyDisplayedCase.getAlgsArray();
-    if (!algs || index >= algs.length) return;
-
-    var currentAlg = algs[index];
-    var newAlg = prompt("Edit algorithm:", currentAlg);
-
-    if (newAlg === null) return; // User cancelled
-
-    var caseKey =
-        currentlyDisplayedCase.set +
-        "-" +
-        currentlyDisplayedCase.subset +
-        "-" +
-        currentlyDisplayedCase.caseName;
-    var savedAlgs = JSON.parse(localStorage.getItem("customAlgs") || "{}");
-
-    if (!savedAlgs[caseKey]) {
-        savedAlgs[caseKey] = [...algs]; // Copy original algs
-    }
-
-    savedAlgs[caseKey][index] = newAlg;
-    localStorage.setItem("customAlgs", JSON.stringify(savedAlgs));
-
-    document.querySelector("#case-algs").innerHTML = getAlgList();
-}
-
 var originalGetAlgsArray = toTrain.length > 0 ? toTrain[0].getAlgsArray : null;
 if (originalGetAlgsArray) {
     toTrain.forEach((c) => {
@@ -640,10 +741,19 @@ if (originalGetAlgsArray) {
 
 /* displays information about previous ZBLL Case */
 function displayCaseInfo() {
-    count++; //increment number of results
-    currentlyDisplayedCase = prevCase; // LOCK the case here before prevCase changes
+    count++;
+    currentlyDisplayedCase = prevCase;
 
-    //display case information
+    // ── COMPUTE exec time FIRST, before anything else reads it ──
+    if (currentRecogTime !== null) {
+        var totalTime = parseFloat(timerRef.textContent) || 0;
+        var recog = parseFloat(currentRecogTime) || 0;
+        currentExecTime = Math.max(0, totalTime - recog).toFixed(2);
+    }
+
+    // Now both values are ready for display and logging
+    updateSplitDisplay(currentRecogTime, currentExecTime);
+
     document.querySelector("#case-text").innerHTML = "Result #" + count;
     document.querySelector("#case-time").innerHTML = timerRef.textContent;
     document.querySelector("#case-time").hidden = false;
@@ -651,34 +761,26 @@ function displayCaseInfo() {
     document.querySelector("#case-scram").innerHTML = prevScramble;
     document.querySelector("#case-algs").innerHTML = getAlgList();
 
-    // log attempt for stats (time recorded)
     try {
         logAttempt(prevCase, timerRef.textContent, "OK");
     } catch (e) {
         console.error(e);
     }
 
-    // remove from recap list if in recap mode
-    if (recap) {
-        removeElement(prevCase);
-    }
+    if (recap) removeElement(prevCase);
 
-    // Refresh the statistics immediately
     renderCaseAttempts(currentlyDisplayedCase);
 
-    //display image of case
     var imgRef = document.querySelector("#case-img");
     imgRef.src = prevCase.getImg();
     imgRef.alt = prevCase.getName();
     imgRef.width = 150;
     imgRef.height = 150;
 
-    // update per-case attempts view now that an attempt was recorded
     try {
         renderCaseAttempts(currentlyDisplayedCase);
     } catch (e) {}
 
-    // mark that we're ready for the next scramble; user must hold space to advance
     awaitingNext = true;
     revealed = false;
 }
@@ -700,10 +802,13 @@ document.addEventListener("keyup", handleKeyUp, false);
 
 function handleTouchStart(event) {
     // Only allow timer interaction if touching the timer area
-    if (!event.target.closest('.timer-wrapper') && !event.target.closest('.timer-display')) {
+    if (
+        !event.target.closest(".timer-wrapper") &&
+        !event.target.closest(".timer-display")
+    ) {
         return;
     }
-    
+
     if (event.target.tagName === "BUTTON") {
         // do nothing if again button clicked
         return;
@@ -724,10 +829,13 @@ function handleTouchStart(event) {
 
 function handleTouchEnd(event) {
     // Only allow timer interaction if touching the timer area
-    if (!event.target.closest('.timer-wrapper') && !event.target.closest('.timer-display')) {
+    if (
+        !event.target.closest(".timer-wrapper") &&
+        !event.target.closest(".timer-display")
+    ) {
         return;
     }
-    
+
     if (event.target.tagName === "BUTTON") {
         // do nothing if again button clicked
         return;
@@ -888,6 +996,7 @@ function handleKeyUp(event) {
             displayCaseInfo();
             prevCase = generateScramble();
             window.lastAttemptedScramble = lastAttemptScramble;
+
             lockoutActive = true;
             setTimeout(() => {
                 lockoutActive = false;
@@ -922,6 +1031,12 @@ function handleKeyUp(event) {
                     }
                 }
 
+                // Record solve start time for recog split
+                solveStartTime = performance.now();
+                firstMoveTime = null;
+                currentRecogTime = null;
+                currentExecTime = null;
+                window._firstMoveFired = false;
                 milliseconds = 0;
                 if (int !== null) clearInterval(int);
                 int = setInterval(displayTimer, 10);
@@ -1108,6 +1223,12 @@ if (window.virtualCube && typeof window.virtualCube.onSolve === "function") {
             timerStatus = "Paused"; // Spacebar will now acknowledge the result
             timerRef.style.color = "";
 
+            if (currentRecogTime !== null) {
+                var totalTime = parseFloat(timerRef.textContent) || 0;
+                var recog = parseFloat(currentRecogTime) || 0;
+                currentExecTime = Math.max(0, totalTime - recog).toFixed(2);
+            }
+
             // 2. Prevent the timer from instantly restarting if space is bumped
             lockoutActive = true;
             setTimeout(() => {
@@ -1132,7 +1253,205 @@ if (window.virtualCube && typeof window.virtualCube.onSolve === "function") {
     });
 }
 
-localStorage.removeItem("customAlgs");
+function getMainAlgKey(caseObj) {
+    return (
+        "mainAlg:" + caseObj.set + "-" + caseObj.subset + "-" + caseObj.caseName
+    );
+}
+
+function getMainAlgIndex(caseObj) {
+    var key = getMainAlgKey(caseObj);
+    var stored = localStorage.getItem(key);
+    return stored !== null ? parseInt(stored, 10) : 0; // default to first alg
+}
+
+function setMainAlg(caseObj, index) {
+    var key = getMainAlgKey(caseObj);
+    localStorage.setItem(key, index);
+}
+
+// ── Replace your existing getAlgList() with this ─────────────
+
+function getAlgList() {
+    if (!currentlyDisplayedCase)
+        return "<p class='no-algs'>No algorithms found.</p>";
+
+    var algs = currentlyDisplayedCase.getAlgsArray();
+    if (!algs || algs.length === 0) {
+        return "<p class='no-algs'>No algorithms found.</p>";
+    }
+
+    var mainIdx = getMainAlgIndex(currentlyDisplayedCase);
+
+    // Sort so main alg is always first
+    var sorted = algs.map(function (alg, idx) {
+        return { alg: alg, idx: idx };
+    });
+    sorted.sort(function (a, b) {
+        if (a.idx === mainIdx) return -1;
+        if (b.idx === mainIdx) return 1;
+        return 0;
+    });
+
+    return sorted
+        .map(function (item) {
+            var isMain = item.idx === mainIdx;
+            var note = getAlgNote(currentlyDisplayedCase, item.idx);
+
+            return (
+                '<div class="alg-entry' +
+                (isMain ? " alg-main" : "") +
+                '" data-alg-idx="' +
+                item.idx +
+                '">' +
+                '<div class="alg-entry-top">' +
+                (isMain
+                    ? '<span class="alg-main-badge">★ Main</span>'
+                    : '<button class="alg-set-main-btn" onclick="handleSetMainAlg(' +
+                      item.idx +
+                      ')">Set Main</button>') +
+                '<button class="alg-edit-btn" onclick="handleEditAlg(' +
+                item.idx +
+                ')">✏</button>' +
+                '<button class="alg-copy-btn" onclick="handleCopyAlg(' +
+                item.idx +
+                ')" title="Copy">⧉</button>' +
+                '<button class="alg-note-btn" onclick="handleToggleNote(' +
+                item.idx +
+                ')" title="Note">📝</button>' +
+                "</div>" +
+                '<div class="alg-text">' +
+                item.alg +
+                "</div>" +
+                '<div class="alg-note-row" id="alg-note-row-' +
+                item.idx +
+                '" style="display:' +
+                (note ? "flex" : "none") +
+                '">' +
+                '<input class="alg-note-input" type="text" placeholder="e.g. start on right index, good for U2 AUF..." ' +
+                'value="' +
+                note.replace(/"/g, "&quot;") +
+                '" ' +
+                'onchange="handleSaveNote(' +
+                item.idx +
+                ', this.value)" ' +
+                'oninput="handleSaveNote(' +
+                item.idx +
+                ', this.value)">' +
+                "</div>" +
+                "</div>"
+            );
+        })
+        .join("");
+}
+
+function getNoteKey(caseObj, index) {
+    return (
+        "algNote:" +
+        caseObj.set +
+        "-" +
+        caseObj.subset +
+        "-" +
+        caseObj.caseName +
+        ":" +
+        index
+    );
+}
+
+function getAlgNote(caseObj, index) {
+    return localStorage.getItem(getNoteKey(caseObj, index)) || "";
+}
+
+function handleToggleNote(index) {
+    var row = document.getElementById("alg-note-row-" + index);
+    if (!row) return;
+    var isVisible = row.style.display !== "none";
+    row.style.display = isVisible ? "none" : "flex";
+    if (!isVisible) {
+        // Focus the input when opening
+        var input = row.querySelector(".alg-note-input");
+        if (input)
+            setTimeout(function () {
+                input.focus();
+            }, 50);
+    }
+}
+
+function handleSaveNote(index, value) {
+    if (!currentlyDisplayedCase) return;
+    var key = getNoteKey(currentlyDisplayedCase, index);
+    if (value.trim()) {
+        localStorage.setItem(key, value);
+    } else {
+        localStorage.removeItem(key);
+    }
+}
+
+// ── Action handlers ───────────────────────────────────────────
+
+function handleSetMainAlg(index) {
+    if (!currentlyDisplayedCase) return;
+    setMainAlg(currentlyDisplayedCase, index);
+    document.querySelector("#case-algs").innerHTML = getAlgList();
+}
+
+function handleEditAlg(index) {
+    if (!currentlyDisplayedCase) return;
+    var algs = currentlyDisplayedCase.getAlgsArray();
+    if (!algs || index >= algs.length) return;
+
+    var currentAlg = algs[index];
+    var newAlg = prompt("Edit algorithm:", currentAlg);
+    if (newAlg === null) return;
+
+    var caseKey =
+        currentlyDisplayedCase.set +
+        "-" +
+        currentlyDisplayedCase.subset +
+        "-" +
+        currentlyDisplayedCase.caseName;
+    var savedAlgs = JSON.parse(localStorage.getItem("customAlgs") || "{}");
+    if (!savedAlgs[caseKey]) savedAlgs[caseKey] = [...algs];
+    savedAlgs[caseKey][index] = newAlg;
+    localStorage.setItem("customAlgs", JSON.stringify(savedAlgs));
+
+    document.querySelector("#case-algs").innerHTML = getAlgList();
+}
+
+function handleCopyAlg(index) {
+    if (!currentlyDisplayedCase) return;
+    var algs = currentlyDisplayedCase.getAlgsArray();
+    if (!algs || index >= algs.length) return;
+
+    navigator.clipboard
+        .writeText(algs[index])
+        .then(function () {
+            // Brief visual feedback on the button
+            var btn = document.querySelector(
+                '[data-alg-idx="' + index + '"] .alg-copy-btn'
+            );
+            if (btn) {
+                btn.textContent = "✓";
+                setTimeout(function () {
+                    btn.textContent = "⧉";
+                }, 1000);
+            }
+        })
+        .catch(function () {
+            // Fallback for older browsers
+            var ta = document.createElement("textarea");
+            ta.value = algs[index];
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand("copy");
+            ta.remove();
+        });
+}
+
+// ── Also update displayCaseInfo() to use the new getAlgList() ─
+// Find this line in your existing displayCaseInfo():
+//   document.querySelector("#case-algs").innerHTML = getAlgList();
+// It will work automatically since getAlgList() now uses currentlyDisplayedCase
 
 const useUserDefinedMask = document.getElementById("useUserDefinedMask");
 const maskSettings = document.getElementById("maskSettings");
@@ -1253,7 +1572,7 @@ function parseMaskInput(maskInput) {
 function expandPieceMask(pieceNotation) {
     var stickers = [];
     var normalized = pieceNotation.split("").sort().join("");
-    
+
     // find all stickers that belong to this piece
     for (var key in stickerToCubie3Map) {
         var keyNormalized = key.split("").sort().join("");
@@ -1261,7 +1580,7 @@ function expandPieceMask(pieceNotation) {
             stickers.push(key);
         }
     }
-    
+
     return stickers;
 }
 
@@ -1417,6 +1736,27 @@ document.addEventListener("DOMContentLoaded", function () {
     }, 150);
 });
 
+document.addEventListener("cubeFirstMove", function (e) {
+    if (timerStatus !== "Start") return;
+    if (!solveStartTime) return;
+    if (currentRecogTime !== null) return;
+
+    var firstMoveAt = e.detail ? e.detail.time : performance.now();
+    var recogSeconds = (firstMoveAt - solveStartTime) / 1000;
+    currentRecogTime = recogSeconds.toFixed(2);
+
+    var splitEl = document.getElementById("splitDisplay");
+    if (splitEl) {
+        splitEl.style.display = "flex";
+        splitEl.innerHTML =
+            '<span class="split-item split-recog">👁 Recog: <b>' +
+            currentRecogTime +
+            "s</b></span>" +
+            '<span class="split-divider">|</span>' +
+            '<span class="split-item split-exec">⚡ Executing...</span>';
+    }
+});
+
 if (useUserDefinedMask) {
     useUserDefinedMask.addEventListener("change", function () {
         maskSettings.style.display = this.checked ? "block" : "none";
@@ -1474,20 +1814,43 @@ if (window.virtualCube && window.virtualCube.reset) {
 var includeRecognitionTime = document.getElementById("includeRecognitionTime");
 var isIncludeRecognitionTime =
     localStorage.getItem("includeRecognitionTime") === "true";
-includeRecognitionTime.addEventListener("click", function () {
-    localStorage.setItem("includeRecognitionTime", this.checked);
-    isIncludeRecognitionTime = includeRecognitionTime.checked;
-});
+if (includeRecognitionTime) {
+    includeRecognitionTime.addEventListener("click", function () {
+        localStorage.setItem("includeRecognitionTime", this.checked);
+        isIncludeRecognitionTime = includeRecognitionTime.checked;
+    });
+}
 
 function toggleSettings() {
-    const sidebar = document.getElementById('settingsSidebar');
+    const sidebar = document.getElementById("settingsSidebar");
     if (sidebar) {
-        sidebar.classList.toggle('active');
-        
-        if (sidebar.classList.contains('active')) {
-            document.body.style.overflow = 'hidden';
+        sidebar.classList.toggle("active");
+
+        if (sidebar.classList.contains("active")) {
+            document.body.style.overflow = "hidden";
         } else {
-            document.body.style.overflow = 'auto';
+            document.body.style.overflow = "auto";
         }
     }
+}
+
+function updateSplitDisplay(recog, exec) {
+    var el = document.getElementById("splitDisplay");
+    if (!el) return;
+
+    if (recog == null) {
+        el.style.display = "none";
+        el.innerHTML = "";
+        return;
+    }
+
+    el.style.display = "flex";
+    el.innerHTML =
+        '<span class="split-item split-recog">👁 Recog: <b>' +
+        parseFloat(recog).toFixed(2) +
+        "s</b></span>" +
+        '<span class="split-divider">|</span>' +
+        '<span class="split-item split-exec">⚡ Exec: <b>' +
+        parseFloat(exec).toFixed(2) +
+        "s</b></span>";
 }

@@ -460,6 +460,211 @@ body {
     transform: translateY(-1px);
 }
 
+/* ============================================================
+   HEATMAP STYLES — add to homepage.css
+   ============================================================ */
+
+/* ── Toggle button (goes in .right-column) ── */
+#heatmapToggle {
+    width: 100%;
+    padding: 12px;
+    border-radius: 12px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    background: var(--bg-main);
+    border: 2px solid var(--border);
+    color: var(--text-muted);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+#heatmapToggle:hover {
+    border-color: var(--accent-blue);
+    color: var(--accent-blue);
+    background: #eff6ff;
+}
+
+#heatmapToggle.heatmap-active {
+    background: #eff6ff;
+    border-color: var(--accent-blue);
+    color: var(--accent-blue);
+}
+
+body.dark-mode #heatmapToggle {
+    background: #334155;
+    border-color: var(--border);
+    color: var(--text-muted);
+}
+
+body.dark-mode #heatmapToggle:hover,
+body.dark-mode #heatmapToggle.heatmap-active {
+    background: #1e3a5f;
+    border-color: var(--accent-blue);
+    color: var(--accent-blue);
+}
+
+/* ── Legend ── */
+#heatmapLegend {
+    display: none;   /* shown only when heatmap is active via JS */
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+    margin-top: 4px;
+}
+
+#heatmapToggle.heatmap-active ~ #heatmapLegend,
+.heatmap-legend-visible #heatmapLegend {
+    display: flex;
+}
+
+.legend-item {
+    font-size: 10px;
+    font-weight: 800;
+    font-family: "JetBrains Mono", monospace;
+    padding: 3px 8px;
+    border-radius: 99px;
+    white-space: nowrap;
+}
+
+.legend-great { background: #dcfce7; color: #15803d; }
+.legend-good  { background: #fef9c3; color: #92400e; }
+.legend-slow  { background: #ffedd5; color: #9a3412; }
+.legend-hard  { background: #fee2e2; color: #991b1b; }
+
+body.dark-mode .legend-great { background: #052e16; color: #4ade80; }
+body.dark-mode .legend-good  { background: #422006; color: #fbbf24; }
+body.dark-mode .legend-slow  { background: #431407; color: #fb923c; }
+body.dark-mode .legend-hard  { background: #450a0a; color: #f87171; }
+
+/* ── Per-card heatmap badge ── */
+.heatmap-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    margin-top: 4px;
+}
+
+.heatmap-avg {
+    font-family: "JetBrains Mono", monospace;
+    font-weight: 800;
+    font-size: 14px;
+    line-height: 1;
+}
+
+.heatmap-count {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    font-weight: 600;
+    opacity: 0.7;
+}
+
+/* ── Card transition so color changes feel smooth ── */
+.zbll-card {
+    transition: background 0.3s ease, border-color 0.3s ease,
+                transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* ── Heatmap thresholds settings UI (optional) ── */
+.heatmap-settings {
+    background: var(--bg-main);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 4px;
+}
+
+.heatmap-settings label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+}
+
+.heatmap-settings input[type="number"] {
+    width: 50px;
+    padding: 3px 6px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px;
+    font-weight: 700;
+    background: white;
+    color: var(--text-main);
+    text-align: center;
+}
+
+/* Per-case heatmap badge inside modal */
+.zbll-item-heatmap-badge {
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 9px;
+    font-weight: 800;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.zbll-item-no-data {
+    color: var(--text-muted);
+    opacity: 0.5;
+}
+
+.zbllItem {
+    position: relative;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 6px;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 18px;  
+}
+
+.zbllItem.selected::after {
+    content: '✓';
+    position: absolute;
+    top: 3px;
+    right: 5px;
+    font-size: 12px;
+    font-weight: 900;
+    color: white;
+    background: var(--accent-green);
+    width: 18px;
+    height: 18px;
+    border-radius: 99px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3;
+    line-height: 1;
+}
+
+.zbllItem.selected {
+    border-color: var(--accent-green) !important;
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.3);
+}
+
+.zbllItem:not(.selected) .zbll-item-no-data {
+    opacity: 0.4;
+}
 #selected {
     text-align: center;
     font-weight: 1000;

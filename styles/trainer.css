@@ -61,7 +61,7 @@ body {
     align-items: center;
     justify-content: center;
     gap: 6px;
-    font-size: 14px;      
+    font-size: 14px;
     padding: 8px 16px;
 }
 
@@ -671,7 +671,7 @@ body {
     font-size: 15px;
     cursor: pointer;
     background: var(--text-main);
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: "Inter", system-ui, -apple-system, sans-serif;
     color: white;
     border: none;
     transition: 0.2s;
@@ -756,6 +756,599 @@ body {
 
 .mobile-only {
     display: none;
+}
+
+/* ============================================================
+   ALG PICKER STYLES — add to trainer.css
+   ============================================================ */
+
+#case-algs {
+    border-left: 4px solid var(--accent-blue);
+    max-height: 220px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 8px;
+    background: #f8fafc;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+}
+
+.alg-entry {
+    background: white;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: border-color 0.2s;
+}
+
+/* Main alg gets a highlighted border */
+.alg-entry.alg-main {
+    border: 2px solid var(--accent-green);
+    background: #f0fdf4;
+}
+
+.alg-entry-top {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.alg-text {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px;
+    color: var(--text-main);
+    word-break: break-word;
+    line-height: 1.4;
+}
+
+/* ★ Main badge */
+.alg-main-badge {
+    background: var(--accent-green);
+    color: white;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 99px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    flex-shrink: 0;
+}
+
+/* Set Main button */
+.alg-set-main-btn {
+    background: #f1f5f9;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    font-family: "JetBrains Mono", monospace;
+    padding: 2px 7px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.15s;
+}
+
+.alg-set-main-btn:hover {
+    background: #f0fdf4;
+    border-color: var(--accent-green);
+    color: var(--accent-green);
+}
+
+.alg-edit-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    padding: 2px 4px;
+    color: var(--text-muted);
+    border-radius: 4px;
+    transition: color 0.15s;
+    margin-left: auto;
+}
+
+.alg-edit-btn:hover {
+    color: var(--accent-blue);
+}
+
+.alg-copy-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    padding: 2px 4px;
+    color: var(--text-muted);
+    border-radius: 4px;
+    transition: color 0.15s;
+}
+
+.alg-copy-btn:hover {
+    color: var(--accent-blue);
+}
+
+.alg-note-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    padding: 2px 4px;
+    color: var(--text-muted);
+    border-radius: 4px;
+    transition: color 0.15s;
+}
+
+.alg-note-btn:hover {
+    color: var(--accent-blue);
+}
+
+.alg-note-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 2px;
+}
+
+.alg-note-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 5px 8px;
+    border: 1px dashed var(--accent-blue);
+    border-radius: 6px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    font-weight: 600;
+    background: #eff6ff;
+    color: var(--text-main);
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.alg-note-input:focus {
+    background: white;
+    border-color: var(--accent-blue);
+    border-style: solid;
+}
+
+.alg-note-input::placeholder {
+    color: #94a3b8;
+    font-style: italic;
+}
+
+.alg-entry:has(.alg-note-input:not([value=""])) .alg-note-btn {
+    color: var(--accent-blue);
+}
+
+/* ============================================================
+   RECOG/EXEC SPLIT — add to trainer.css
+   ============================================================ */
+
+#splitDisplay {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin: 4px 0 8px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 14px;
+    font-weight: 700;
+    flex-wrap: wrap;
+}
+
+.split-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 12px;
+    border-radius: 99px;
+    font-size: 13px;
+}
+
+.split-recog {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
+}
+
+.split-exec {
+    background: #f0fdf4;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
+}
+
+.split-divider {
+    color: var(--text-muted);
+    font-size: 16px;
+}
+
+/* Stat squares for recog/exec */
+.stat-square.stat-recog {
+    border-top: 3px solid #3b82f6;
+}
+
+.stat-square.stat-exec {
+    border-top: 3px solid #10b981;
+}
+
+.recog-value {
+    color: #1d4ed8;
+}
+
+.exec-value {
+    color: #15803d;
+}
+
+/* Attempt tags with split info */
+.clickable-tag {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.tag-split {
+    display: flex;
+    gap: 3px;
+    font-size: 9px;
+    font-weight: 700;
+    font-family: "JetBrains Mono", monospace;
+}
+
+.tag-recog {
+    color: #1d4ed8;
+}
+
+.tag-exec {
+    color: #15803d;
+}
+
+/* Stats table columns */
+.recog-col {
+    color: #1d4ed8;
+    font-weight: 700;
+}
+
+.exec-col {
+    color: #15803d;
+    font-weight: 700;
+}
+
+/* Dark mode */
+body.dark-mode .split-recog {
+    background: #1e3a5f;
+    color: #93c5fd;
+    border-color: #1e40af;
+}
+
+body.dark-mode .split-exec {
+    background: #052e16;
+    color: #4ade80;
+    border-color: #166534;
+}
+
+body.dark-mode .recog-value {
+    color: #93c5fd;
+}
+body.dark-mode .exec-value {
+    color: #4ade80;
+}
+body.dark-mode .tag-recog {
+    color: #93c5fd;
+}
+body.dark-mode .tag-exec {
+    color: #4ade80;
+}
+body.dark-mode .recog-col {
+    color: #93c5fd;
+}
+body.dark-mode .exec-col {
+    color: #4ade80;
+}
+
+/* ============================================================
+   SLOW CASES PANEL — add to trainer.css
+   ============================================================ */
+
+#slowModeBanner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    background: linear-gradient(90deg, #f59e0b, #ea580c);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 24px;
+    font-family: "JetBrains Mono", monospace;
+    font-weight: 800;
+    font-size: 14px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+#slowModeBanner button {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 800;
+    font-size: 13px;
+}
+
+#slowModeBanner button:hover {
+    background: rgba(255, 255, 255, 0.35);
+}
+
+/* ============================================================
+   SLOW CASES v2 — add to trainer.css
+   (replace old slow case styles if you have them)
+   ============================================================ */
+
+/* ── Row layout ── */
+.slow-case-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 2px solid transparent;
+    font-family: "JetBrains Mono", monospace;
+    cursor: pointer;
+    transition: opacity 0.15s, border-color 0.15s;
+    user-select: none;
+}
+
+/* Unchecked = dimmed */
+.slow-case-row:not(.slow-checked) {
+    opacity: 0.45;
+}
+
+.slow-case-row:hover {
+    opacity: 1 !important;
+}
+
+.slow-hard {
+    background: #fee2e2;
+    border-color: #fca5a5;
+}
+.slow-medium {
+    background: #ffedd5;
+    border-color: #fdba74;
+}
+.slow-ok {
+    background: #fef9c3;
+    border-color: #fde047;
+}
+
+.slow-case-row.slow-checked.slow-hard {
+    border-color: #dc2626;
+}
+.slow-case-row.slow-checked.slow-medium {
+    border-color: #ea580c;
+}
+.slow-case-row.slow-checked.slow-ok {
+    border-color: #ca8a04;
+}
+
+.slow-case-checkbox {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
+
+.slow-case-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--accent-blue);
+    flex-shrink: 0;
+}
+
+.slow-case-img {
+    width: 52px;
+    height: 52px;
+    object-fit: contain;
+    flex-shrink: 0;
+    border-radius: 8px;
+    background: white;
+    padding: 3px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.slow-case-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    min-width: 0;
+}
+
+.slow-case-name {
+    font-weight: 800;
+    font-size: 14px;
+    color: var(--text-main);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.slow-case-stats {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.slow-avg {
+    font-weight: 800;
+    font-size: 13px;
+    color: #dc2626;
+}
+
+.slow-best {
+    font-size: 12px;
+    color: #16a34a;
+    font-weight: 700;
+}
+
+.slow-count {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.slow-bulk-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 4px 10px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 8px;
+}
+
+.slow-bulk-btn {
+    background: var(--bg-main);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    font-family: "JetBrains Mono", monospace;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: all 0.15s;
+}
+
+.slow-bulk-btn:hover {
+    background: #eff6ff;
+    border-color: var(--accent-blue);
+    color: var(--accent-blue);
+}
+
+.slow-selected-count {
+    font-size: 12px;
+    font-weight: 700;
+    font-family: "JetBrains Mono", monospace;
+    color: var(--text-muted);
+    margin-left: auto;
+}
+
+#trainSlowBtn {
+    width: 100%;
+    margin-top: 8px;
+}
+
+#trainSlowBtn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+#slowModeBanner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    background: linear-gradient(90deg, #f59e0b, #ea580c);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 24px;
+    font-family: "JetBrains Mono", monospace;
+    font-weight: 800;
+    font-size: 14px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+#slowModeBanner button {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 800;
+    font-size: 13px;
+    font-family: "JetBrains Mono", monospace;
+}
+
+#slowModeBanner button:hover {
+    background: rgba(255, 255, 255, 0.35);
+}
+
+.no-slow-cases {
+    text-align: center;
+    font-size: 15px;
+    color: var(--text-muted);
+    padding: 24px;
+    font-family: "JetBrains Mono", monospace;
+}
+
+.slow-case-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    font-family: "JetBrains Mono", monospace;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.slow-case-name {
+    font-weight: 800;
+    font-size: 14px;
+    color: var(--text-main);
+}
+
+.slow-case-stats {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.slow-avg {
+    font-weight: 800;
+    font-size: 14px;
+    color: #dc2626;
+}
+
+.slow-best {
+    font-size: 12px;
+    color: #16a34a;
+    font-weight: 700;
+}
+
+.slow-count {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.no-slow-cases {
+    text-align: center;
+    font-size: 15px;
+    color: var(--text-muted);
+    padding: 24px;
+    font-family: "JetBrains Mono", monospace;
+}
+
+#slowCasesPanel #trainSlowBtn {
+    width: 100%;
+    margin-top: 8px;
+}
+
+#slowCasesPanel #trainSlowBtn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
 }
 
 @media (min-width: 1201px) {
@@ -886,7 +1479,6 @@ body {
         margin: 0;
         font-size: 20px;
     }
-
 }
 
 @media (max-width: 666px) {
@@ -910,7 +1502,6 @@ body {
         margin: 10px 0;
     }
 }
-
 
 @media (max-width: 360px) {
     .scramble {
@@ -955,7 +1546,7 @@ body {
         gap: 10px;
         flex-direction: column;
     }
-    
+
     .btn-secondary {
         font-size: 14px;
         padding: 10px;
@@ -966,5 +1557,301 @@ body {
         font-size: 12px;
         padding: 6px 10px;
     }
+}
 
+
+.recall-toggle-row {
+    border-color: #8b5cf6 !important;
+    background: #faf5ff !important;
+}
+.recall-toggle-row:hover {
+    background: #f3e8ff !important;
+    border-color: #7c3aed !important;
+}
+.recall-toggle-row input[type="checkbox"] {
+    accent-color: #8b5cf6;
+}
+.toggle-badge {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 800;
+    background: #8b5cf6;
+    color: white;
+    padding: 1px 6px;
+    border-radius: 99px;
+    letter-spacing: 0.05em;
+    margin-left: 6px;
+    vertical-align: middle;
+    text-transform: uppercase;
+}
+.recall-mode-hint {
+    font-size: 11px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    padding: 0 4px;
+    margin: 0;
+    font-style: italic;
+}
+#recallBanner {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 6px 16px;
+    background: linear-gradient(90deg, #7c3aed, #6d28d9);
+    color: white;
+    border-radius: 99px;
+    font-family: "JetBrains Mono", monospace;
+    font-weight: 800;
+    font-size: 13px;
+    margin: 4px 0;
+    animation: recallPulse 2s ease-in-out infinite;
+    box-shadow: 0 2px 12px rgba(124, 58, 237, 0.4);
+}
+@keyframes recallPulse {
+    0%, 100% { opacity: 1; box-shadow: 0 2px 12px rgba(124, 58, 237, 0.4); }
+    50%       { opacity: 0.85; box-shadow: 0 2px 20px rgba(124, 58, 237, 0.7); }
+}
+body.dark-mode .recall-toggle-row {
+    border-color: #7c3aed !important;
+    background: #2e1065 !important;
+}
+body.dark-mode .recall-toggle-row:hover {
+    background: #3b0764 !important;
+}
+body.dark-mode #case-algs {
+    background: #0f172a;
+    border-color: var(--border);
+}
+body.dark-mode .alg-entry {
+    background: #1e293b;
+    border-color: var(--border);
+}
+body.dark-mode .alg-entry.alg-main {
+    background: #052e16;
+    border-color: var(--accent-green);
+}
+body.dark-mode .alg-text {
+    color: var(--text-main);
+}
+body.dark-mode .alg-set-main-btn {
+    background: #334155;
+    color: var(--text-muted);
+    border-color: var(--border);
+}
+body.dark-mode .alg-set-main-btn:hover {
+    background: #052e16;
+    border-color: var(--accent-green);
+    color: var(--accent-green);
+}
+body.dark-mode .alg-edit-btn,
+body.dark-mode .alg-copy-btn,
+body.dark-mode .alg-note-btn {
+    color: var(--text-muted);
+}
+body.dark-mode .alg-note-input {
+    background: #1e3a5f;
+    border-color: var(--accent-blue);
+    color: var(--text-main);
+}
+body.dark-mode .alg-note-input:focus {
+    background: #1e293b;
+}
+
+body.dark-mode .slow-hard   { background: #450a0a; border-color: #7f1d1d; }
+body.dark-mode .slow-medium { background: #431407; border-color: #7c2d12; }
+body.dark-mode .slow-ok     { background: #422006; border-color: #78350f; }
+body.dark-mode .slow-case-row.slow-checked.slow-hard   { border-color: #f87171; }
+body.dark-mode .slow-case-row.slow-checked.slow-medium { border-color: #fb923c; }
+body.dark-mode .slow-case-row.slow-checked.slow-ok     { border-color: #fbbf24; }
+body.dark-mode .slow-avg  { color: #f87171; }
+body.dark-mode .slow-best { color: #4ade80; }
+body.dark-mode .slow-case-img {
+    background: #1e293b;
+    border-color: var(--border);
+}
+body.dark-mode .slow-bulk-btn {
+    background: #334155;
+    border-color: var(--border);
+    color: var(--text-muted);
+}
+body.dark-mode .slow-bulk-btn:hover {
+    background: #1e3a5f;
+    border-color: var(--accent-blue);
+    color: var(--accent-blue);
+}
+
+/* ── Slow cases panel responsive ─────────────────────────── */
+#slowCasesPanel {
+    width: calc(100% - 32px);
+    max-width: 860px;
+    margin: 20px auto;
+    padding: 20px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+
+    .footer-controls {
+        gap: 6px;
+        padding: 0 4px;
+        max-width: 100%;
+    }
+    .btn-secondary {
+        font-size: 12px;
+        padding: 10px 6px;
+        border-radius: 10px;
+    }
+
+    #splitDisplay {
+        gap: 6px;
+        margin: 2px 0 6px;
+    }
+    .split-item {
+        font-size: 11px;
+        padding: 3px 8px;
+    }
+    .split-divider {
+        font-size: 13px;
+    }
+
+    #recallBanner {
+        font-size: 11px;
+        padding: 4px 12px;
+    }
+
+    #slowModeBanner {
+        font-size: 12px;
+        padding: 8px 14px;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+    #slowModeBanner button {
+        font-size: 11px;
+        padding: 3px 10px;
+    }
+
+    #slowCasesPanel {
+        width: calc(100% - 16px);
+        margin: 12px auto;
+        padding: 14px;
+        border-radius: 14px;
+    }
+    #slowCasesPanel h3 {
+        font-size: 18px !important;
+    }
+
+    .slow-case-row {
+        padding: 8px 10px;
+        gap: 8px;
+        border-radius: 10px;
+    }
+    .slow-case-img {
+        width: 42px;
+        height: 42px;
+    }
+    .slow-case-name {
+        font-size: 12px;
+    }
+    .slow-avg {
+        font-size: 12px;
+    }
+    .slow-best,
+    .slow-count {
+        font-size: 10px;
+    }
+    .slow-bulk-row {
+        flex-wrap: wrap;
+        gap: 6px;
+        padding-bottom: 8px;
+    }
+    .slow-bulk-btn {
+        font-size: 11px;
+        padding: 4px 10px;
+    }
+    .slow-selected-count {
+        font-size: 11px;
+    }
+
+    #statsContent {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    #statsContent table {
+        min-width: 480px;
+    }
+}
+
+@media (max-width: 520px) {
+    #showSlowBtn {
+        grid-column: 1 / -1;
+        font-size: 13px;
+    }
+
+    .btn-secondary {
+        font-size: 12px;
+        padding: 11px 6px;
+    }
+
+    #splitDisplay {
+        flex-direction: column;
+        gap: 4px;
+        align-items: center;
+    }
+    .split-divider {
+        display: none;
+    }
+
+    #recallBanner {
+        border-radius: 10px;
+        text-align: center;
+        font-size: 11px;
+    }
+
+    .slow-case-img {
+        width: 36px;
+        height: 36px;
+    }
+
+    .slow-case-info {
+        gap: 2px;
+    }
+    .slow-case-stats {
+        gap: 6px;
+    }
+}
+
+/* ── ≤380px: remove the single column override entirely ── */
+@media (max-width: 380px) {
+    .btn-secondary {
+        font-size: 12px;
+        padding: 10px;
+    }
+
+    .slow-case-img {
+        display: none;
+    }
+
+    .slow-case-row {
+        gap: 6px;
+        padding: 8px;
+    }
+
+    #slowCasesPanel {
+        padding: 10px;
+    }
+
+    #recallBanner {
+        font-size: 10px;
+        padding: 4px 8px;
+    }
+
+    #slowModeBanner {
+        font-size: 11px;
+        padding: 6px 10px;
+    }
 }

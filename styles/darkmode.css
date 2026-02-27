@@ -1,5 +1,5 @@
 :root {
-    --timer-idle: #000000; 
+    --timer-idle: #000000;
 }
 
 body.dark-mode {
@@ -11,7 +11,8 @@ body.dark-mode {
     --text-main: #f1f5f9;
     --text-muted: #94a3b8;
     --border: #334155;
-    --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+    --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3),
+        0 4px 6px -2px rgba(0, 0, 0, 0.2);
     --timer-idle: var(--text-main);
 }
 
@@ -255,11 +256,11 @@ body.dark-mode #case-time {
     background: #f1f5f9;
     color: var(--text-main);
     border: 1px solid var(--border);
-    padding: 8px 16px;      
-    border-radius: 10px;   
-    font-size: 14px;         
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-size: 14px;
     font-weight: 800;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: "JetBrains Mono", monospace;
     cursor: pointer;
     transition: all 0.2s ease;
     white-space: nowrap;
@@ -434,3 +435,131 @@ body.dark-mode .zbll-card.all-selected:hover {
 body.dark-mode .zbll-card.all-selected .subset-title {
     color: var(--text-main);
 }
+
+/* Dark mode overrides */
+body.dark-mode #case-algs {
+    background: #0f172a;
+    border-color: var(--border);
+}
+
+body.dark-mode .alg-entry {
+    background: #1e293b;
+    border-color: var(--border);
+}
+
+body.dark-mode .alg-entry.alg-main {
+    background: #052e16;
+    border-color: var(--accent-green);
+}
+
+body.dark-mode .alg-text {
+    color: var(--text-main);
+}
+
+body.dark-mode .alg-set-main-btn {
+    background: #334155;
+    color: var(--text-muted);
+    border-color: var(--border);
+}
+
+body.dark-mode .alg-set-main-btn:hover {
+    background: #052e16;
+    border-color: var(--accent-green);
+    color: var(--accent-green);
+}
+
+body.dark-mode .alg-edit-btn,
+body.dark-mode .alg-copy-btn {
+    color: var(--text-muted);
+}
+
+body.dark-mode .heatmap-settings {
+    background: #0f172a;
+}
+
+body.dark-mode .heatmap-settings input[type="number"] {
+    background: #1e293b;
+    color: var(--text-main);
+    border-color: var(--border);
+}
+
+body.dark-mode .alg-note-input {
+    background: #1e3a5f;
+    border-color: var(--accent-blue);
+    color: var(--text-main);
+}
+
+body.dark-mode .alg-note-input:focus {
+    background: #1e293b;
+}
+
+body.dark-mode .slow-avg {
+    color: #f87171;
+}
+body.dark-mode .slow-best {
+    color: #4ade80;
+}
+
+body.dark-mode .slow-hard {
+    background: #450a0a;
+    border-color: #dc2626;
+}
+body.dark-mode .slow-medium {
+    background: #431407;
+    border-color: #ea580c;
+}
+body.dark-mode .slow-ok {
+    background: #422006;
+    border-color: #ca8a04;
+}
+
+body.dark-mode .split-recog {
+    background: #1e3a5f;
+    color: #93c5fd;
+    border-color: #1e40af;
+}
+
+body.dark-mode .split-exec {
+    background: #052e16;
+    color: #4ade80;
+    border-color: #166534;
+}
+
+body.dark-mode .recog-value {
+    color: #93c5fd;
+}
+body.dark-mode .exec-value {
+    color: #4ade80;
+}
+body.dark-mode .tag-recog {
+    color: #93c5fd;
+}
+body.dark-mode .tag-exec {
+    color: #4ade80;
+}
+body.dark-mode .recog-col {
+    color: #93c5fd;
+}
+body.dark-mode .exec-col {
+    color: #4ade80;
+}
+body.dark-mode .slow-bulk-btn {
+    background: #334155;
+    border-color: var(--border);
+    color: var(--text-muted);
+}
+
+body.dark-mode .slow-bulk-btn:hover {
+    background: #1e3a5f;
+    border-color: var(--accent-blue);
+    color: var(--accent-blue);
+}
+
+body.dark-mode .slow-case-img {
+    background: #1e293b;
+    border-color: var(--border);
+}
+
+body.dark-mode .slow-case-row.slow-checked.slow-hard   { border-color: #f87171; }
+body.dark-mode .slow-case-row.slow-checked.slow-medium { border-color: #fb923c; }
+body.dark-mode .slow-case-row.slow-checked.slow-ok     { border-color: #fbbf24; }
