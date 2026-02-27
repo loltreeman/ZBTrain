@@ -88,31 +88,74 @@
     function applyScrambleString(scramble) {
         if (!scramble || !scramble.length) return;
         var tokens = scramble.trim().split(/\s+/).filter(Boolean);
-        tokens.forEach(function(tok){
-            // Support notation like R, R', R2, L, L', L2
+        tokens.forEach(function(tok) {
             var base = tok.charAt(0).toUpperCase();
             var isInverse = tok.indexOf("'") !== -1;
             var times = tok.indexOf('2') !== -1 ? 2 : 1;
-            var method = 'rotate_' + base.toLowerCase();
-            if (isInverse) method = method + 'p';
-            for (var i=0;i<times;i++) {
+
+            // Handle whole-cube rotations: x, y, z
+            var rotationMap = {
+                'X': 'rotate_x',
+                'Y': 'rotate_y',
+                'Z': 'rotate_z'
+            };
+
+            // Handle slice moves: M, E, S
+            var sliceMap = {
+                'M': 'rotate_m',
+                'E': 'rotate_e',
+                'S': 'rotate_s'
+            };
+
+            // Handle wide moves: r, u, f, l, d, b (lowercase)
+            var wideMoveMap = {
+                'r': 'rotate_R',
+                'u': 'rotate_U',  
+                'f': 'rotate_F',
+                'l': 'rotate_L',
+                'd': 'rotate_D',
+                'b': 'rotate_B'
+            };
+
+            var method;
+            var baseOrig = tok.charAt(0); // preserve original case for wide moves
+
+            if (rotationMap[base]) {
+                method = rotationMap[base];
+                if (isInverse) method = method + 'p';
+            } else if (sliceMap[base]) {
+                method = sliceMap[base];
+                if (isInverse) method = method + 'p';
+            } else if (wideMoveMap[baseOrig]) {
+                method = wideMoveMap[baseOrig];
+                if (isInverse) method = method + 'p';
+            } else {
+                method = 'rotate_' + base.toLowerCase();
+                if (isInverse) method = method + 'p';
+            }
+
+            for (var i = 0; i < times; i++) {
                 if (typeof cube3[method] === 'function') cube3[method]();
+                else console.warn('Unknown move method:', method, 'from token:', tok);
             }
         });
         draw();
-        // mark cube as in solving state, but do not enable user moves until trainer starts timing
         cube3.isSolving = true;
     }
 
     function resizeCanvas() {
         if (!canvas) return;
         var container = canvas.parentElement || document.body;
-        
-        // Use the container's width, but keep it within reasonable bounds
-        var cssWidth = container.clientWidth;
-        var cssHeight = container.clientHeight || Math.round(cssWidth * 0.8);
 
-        // Handle High DPI screens (Retina)
+        var containerWidth = container.clientWidth;
+        
+        // Size the cube relative to container but capped
+        var cssWidth = Math.min(containerWidth, 400);
+        var cssHeight = Math.round(cssWidth * 0.75);
+
+        // Center the canvas within the container using margins
+        canvas.style.marginLeft = Math.round((containerWidth - cssWidth) / 2) + 'px';
+
         var ratio = window.devicePixelRatio || 1;
         canvas.width = Math.round(cssWidth * ratio);
         canvas.height = Math.round(cssHeight * ratio);
@@ -122,23 +165,17 @@
 
         if (!context) return;
 
-        // Ensure we have native drawing bounds measured
-        if (!window.virtualCube._nativeBounds) measureNativeBounds();
-        var nb = window.virtualCube._nativeBounds || {w:180,h:150,minX:0,minY:0};
+        measureNativeBounds();
+        var nb = window.virtualCube._nativeBounds || {w:180, h:150, minX:0, minY:0};
 
-        // compute a scale that fits the native drawing into the CSS size
-        var s = Math.min(cssWidth / nb.w, cssHeight / nb.h) * 0.95;
+        var s = Math.min(cssWidth / nb.w, cssHeight / nb.h) * 0.90;
         if (s <= 0) s = 1;
 
-        // final device pixel scale
-        var scale = (window.devicePixelRatio || 1) * s;
-
-        // compute offsets in CSS pixels, shift by native min to align
+        var scale = ratio * s;
         var offsetX = (cssWidth - (nb.w * s)) / 2 - (nb.minX * s);
         var offsetY = (cssHeight - (nb.h * s)) / 2 - (nb.minY * s);
 
-        // set the transform so drawing is scaled and centered correctly
-        context.setTransform(scale, 0, 0, scale, Math.round(offsetX * (window.devicePixelRatio || 1)), Math.round(offsetY * (window.devicePixelRatio || 1)));
+        context.setTransform(scale, 0, 0, scale, Math.round(offsetX * ratio), Math.round(offsetY * ratio));
 
         draw();
     }

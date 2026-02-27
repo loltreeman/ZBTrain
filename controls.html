@@ -3,23 +3,226 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Keyboard Controls</title>
+    <link rel="icon" type="image/png" href="images/logo.png" sizes="32x32">
+    <link rel="stylesheet" href="styles/style.css">
+    <style>
+        .keys-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .key-card {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        .key-card h2 {
+            font-weight: 800;
+            font-size: 1.3rem;
+            margin: 0 0 1rem 0;
+            color: var(--accent-initial);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .key-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .key-table th {
+            text-align: left;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            padding: 6px 10px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .key-table td {
+            padding: 7px 10px;
+            font-size: 0.95rem;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        .key-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .key {
+            display: inline-block;
+            background: #1e293b;
+            color: #f8fafc;
+            font-family: "JetBrains Mono", monospace;
+            font-weight: 800;
+            font-size: 0.85rem;
+            padding: 3px 9px;
+            border-radius: 6px;
+            border-bottom: 3px solid #0f172a;
+            min-width: 28px;
+            text-align: center;
+            letter-spacing: 0;
+        }
+
+        .move {
+            font-family: "JetBrains Mono", monospace;
+            font-weight: 700;
+            color: var(--accent-initial);
+            font-size: 1rem;
+        }
+
+        .keyboard-section {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .keyboard-section h3 {
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+        }
+
+        .keyboard-section img {
+            width: 100%;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .credit-note {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 0.75rem;
+            font-style: italic;
+        }
+
+        .slice-card {
+            border-top: 6px solid var(--accent-final);
+        }
+
+        .slice-card h2 {
+            color: var(--accent-final);
+        }
+
+        .face-card {
+            border-top: 6px solid var(--accent-initial);
+        }
+
+        .rotation-card {
+            border-top: 6px solid #10b981;
+        }
+
+        .rotation-card h2 {
+            color: #10b981;
+        }
+
+        .wide-card {
+            border-top: 6px solid #f59e0b;
+        }
+
+        .wide-card h2 {
+            color: #f59e0b;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: "JetBrains Mono", monospace;
+            font-weight: 800;
+            font-size: 0.9rem;
+            color: var(--accent-initial);
+            text-decoration: none;
+            margin-bottom: 2rem;
+            padding: 8px 16px;
+            background: #eff6ff;
+            border: 1px solid #dbeafe;
+            border-radius: 10px;
+            transition: background 0.2s;
+        }
+
+        .back-link:hover {
+            background: #dbeafe;
+        }
+    </style>
 </head>
 <body>
-    <img src="images/keyboard.png" style="width: 100%"></img>
-    <p style="font-size: 50px;">
-    Credits to Harry Richman for the keyboard controls and the picture of the keyboard!
-    <br> <br>
+    <main class="container">
+        <header class="main-header">
+            <h1><b>Keyboard Controls</b></h1>
+            <p>Reference for all <strong>Virtual Cube</strong> keyboard shortcuts.</p>
+        </header>
 
-    For slice moves: <br>
+        <a href="trainer.html" class="back-link">← Back to Trainer</a>
 
-                   '5': M<br>
-                   '6': M'<br>
-                   '2': E<br>
-                   '9': E'<br>
-                   '0': S<br>
-                   '1': S'<br>
-    </p>
+        <section class="keyboard-section">
+            <h3>Keyboard Layout</h3>
+            <img src="images/keyboard.png" alt="Keyboard layout diagram">
+            <p class="credit-note">Credits to Harry Richman for the keyboard controls and the keyboard diagram.</p>
+        </section>
 
+        <div class="keys-grid">
+
+            <div class="key-card face-card">
+                <h2>Face Moves</h2>
+                <table class="key-table">
+                    <thead><tr><th>Key</th><th>Move</th><th>Key</th><th>Move</th></tr></thead>
+                    <tbody>
+                        <tr><td><span class="key">h</span></td><td><span class="move">F</span></td><td><span class="key">g</span></td><td><span class="move">F'</span></td></tr>
+                        <tr><td><span class="key">i</span></td><td><span class="move">R</span></td><td><span class="key">k</span></td><td><span class="move">R'</span></td></tr>
+                        <tr><td><span class="key">j</span></td><td><span class="move">U</span></td><td><span class="key">f</span></td><td><span class="move">U'</span></td></tr>
+                        <tr><td><span class="key">w</span></td><td><span class="move">B</span></td><td><span class="key">o</span></td><td><span class="move">B'</span></td></tr>
+                        <tr><td><span class="key">d</span></td><td><span class="move">L</span></td><td><span class="key">e</span></td><td><span class="move">L'</span></td></tr>
+                        <tr><td><span class="key">s</span></td><td><span class="move">D</span></td><td><span class="key">l</span></td><td><span class="move">D'</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="key-card wide-card">
+                <h2>Wide Moves</h2>
+                <table class="key-table">
+                    <thead><tr><th>Key</th><th>Move</th><th>Key</th><th>Move</th></tr></thead>
+                    <tbody>
+                        <tr><td><span class="key">u</span></td><td><span class="move">r</span></td><td><span class="key">m</span></td><td><span class="move">r'</span></td></tr>
+                        <tr><td><span class="key">v</span></td><td><span class="move">l</span></td><td><span class="key">r</span></td><td><span class="move">l'</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="key-card slice-card">
+                <h2>Slice Moves</h2>
+                <table class="key-table">
+                    <thead><tr><th>Key</th><th>Move</th><th>Key</th><th>Move</th></tr></thead>
+                    <tbody>
+                        <tr><td><span class="key">5</span></td><td><span class="move">M</span></td><td><span class="key">6</span></td><td><span class="move">M'</span></td></tr>
+                        <tr><td><span class="key">2</span></td><td><span class="move">E</span></td><td><span class="key">9</span></td><td><span class="move">E'</span></td></tr>
+                        <tr><td><span class="key">0</span></td><td><span class="move">S</span></td><td><span class="key">1</span></td><td><span class="move">S'</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="key-card rotation-card">
+                <h2>Cube Rotations</h2>
+                <table class="key-table">
+                    <thead><tr><th>Key</th><th>Move</th><th>Key</th><th>Move</th></tr></thead>
+                    <tbody>
+                        <tr><td><span class="key">t</span> / <span class="key">y</span></td><td><span class="move">x</span></td><td><span class="key">b</span> / <span class="key">n</span></td><td><span class="move">x'</span></td></tr>
+                        <tr><td><span class="key">;</span></td><td><span class="move">y</span></td><td><span class="key">a</span></td><td><span class="move">y'</span></td></tr>
+                        <tr><td><span class="key">p</span></td><td><span class="move">z</span></td><td><span class="key">q</span></td><td><span class="move">z'</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </main>
 </body>
 </html>

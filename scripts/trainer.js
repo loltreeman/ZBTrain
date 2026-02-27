@@ -141,6 +141,14 @@ function trainerSetup() {
         }
     } catch (e) {}
 
+    setTimeout(function () {
+        try {
+            if (window.virtualCube && typeof window.virtualCube.resize === "function") {
+                window.virtualCube.resize();
+            }
+        } catch (e) {}
+    }, 100);
+
     awaitingNext = true;
     try {
         renderCaseAttempts(prevCase);
@@ -171,21 +179,37 @@ function onVirtualCheckboxChange(e) {
     if (!container) return;
 
     if (e.target.checked) {
-        showVirtualCube();
-        // reset the cube to solved state when toggling it on
+        // Show the container first so clientWidth is real
+        container.style.display = "block";
+
+        // Clear cached bounds so resizeCanvas remeasures with correct dimensions
+        if (window.virtualCube) {
+            window.virtualCube._nativeBounds = null;
+        }
+
         try {
             if (window.virtualCube) {
                 window.virtualCube.reset();
                 window.virtualCube.disableMoves();
-                window.virtualCube.resize && window.virtualCube.resize();
             }
         } catch (err) {
             console.error("Error resetting cube:", err);
         }
+
+        // Wait for the browser to paint the container, then resize
+        setTimeout(function () {
+            try {
+                if (window.virtualCube && typeof window.virtualCube.resize === "function") {
+                    window.virtualCube.resize();
+                }
+            } catch (e) {}
+        }, 50);
+
     } else {
         hideVirtualCube();
     }
 }
+
 var attempts = JSON.parse(localStorage.getItem("zbllAttempts") || "[]");
 
 function saveAttempts() {
@@ -1457,7 +1481,7 @@ includeRecognitionTime.addEventListener("click", function () {
 
 function toggleSettings() {
     const sidebar = document.getElementById('settingsSidebar');
-    if (window.innerWidth <= 1200) {
+    if (sidebar) {
         sidebar.classList.toggle('active');
         
         if (sidebar.classList.contains('active')) {

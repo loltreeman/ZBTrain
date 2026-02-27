@@ -61,6 +61,8 @@ body {
     align-items: center;
     justify-content: center;
     gap: 6px;
+    font-size: 14px;      
+    padding: 8px 16px;
 }
 
 .btn-nav:hover {
@@ -411,13 +413,13 @@ body {
 
 #virtualCubeContainer {
     width: 100%;
-    height: auto;
+    height: 300px;
     max-height: 50vh;
     display: flex;
     justify-content: center;
     align-items: center;
     margin: 0 auto;
-    overflow: visible;
+    overflow: hidden;
 }
 
 #canvas {
@@ -425,6 +427,7 @@ body {
     max-width: 100%;
     max-height: 50vh;
     height: auto;
+    margin: 0 auto;
 }
 
 .case-sidebar {

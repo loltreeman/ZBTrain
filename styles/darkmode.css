@@ -226,8 +226,13 @@ body.dark-mode #statsContent tr:hover {
 }
 
 body.dark-mode .settings-info-link,
-body.dark-mode .info-link,
-body.dark-mode .stats-actions {
+body.dark-mode .info-link {
+    background: #334155;
+    color: var(--text-muted);
+    border-color: var(--border);
+}
+
+body.dark-mode .stats-actions .btn-sidebar-alt {
     background: #334155;
     color: var(--text-muted);
     border-color: var(--border);
@@ -250,9 +255,9 @@ body.dark-mode #case-time {
     background: #f1f5f9;
     color: var(--text-main);
     border: 1px solid var(--border);
-    padding: 12px 20px;
-    border-radius: 12px;
-    font-size: 18px;
+    padding: 8px 16px;      
+    border-radius: 10px;   
+    font-size: 14px;         
     font-weight: 800;
     font-family: 'JetBrains Mono', monospace;
     cursor: pointer;
@@ -411,4 +416,21 @@ body.dark-mode .zbll-grid {
 
 body.dark-mode #zwPics {
     background: var(--card-bg);
+}
+
+body.dark-mode .zbll-card:hover .subset-title {
+    color: var(--text-main);
+}
+
+body.dark-mode .zbll-card.all-selected {
+    border-color: var(--accent-green);
+    background: #052e16;
+}
+
+body.dark-mode .zbll-card.all-selected:hover {
+    background: #14532d;
+}
+
+body.dark-mode .zbll-card.all-selected .subset-title {
+    color: var(--text-main);
 }
