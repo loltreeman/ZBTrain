@@ -83,6 +83,16 @@
                         <input id="includeRecognitionTime" type="checkbox" />
                         <span class="toggle-text">Include Recognition Time</span>
                     </label>-->
+                    <label class="custom-toggle-row recall-toggle-row" id="recallToggleRow">
+                        <input id="recallModeCheckbox" type="checkbox" />
+                        <span class="toggle-text">
+                            Recall Mode
+                            <span class="toggle-badge">EXPERIMENTAL</span>
+                        </span>
+                    </label>
+                    <p class="recall-mode-hint">
+                        LL side stickers grey out after your first move. Trains pure recall over recognition-assisted execution. Only works with Virtual Cube enabled.
+                    </p>
                 </div>
                 <a href="controls.html" class="settings-info-link">Keyboard Controls</a>
             </div>
@@ -117,7 +127,11 @@
                 
                 <div id="timer" class="timer-display">0.00</div>
                 <p class="timer-hint">Hold Space to Start</p>
-                <div id="splitDisplay" style="display:none;"></div>   
+                <div id="splitDisplay" style="display:none;"></div> 
+                
+                <div id="recallBanner" style="display:none;">
+                    <span>Recall Mode — stickers hidden</span>
+                </div>
                 
             </div>
         </section>

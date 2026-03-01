@@ -563,3 +563,16 @@ body.dark-mode .slow-case-img {
 body.dark-mode .slow-case-row.slow-checked.slow-hard   { border-color: #f87171; }
 body.dark-mode .slow-case-row.slow-checked.slow-medium { border-color: #fb923c; }
 body.dark-mode .slow-case-row.slow-checked.slow-ok     { border-color: #fbbf24; }
+
+body.dark-mode .recall-toggle-row {
+    border-color: #7c3aed !important;
+    background: #2e1065 !important;
+}
+
+body.dark-mode .recall-toggle-row:hover {
+    background: #3b0764 !important;
+}
+
+body.dark-mode .recall-mode-hint {
+    color: var(--text-muted);
+}

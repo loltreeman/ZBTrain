@@ -9,6 +9,8 @@ var solveStartTime = null; // performance.now() when timer starts
 var firstMoveTime = null; // performance.now() when first cube move happens
 var currentRecogTime = null; // seconds (string) of recognition time
 var currentExecTime = null; // seconds (string) of execution time
+var recallPendingConfirm = false; // waiting for spacebar after unmask
+var recallWasSolved = false; // was the cube actually solved when unmasked
 
 if (selectedCasesRaw && selectedCasesRaw.length) {
     recap = JSON.parse(sessionStorage.getItem("recapMode")) || false;
@@ -32,7 +34,7 @@ if (selectedCasesRaw && selectedCasesRaw.length) {
                         if (arr && arr.length)
                             return arr[Math.floor(Math.random() * arr.length)];
                     }
-                } catch (e) {}
+                } catch (e) { }
                 return (
                     item.setup ||
                     this.set + "-" + this.subset + "-" + this.caseName
@@ -143,7 +145,7 @@ function trainerSetup() {
             window.virtualCube.disableMoves();
             window.virtualCube.resize && window.virtualCube.resize();
         }
-    } catch (e) {}
+    } catch (e) { }
 
     setTimeout(function () {
         try {
@@ -153,13 +155,13 @@ function trainerSetup() {
             ) {
                 window.virtualCube.resize();
             }
-        } catch (e) {}
+        } catch (e) { }
     }, 100);
 
     awaitingNext = true;
     try {
         renderCaseAttempts(prevCase);
-    } catch (e) {}
+    } catch (e) { }
     // this if loop is to make sure the count of recap is correct depending on mode
     if (recap) {
         // in recap mode, show how many cases are left to recap
@@ -226,7 +228,7 @@ function onVirtualCheckboxChange(e) {
                 ) {
                     window.virtualCube.resize();
                 }
-            } catch (e) {}
+            } catch (e) { }
         }, 50);
     } else {
         hideVirtualCube();
@@ -265,19 +267,19 @@ function renderCaseAttempts(caseObj) {
     var avg = count ? total / count : 0;
     var min = count
         ? Math.min.apply(
-              null,
-              filtered.map(function (a) {
-                  return a.time;
-              })
-          )
+            null,
+            filtered.map(function (a) {
+                return a.time;
+            })
+        )
         : 0;
     var max = count
         ? Math.max.apply(
-              null,
-              filtered.map(function (a) {
-                  return a.time;
-              })
-          )
+            null,
+            filtered.map(function (a) {
+                return a.time;
+            })
+        )
         : 0;
 
     // Recog/exec averages — only from attempts that have split data
@@ -313,11 +315,11 @@ function renderCaseAttempts(caseObj) {
         // Split row — only show if we have split data
         (splitAttempts.length
             ? '<div class="stat-square stat-recog"><span class="stat-label">Avg Recog</span><span class="stat-value recog-value">' +
-              avgRecog +
-              "</span></div>" +
-              '<div class="stat-square stat-exec"><span class="stat-label">Avg Exec</span><span class="stat-value exec-value">' +
-              avgExec +
-              "</span></div>"
+            avgRecog +
+            "</span></div>" +
+            '<div class="stat-square stat-exec"><span class="stat-label">Avg Exec</span><span class="stat-value exec-value">' +
+            avgExec +
+            "</span></div>"
             : "");
 
     // Attempt tags — show recog/exec as tooltip
@@ -585,6 +587,10 @@ function hideStatsPanel() {
  * @returns {zbllCase} - the case that was generated
  */
 function generateScramble() {
+    resetRecallState();
+    var banner = document.getElementById("recallBanner");
+    if (banner) banner.style.display = "none";
+
     var arr = recap ? toRecap : toTrain;
     if (!arr || arr.length === 0) return prevCase; // safety guard
 
@@ -743,6 +749,7 @@ if (originalGetAlgsArray) {
 function displayCaseInfo() {
     count++;
     currentlyDisplayedCase = prevCase;
+    if (recallMaskApplied) removeRecallMask();
 
     // ── COMPUTE exec time FIRST, before anything else reads it ──
     if (currentRecogTime !== null) {
@@ -779,7 +786,7 @@ function displayCaseInfo() {
 
     try {
         renderCaseAttempts(currentlyDisplayedCase);
-    } catch (e) {}
+    } catch (e) { }
 
     awaitingNext = true;
     revealed = false;
@@ -953,6 +960,92 @@ function handleKeyUp(event) {
         return;
     }
 
+    if (event.key === "Enter") {
+        if (timerStatus === "Start" || timerStatus === "Paused") {
+            if (int !== null) {
+                clearInterval(int);
+                int = null;
+            }
+            timerStatus = "Stop";
+            timerRef.style.color = "";
+            holdStarted = false;
+
+            // Remove masks
+            var recallCheckbox = document.getElementById("recallModeCheckbox");
+            if (recallCheckbox && recallCheckbox.checked) {
+                removeRecallMask();
+            } else if (useUserDefinedMask && useUserDefinedMask.checked) {
+                if (typeof restoreOriginalColors === "function") {
+                    restoreOriginalColors();
+                    if (
+                        window.virtualCube &&
+                        typeof window.virtualCube.draw === "function"
+                    ) {
+                        window.virtualCube.draw();
+                    }
+                }
+            }
+
+            // Calculate times
+            if (currentRecogTime !== null) {
+                var totalTime = parseFloat(timerRef.textContent) || 0;
+                var recog = parseFloat(currentRecogTime) || 0;
+                currentExecTime = Math.max(0, totalTime - recog).toFixed(2);
+            }
+            updateSplitDisplay(currentRecogTime, currentExecTime);
+
+            count++;
+            currentlyDisplayedCase = prevCase;
+            var lastAttemptScramble = prevScramble;
+
+            document.querySelector("#case-text").innerHTML = "Result #" + count;
+            document.querySelector("#case-time").innerHTML =
+                timerRef.textContent + " DNF";
+            document.querySelector("#case-time").hidden = false;
+            document.querySelector("#case-name").innerHTML = prevCase.getName();
+            document.querySelector("#case-scram").innerHTML = prevScramble;
+            document.querySelector("#case-algs").innerHTML = getAlgList();
+
+            try {
+                logAttempt(prevCase, timerRef.textContent, "DNF");
+            } catch (e) { }
+            if (recap) removeElement(prevCase);
+            renderCaseAttempts(currentlyDisplayedCase);
+
+            var imgRef = document.querySelector("#case-img");
+            imgRef.src = prevCase.getImg();
+            imgRef.alt = prevCase.getName();
+            imgRef.width = 150;
+            imgRef.height = 150;
+
+            prevCase = generateScramble();
+            window.lastAttemptedScramble = lastAttemptScramble;
+
+            lockoutActive = true;
+            setTimeout(() => {
+                lockoutActive = false;
+            }, 500);
+            awaitingNext = true;
+
+            // Reapply scramble to practice
+            var container = document.getElementById("virtualCubeContainer");
+            var isVirtualOn = container && container.style.display !== "none";
+            if (isVirtualOn && window.virtualCube) {
+                try {
+                    window.virtualCube.reset();
+                    var practiceSetup =
+                        currentOrientation + " " + window.lastAttemptedScramble;
+                    window.virtualCube.applyScramble(practiceSetup);
+                    window.virtualCube.enableMoves();
+                } catch (e) { }
+            }
+
+            var banner = document.getElementById("recallBanner");
+            if (banner) banner.style.display = "none";
+            return;
+        }
+    }
+
     if (event.key === " ") {
         event.preventDefault();
         timerRef.style.color = "";
@@ -963,6 +1056,75 @@ function handleKeyUp(event) {
         var isVirtualOn = container && container.style.display !== "none";
 
         if (timerStatus === "Paused") {
+            if (recallPendingConfirm) {
+                recallPendingConfirm = false;
+                timerStatus = "Paused";
+                holdStarted = false;
+
+                // Check NOW — after user has inspected
+                recallWasSolved = false;
+                if (window.cube3) {
+                    // Use originalIsSolved directly (mask is already removed)
+                    if (originalIsSolved.call(window.cube3)) {
+                        recallWasSolved = true;
+                    } else {
+                        // Check 1 AUF away
+                        for (var turns = 1; turns <= 3; turns++) {
+                            for (var t = 0; t < turns; t++)
+                                window.cube3.rotate_u();
+                            var res = originalIsSolved.call(window.cube3);
+                            for (var t = 0; t < turns; t++)
+                                window.cube3.rotate_up();
+                            if (res) {
+                                recallWasSolved = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                var result = recallWasSolved ? "OK" : "DNF";
+                var lastAttemptScramble = prevScramble;
+
+                count++;
+                currentlyDisplayedCase = prevCase;
+                updateSplitDisplay(currentRecogTime, currentExecTime);
+                document.querySelector("#case-text").innerHTML =
+                    "Result #" + count;
+                document.querySelector("#case-time").innerHTML =
+                    timerRef.textContent + (result === "DNF" ? " DNF" : "");
+                document.querySelector("#case-time").hidden = false;
+                document.querySelector(
+                    "#case-name"
+                ).innerHTML = prevCase.getName();
+                document.querySelector("#case-scram").innerHTML = prevScramble;
+                document.querySelector("#case-algs").innerHTML = getAlgList();
+
+                try {
+                    logAttempt(prevCase, timerRef.textContent, result);
+                } catch (e) { }
+                if (recap) removeElement(prevCase);
+                renderCaseAttempts(currentlyDisplayedCase);
+
+                var imgRef = document.querySelector("#case-img");
+                imgRef.src = prevCase.getImg();
+                imgRef.alt = prevCase.getName();
+                imgRef.width = 150;
+                imgRef.height = 150;
+
+                prevCase = generateScramble();
+                window.lastAttemptedScramble = lastAttemptScramble;
+
+                lockoutActive = true;
+                setTimeout(() => {
+                    lockoutActive = false;
+                }, 500);
+
+                var banner = document.getElementById("recallBanner");
+                if (banner) banner.style.display = "none";
+                return;
+            }
+
             if (skipNextPauseAction) {
                 skipNextPauseAction = false;
                 timerStatus = "Stop";
@@ -986,6 +1148,43 @@ function handleKeyUp(event) {
                     } catch (e) {
                         console.error("Error resetting to practice:", e);
                     }
+                }
+                return;
+            }
+
+            var recallCheckbox = document.getElementById("recallModeCheckbox");
+            var isVirtualOn = container && container.style.display !== "none";
+
+            if (
+                (recallCheckbox && recallCheckbox.checked) ||
+                (useUserDefinedMask && useUserDefinedMask.checked)
+            ) {
+                // Remove masks
+                if (recallCheckbox && recallCheckbox.checked) {
+                    removeRecallMask();
+                } else if (useUserDefinedMask && useUserDefinedMask.checked) {
+                    if (typeof restoreOriginalColors === "function") {
+                        restoreOriginalColors();
+                        if (
+                            window.virtualCube &&
+                            typeof window.virtualCube.draw === "function"
+                        ) {
+                            window.virtualCube.draw();
+                        }
+                    }
+                }
+                recallWasSolved = false;
+                recallPendingConfirm = true;
+                skipNextPauseAction = true;
+                window.lastAttemptedScramble = prevScramble;
+                awaitingNext = true;
+
+                var banner = document.getElementById("recallBanner");
+                if (banner) {
+                    banner.textContent = "👀 Inspect — press space to confirm";
+                    banner.style.background = "rgba(80, 80, 180, 0.9)";
+                    banner.style.display = "flex";
+                    banner.style.opacity = "1";
                 }
                 return;
             }
@@ -1088,7 +1287,7 @@ function toggleVirtualCube() {
             typeof window.virtualCube.resize === "function"
         )
             window.virtualCube.resize();
-    } catch (e) {}
+    } catch (e) { }
 }
 
 function showVirtualCube() {
@@ -1213,42 +1412,84 @@ if (window.virtualCube && typeof window.virtualCube.onSolve === "function") {
     window.virtualCube.onSolve(function () {
         virtualSolvedByCube = true;
 
-        if (timerStatus === "Start") {
-            // 1. STOP THE TIMER IMMEDIATELY
-            if (int !== null) {
-                clearInterval(int);
-                int = null;
+        if (timerStatus !== "Start") return;
+
+        // Stop timer
+        if (int !== null) {
+            clearInterval(int);
+            int = null;
+        }
+        timerStatus = "Paused";
+        timerRef.style.color = "";
+
+        if (currentRecogTime !== null) {
+            var totalTime = parseFloat(timerRef.textContent) || 0;
+            var recog = parseFloat(currentRecogTime) || 0;
+            currentExecTime = Math.max(0, totalTime - recog).toFixed(2);
+        }
+
+        lockoutActive = true;
+        setTimeout(() => {
+            lockoutActive = false;
+        }, 800);
+
+        var recallCheckbox = document.getElementById("recallModeCheckbox");
+
+        if (recallCheckbox && recallCheckbox.checked) {
+            // 1. Reveal full cube — remove ALL grey
+            removeRecallMask();
+
+            // 2. DON'T check yet — just show the cube and wait for spacebar
+            // Store the cube state snapshot for checking on confirm
+            recallWasSolved = false; // will be determined on spacebar press
+            recallPendingConfirm = true;
+            skipNextPauseAction = true;
+            window.lastAttemptedScramble = prevScramble;
+            awaitingNext = true;
+
+            // 3. Show neutral "inspect" banner
+            var banner = document.getElementById("recallBanner");
+            if (banner) {
+                banner.textContent = "👀 Inspect — press space to confirm";
+                banner.style.background = "rgba(80, 80, 180, 0.9)";
+                banner.style.display = "flex";
+                banner.style.opacity = "1";
             }
-
-            timerStatus = "Paused"; // Spacebar will now acknowledge the result
-            timerRef.style.color = "";
-
-            if (currentRecogTime !== null) {
-                var totalTime = parseFloat(timerRef.textContent) || 0;
-                var recog = parseFloat(currentRecogTime) || 0;
-                currentExecTime = Math.max(0, totalTime - recog).toFixed(2);
+        } else if (useUserDefinedMask && useUserDefinedMask.checked) {
+            if (typeof restoreOriginalColors === "function") {
+                restoreOriginalColors();
+                if (
+                    window.virtualCube &&
+                    typeof window.virtualCube.draw === "function"
+                ) {
+                    window.virtualCube.draw();
+                }
             }
+            recallWasSolved = false;
+            recallPendingConfirm = true;
+            skipNextPauseAction = true;
+            window.lastAttemptedScramble = prevScramble;
+            awaitingNext = true;
 
-            // 2. Prevent the timer from instantly restarting if space is bumped
+            var banner = document.getElementById("recallBanner");
+            if (banner) {
+                banner.textContent = "👀 Inspect — press space to confirm";
+                banner.style.background = "rgba(80, 80, 180, 0.9)";
+                banner.style.display = "flex";
+                banner.style.opacity = "1";
+            }
+        } else {
+            // Normal mode — auto-finalize immediately, no spacebar needed
+            timerStatus = "Stop";
+            var lastAttemptScramble = prevScramble;
+            displayCaseInfo();
+            prevCase = generateScramble();
+            window.lastAttemptedScramble = lastAttemptScramble;
+
             lockoutActive = true;
-            setTimeout(() => {
-                lockoutActive = false;
-            }, 800);
-
-            try {
-                // 3. Process the solve stats
-                var lastAttemptScramble = prevScramble;
-                skipNextPauseAction = true; // Tells handleKeyUp we already handled the pause
-
-                displayCaseInfo(); // Logs the time and shows the image/algs
-
-                prevCase = generateScramble(); // Prepares the NEXT case
-                window.lastAttemptedScramble = lastAttemptScramble;
-
-                awaitingNext = true;
-            } catch (e) {
-                console.error("Error during auto-solve finalization:", e);
-            }
+            setTimeout(() => { lockoutActive = false; }, 500);
+            awaitingNext = true;
+            holdStarted = false;
         }
     });
 }
@@ -1308,8 +1549,8 @@ function getAlgList() {
                 (isMain
                     ? '<span class="alg-main-badge">★ Main</span>'
                     : '<button class="alg-set-main-btn" onclick="handleSetMainAlg(' +
-                      item.idx +
-                      ')">Set Main</button>') +
+                    item.idx +
+                    ')">Set Main</button>') +
                 '<button class="alg-edit-btn" onclick="handleEditAlg(' +
                 item.idx +
                 ')">✏</button>' +
@@ -1448,11 +1689,6 @@ function handleCopyAlg(index) {
         });
 }
 
-// ── Also update displayCaseInfo() to use the new getAlgList() ─
-// Find this line in your existing displayCaseInfo():
-//   document.querySelector("#case-algs").innerHTML = getAlgList();
-// It will work automatically since getAlgList() now uses currentlyDisplayedCase
-
 const useUserDefinedMask = document.getElementById("useUserDefinedMask");
 const maskSettings = document.getElementById("maskSettings");
 const initialMaskInput = document.getElementById("initialMask");
@@ -1588,13 +1824,58 @@ function expandPieceMask(pieceNotation) {
 var originalIsSolved = Cube3.prototype.isSolved;
 
 Cube3.prototype.isSolved = function () {
-    // if mask is off
+    var self = this;
+
+    function checkWithOriginals() {
+        var swapped = false;
+        // Swap colors and original_colors temporarily
+        for (var ck in self.cubies) {
+            var cubie = self.cubies[ck];
+            if (cubie && cubie.original_colors) {
+                var temp = cubie.colors;
+                cubie.colors = cubie.original_colors;
+                cubie.original_colors = temp;
+                swapped = true;
+            }
+        }
+
+        var result = originalIsSolved.call(self);
+
+        // Swap them back
+        if (swapped) {
+            for (var ck in self.cubies) {
+                var cubie = self.cubies[ck];
+                if (cubie && cubie.original_colors) {
+                    var temp = cubie.colors;
+                    cubie.colors = cubie.original_colors;
+                    cubie.original_colors = temp;
+                }
+            }
+        }
+        return result;
+    }
+
+    if (recallMaskApplied) {
+        // Check solved as-is
+        if (checkWithOriginals()) return true;
+
+        // Check 1 AUF away: try U, U2, U'
+        for (var turns = 1; turns <= 3; turns++) {
+            for (var t = 0; t < turns; t++) self.rotate_u();
+            var res = checkWithOriginals();
+            for (var t = 0; t < turns; t++) self.rotate_up();
+            if (res) return true;
+        }
+
+        return false;
+    }
+
     if (!useUserDefinedMask || !useUserDefinedMask.checked) {
         return originalIsSolved.call(this);
     }
 
-    // determine the current "Front" and "Up" colors
-    // We use the center pieces because they never move relative to each other
+    var maskColor = "rgba(128, 128, 128, 0.85)";
+
     var centers = {
         F: this.cubies["F__"].colors[0],
         R: this.cubies["_R_"].colors[1],
@@ -1603,40 +1884,21 @@ Cube3.prototype.isSolved = function () {
         L: this.cubies["_L_"].colors[4],
         D: this.cubies["__D"].colors[5],
     };
-
-    var maskColor = "rgba(128, 128, 128, 0.85)";
-
-    // check every sticker against its corresponding center piece
     var sides = ["F", "R", "U", "B", "L", "D"];
     for (var s = 0; s < sides.length; s++) {
-        var sideChar = sides[s];
-        var faceIndex = s;
-        var centerColor = centers[sideChar];
-
+        var centerColor = centers[sides[s]];
         for (var cubiePos in this.cubies) {
-            // Check if this cubie is on the current side
-            if (cubiePos[s % 3] === (s < 3 ? sideChar : sideChar)) {
-                // Note: The logic below specifically maps the position to the side
-                if (
-                    (s === 0 && cubiePos[0] === "F") ||
-                    (s === 3 && cubiePos[0] === "B") ||
-                    (s === 1 && cubiePos[1] === "R") ||
-                    (s === 4 && cubiePos[1] === "L") ||
-                    (s === 2 && cubiePos[2] === "U") ||
-                    (s === 5 && cubiePos[2] === "D")
-                ) {
-                    var currentColor = this.cubies[cubiePos].colors[faceIndex];
-
-                    // Only verify if the sticker is NOT masked
-                    if (
-                        currentColor !== maskColor &&
-                        currentColor !== this.internal_color
-                    ) {
-                        if (currentColor !== centerColor) {
-                            return false;
-                        }
-                    }
-                }
+            if (
+                (s === 0 && cubiePos[0] === "F") ||
+                (s === 3 && cubiePos[0] === "B") ||
+                (s === 1 && cubiePos[1] === "R") ||
+                (s === 4 && cubiePos[1] === "L") ||
+                (s === 2 && cubiePos[2] === "U") ||
+                (s === 5 && cubiePos[2] === "D")
+            ) {
+                var c = this.cubies[cubiePos].colors[s];
+                if (c === maskColor || c === this.internal_color) continue;
+                if (c !== centerColor) return false;
             }
         }
     }
@@ -1736,6 +1998,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }, 150);
 });
 
+// UPDATE existing cubeFirstMove listener:
 document.addEventListener("cubeFirstMove", function (e) {
     if (timerStatus !== "Start") return;
     if (!solveStartTime) return;
@@ -1755,7 +2018,55 @@ document.addEventListener("cubeFirstMove", function (e) {
             '<span class="split-divider">|</span>' +
             '<span class="split-item split-exec">⚡ Executing...</span>';
     }
+
+    // Recall mode mask
+    var recallCheckbox = document.getElementById("recallModeCheckbox");
+    if (recallCheckbox && recallCheckbox.checked && !recallMaskApplied) {
+        setTimeout(function () {
+            applyRecallMask();
+            var banner = document.getElementById("recallBanner");
+            if (banner) {
+                banner.style.display = "flex";
+                banner.style.opacity = "1";
+            }
+        }, 30);
+    }
 });
+
+document.addEventListener("cubeAUFMove", function (e) {
+    if (timerStatus !== "Start") return;
+    if (currentRecogTime !== null) return;
+
+    var splitEl = document.getElementById("splitDisplay");
+    if (splitEl) {
+        var elapsed = ((e.detail.time - solveStartTime) / 1000).toFixed(2);
+        splitEl.style.display = "flex";
+        splitEl.innerHTML =
+            '<span class="split-item split-recog">👁 Recognizing... <b>' +
+            elapsed +
+            "s</b></span>" +
+            '<span class="split-divider">|</span>' +
+            '<span class="split-item split-exec" style="opacity:0.4;">⚡ Waiting for alg</span>';
+    }
+
+    var recallCheckbox = document.getElementById("recallModeCheckbox");
+    if (recallCheckbox && recallCheckbox.checked && !recallMaskApplied) {
+        applyRecallMask();
+        var banner = document.getElementById("recallBanner");
+        if (banner) {
+            banner.style.display = "flex";
+            banner.style.opacity = "1";
+        }
+    }
+});
+
+var recallCb = document.getElementById("recallModeCheckbox");
+if (recallCb) {
+    recallCb.checked = localStorage.getItem("recallMode") === "true";
+    recallCb.addEventListener("change", function () {
+        localStorage.setItem("recallMode", this.checked);
+    });
+}
 
 if (useUserDefinedMask) {
     useUserDefinedMask.addEventListener("change", function () {
@@ -1791,6 +2102,7 @@ if (window.virtualCube && window.virtualCube.applyScramble) {
         saveOriginalColors();
 
         setTimeout(function () {
+            snapshotRecallStickers();
             applyMaskToVirtualCube();
         }, 10);
     };
@@ -1809,6 +2121,89 @@ if (window.virtualCube && window.virtualCube.reset) {
             applyMaskToVirtualCube();
         }, 10);
     };
+}
+
+var recallMaskApplied = false;
+
+function snapshotRecallStickers() {
+    if (!window.cube3) return;
+    var uCenter = window.cube3.cubies["__U"];
+    window._recallLLColor = uCenter ? uCenter.colors[2] : null;
+    window._recallSnapshot = true;
+}
+
+function applyRecallMask() {
+    if (!window.cube3 || !window._recallSnapshot) return;
+    if (!window._recallLLColor) return;
+
+    var maskColor = "rgba(128, 128, 128, 0.85)";
+    var llColor = window._recallLLColor;
+
+    // Mask ALL LL stickers (12 side + 9 U-face) except LL color ones
+    var allLLStickers = [
+        { cubie: "FLU", face: 0 },
+        { cubie: "F_U", face: 0 },
+        { cubie: "FRU", face: 0 },
+        { cubie: "FRU", face: 1 },
+        { cubie: "_RU", face: 1 },
+        { cubie: "BRU", face: 1 },
+        { cubie: "BRU", face: 3 },
+        { cubie: "B_U", face: 3 },
+        { cubie: "BLU", face: 3 },
+        { cubie: "BLU", face: 4 },
+        { cubie: "_LU", face: 4 },
+        { cubie: "FLU", face: 4 },
+        { cubie: "FLU", face: 2 },
+        { cubie: "F_U", face: 2 },
+        { cubie: "FRU", face: 2 },
+        { cubie: "_RU", face: 2 },
+        { cubie: "__U", face: 2 },
+        { cubie: "_LU", face: 2 },
+        { cubie: "BLU", face: 2 },
+        { cubie: "B_U", face: 2 },
+        { cubie: "BRU", face: 2 },
+    ];
+
+    allLLStickers.forEach(function (s) {
+        var cubie = window.cube3.cubies[s.cubie];
+        if (!cubie) return;
+        var color = cubie.original_colors
+            ? cubie.original_colors[s.face]
+            : cubie.colors[s.face];
+        if (color !== maskColor && color !== llColor) {
+            cubie.colors[s.face] = maskColor;
+        }
+    });
+
+    if (window.virtualCube && window.virtualCube.draw)
+        window.virtualCube.draw();
+    recallMaskApplied = true;
+}
+
+function removeRecallMask() {
+    if (!recallMaskApplied) return;
+
+    if (window.cube3) {
+        for (var cubieKey in window.cube3.cubies) {
+            var cubie = window.cube3.cubies[cubieKey];
+            if (cubie && cubie.original_colors) {
+                cubie.colors = cubie.original_colors.slice();
+            }
+        }
+    }
+
+    window._recallOriginalColors = null;
+    window._recallGreyPositions = null;
+    recallMaskApplied = false;
+
+    if (window.virtualCube && window.virtualCube.draw)
+        window.virtualCube.draw();
+}
+function resetRecallState() {
+    window._recallOriginalColors = null;
+    window._recallSnapshot = null;
+    window._recallLLColor = null;
+    recallMaskApplied = false;
 }
 
 var includeRecognitionTime = document.getElementById("includeRecognitionTime");

@@ -4,9 +4,18 @@ var slowCaseSelections = {}; // tracks which slow cases are checked: caseName ->
 function getSlowCases(thresholdSeconds) {
     var t = thresholdSeconds || slowCaseThreshold;
 
+    // Get the names of cases in this session only 
+    var sessionCaseNames = toTrain.map(function(c) {
+        return c.getName ? c.getName() : c.name;
+    });
+
     var byCase = {};
     attempts.forEach(function(a) {
         if (!a.caseName) return;
+
+        // only include cases that are in the current session
+        if (sessionCaseNames.indexOf(a.caseName) === -1) return;
+
         if (!byCase[a.caseName]) {
             byCase[a.caseName] = {
                 caseName: a.caseName,
