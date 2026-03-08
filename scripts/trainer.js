@@ -34,7 +34,7 @@ if (selectedCasesRaw && selectedCasesRaw.length) {
                         if (arr && arr.length)
                             return arr[Math.floor(Math.random() * arr.length)];
                     }
-                } catch (e) { }
+                } catch (e) {}
                 return (
                     item.setup ||
                     this.set + "-" + this.subset + "-" + this.caseName
@@ -145,7 +145,7 @@ function trainerSetup() {
             window.virtualCube.disableMoves();
             window.virtualCube.resize && window.virtualCube.resize();
         }
-    } catch (e) { }
+    } catch (e) {}
 
     setTimeout(function () {
         try {
@@ -155,13 +155,13 @@ function trainerSetup() {
             ) {
                 window.virtualCube.resize();
             }
-        } catch (e) { }
+        } catch (e) {}
     }, 100);
 
     awaitingNext = true;
     try {
         renderCaseAttempts(prevCase);
-    } catch (e) { }
+    } catch (e) {}
     // this if loop is to make sure the count of recap is correct depending on mode
     if (recap) {
         // in recap mode, show how many cases are left to recap
@@ -228,7 +228,7 @@ function onVirtualCheckboxChange(e) {
                 ) {
                     window.virtualCube.resize();
                 }
-            } catch (e) { }
+            } catch (e) {}
         }, 50);
     } else {
         hideVirtualCube();
@@ -267,19 +267,19 @@ function renderCaseAttempts(caseObj) {
     var avg = count ? total / count : 0;
     var min = count
         ? Math.min.apply(
-            null,
-            filtered.map(function (a) {
-                return a.time;
-            })
-        )
+              null,
+              filtered.map(function (a) {
+                  return a.time;
+              })
+          )
         : 0;
     var max = count
         ? Math.max.apply(
-            null,
-            filtered.map(function (a) {
-                return a.time;
-            })
-        )
+              null,
+              filtered.map(function (a) {
+                  return a.time;
+              })
+          )
         : 0;
 
     // Recog/exec averages — only from attempts that have split data
@@ -315,11 +315,11 @@ function renderCaseAttempts(caseObj) {
         // Split row — only show if we have split data
         (splitAttempts.length
             ? '<div class="stat-square stat-recog"><span class="stat-label">Avg Recog</span><span class="stat-value recog-value">' +
-            avgRecog +
-            "</span></div>" +
-            '<div class="stat-square stat-exec"><span class="stat-label">Avg Exec</span><span class="stat-value exec-value">' +
-            avgExec +
-            "</span></div>"
+              avgRecog +
+              "</span></div>" +
+              '<div class="stat-square stat-exec"><span class="stat-label">Avg Exec</span><span class="stat-value exec-value">' +
+              avgExec +
+              "</span></div>"
             : "");
 
     // Attempt tags — show recog/exec as tooltip
@@ -330,7 +330,10 @@ function renderCaseAttempts(caseObj) {
         .forEach(function (a) {
             var tag = document.createElement("span");
             tag.className = "clickable-tag";
-            tag.innerHTML = a.time.toFixed(2);
+            tag.innerHTML =
+                a.result === "DNF"
+                    ? "DNF(" + a.time.toFixed(2) + ")"
+                    : a.time.toFixed(2);
 
             // Show split as tooltip if available
             if (a.recogTime != null) {
@@ -451,6 +454,8 @@ function exportAttemptsCsv() {
         "caseName",
         "orientation",
         "time",
+        "recogTime",
+        "execTime",
         "result",
         "solvedByVirtualCube",
     ];
@@ -751,7 +756,7 @@ function displayCaseInfo() {
     currentlyDisplayedCase = prevCase;
     if (recallMaskApplied) removeRecallMask();
 
-    // ── COMPUTE exec time FIRST, before anything else reads it ──
+    // COMPUTE exec time FIRST, before anything else reads it ──
     if (currentRecogTime !== null) {
         var totalTime = parseFloat(timerRef.textContent) || 0;
         var recog = parseFloat(currentRecogTime) || 0;
@@ -786,7 +791,7 @@ function displayCaseInfo() {
 
     try {
         renderCaseAttempts(currentlyDisplayedCase);
-    } catch (e) { }
+    } catch (e) {}
 
     awaitingNext = true;
     revealed = false;
@@ -1008,7 +1013,7 @@ function handleKeyUp(event) {
 
             try {
                 logAttempt(prevCase, timerRef.textContent, "DNF");
-            } catch (e) { }
+            } catch (e) {}
             if (recap) removeElement(prevCase);
             renderCaseAttempts(currentlyDisplayedCase);
 
@@ -1037,7 +1042,7 @@ function handleKeyUp(event) {
                         currentOrientation + " " + window.lastAttemptedScramble;
                     window.virtualCube.applyScramble(practiceSetup);
                     window.virtualCube.enableMoves();
-                } catch (e) { }
+                } catch (e) {}
             }
 
             var banner = document.getElementById("recallBanner");
@@ -1102,7 +1107,7 @@ function handleKeyUp(event) {
 
                 try {
                     logAttempt(prevCase, timerRef.textContent, result);
-                } catch (e) { }
+                } catch (e) {}
                 if (recap) removeElement(prevCase);
                 renderCaseAttempts(currentlyDisplayedCase);
 
@@ -1192,10 +1197,45 @@ function handleKeyUp(event) {
             timerStatus = "Stop";
             if (recap) removeElement(prevCase);
             var lastAttemptScramble = prevScramble;
-            displayCaseInfo();
+
+            if (currentRecogTime !== null) {
+                var totalTime = parseFloat(timerRef.textContent) || 0;
+                var recog = parseFloat(currentRecogTime) || 0;
+                currentExecTime = Math.max(0, totalTime - recog).toFixed(2);
+            }
+            updateSplitDisplay(currentRecogTime, currentExecTime);
+
+            var isVirtualOn = container && container.style.display !== "none";
+            var cubeUnsolved =
+                isVirtualOn &&
+                window.virtualCube &&
+                !window.virtualCube.isSolved();
+            var result =
+                currentRecogTime === null || cubeUnsolved ? "DNF" : "OK";
+
+            count++;
+            currentlyDisplayedCase = prevCase;
+            document.querySelector("#case-text").innerHTML = "Result #" + count;
+            document.querySelector("#case-time").innerHTML =
+                timerRef.textContent + (result === "DNF" ? " DNF" : "");
+            document.querySelector("#case-time").hidden = false;
+            document.querySelector("#case-name").innerHTML = prevCase.getName();
+            document.querySelector("#case-scram").innerHTML = prevScramble;
+            document.querySelector("#case-algs").innerHTML = getAlgList();
+
+            try {
+                logAttempt(prevCase, timerRef.textContent, result);
+            } catch (e) {}
+            renderCaseAttempts(currentlyDisplayedCase);
+
+            var imgRef = document.querySelector("#case-img");
+            imgRef.src = prevCase.getImg();
+            imgRef.alt = prevCase.getName();
+            imgRef.width = 150;
+            imgRef.height = 150;
+
             prevCase = generateScramble();
             window.lastAttemptedScramble = lastAttemptScramble;
-
             lockoutActive = true;
             setTimeout(() => {
                 lockoutActive = false;
@@ -1267,6 +1307,7 @@ function handleKeyUp(event) {
         holdStarted = false;
     }
 }
+
 function goBack() {
     window.location.href = "index.html";
 }
@@ -1287,7 +1328,7 @@ function toggleVirtualCube() {
             typeof window.virtualCube.resize === "function"
         )
             window.virtualCube.resize();
-    } catch (e) { }
+    } catch (e) {}
 }
 
 function showVirtualCube() {
@@ -1487,7 +1528,9 @@ if (window.virtualCube && typeof window.virtualCube.onSolve === "function") {
             window.lastAttemptedScramble = lastAttemptScramble;
 
             lockoutActive = true;
-            setTimeout(() => { lockoutActive = false; }, 500);
+            setTimeout(() => {
+                lockoutActive = false;
+            }, 500);
             awaitingNext = true;
             holdStarted = false;
         }
@@ -1549,8 +1592,8 @@ function getAlgList() {
                 (isMain
                     ? '<span class="alg-main-badge">★ Main</span>'
                     : '<button class="alg-set-main-btn" onclick="handleSetMainAlg(' +
-                    item.idx +
-                    ')">Set Main</button>') +
+                      item.idx +
+                      ')">Set Main</button>') +
                 '<button class="alg-edit-btn" onclick="handleEditAlg(' +
                 item.idx +
                 ')">✏</button>' +
