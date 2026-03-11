@@ -141,6 +141,11 @@ function trainerSetup() {
     // Restore virtual cube checkbox and show/hide container
     var cb = document.getElementById("virtualCubeCheckbox");
     var container = document.getElementById("virtualCubeContainer");
+
+    if (localStorage.getItem("virtualCubeEnabled") === "true") {
+        cb.checked = true;
+    }
+    
     if (cb) {
         if (cb.checked) {
             container.style.display = "block";
@@ -164,7 +169,6 @@ function trainerSetup() {
 
     cb.removeEventListener("change", onVirtualCheckboxChange);
     cb.addEventListener("change", onVirtualCheckboxChange);
-}
 
     // Fallback resize after a longer delay to catch any slow paint
     setTimeout(function () {
