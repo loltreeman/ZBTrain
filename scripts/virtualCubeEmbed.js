@@ -101,14 +101,15 @@
     }, 80);
 
     function resetCube() {
-        window.cube3 = new Cube3(colors);
-        window.cube3.isSolving = false;
-        window._firstMoveFired = false;
-        window._aufMoveFired = false;
-        window._recallColorSnapshot = undefined;
-        prevSolved = false;
-        draw();
-    }
+    window.cube3 = new Cube3(colors);
+    window.cube3.isSolving = false;
+    window._firstMoveFired = false;
+    window._aufMoveFired = false;
+    window._recallColorSnapshot = undefined;
+    prevSolved = false;
+    // Always resize after reset so canvas transform is correct
+    setTimeout(function() { resizeCanvas(); }, 10);
+}
 
     function applyScrambleString(scramble) {
         if (!scramble || !scramble.length) return;
@@ -140,28 +141,37 @@
     }
 
     function resizeCanvas() {
-        if (!canvas) return;
-        var container = canvas.parentElement || document.body;
-        var containerWidth = container.clientWidth;
-        var cssWidth = Math.min(containerWidth, 400);
-        var cssHeight = Math.round(cssWidth * 0.75);
-        canvas.style.marginLeft = Math.round((containerWidth - cssWidth) / 2) + "px";
-        var ratio = window.devicePixelRatio || 1;
-        canvas.width = Math.round(cssWidth * ratio);
-        canvas.height = Math.round(cssHeight * ratio);
-        canvas.style.width = cssWidth + "px";
-        canvas.style.height = cssHeight + "px";
-        if (!context) return;
-        measureNativeBounds();
-        var nb = window.virtualCube._nativeBounds || { w: 180, h: 150, minX: 0, minY: 0 };
-        var s = Math.min(cssWidth / nb.w, cssHeight / nb.h) * 0.9;
-        if (s <= 0) s = 1;
-        var scale = ratio * s;
-        var offsetX = (cssWidth - nb.w * s) / 2 - nb.minX * s;
-        var offsetY = (cssHeight - nb.h * s) / 2 - nb.minY * s;
-        context.setTransform(scale, 0, 0, scale, Math.round(offsetX * ratio), Math.round(offsetY * ratio));
-        draw();
-    }
+    if (!canvas) return;
+    var container = canvas.parentElement || document.body;
+
+    // Use a fixed size that works in your layout
+    var cssWidth = 400;
+    var cssHeight = 300;
+
+    var ratio = window.devicePixelRatio || 1;
+    canvas.width = Math.round(cssWidth * ratio);
+    canvas.height = Math.round(cssHeight * ratio);
+    canvas.style.width = cssWidth + "px";
+    canvas.style.height = cssHeight + "px";
+    canvas.style.marginLeft = "auto";
+    canvas.style.marginRight = "auto";
+    canvas.style.display = "block";
+
+    if (!context) return;
+
+    // Always remeasure bounds fresh
+    window.virtualCube._nativeBounds = null;
+    measureNativeBounds();
+
+    var nb = window.virtualCube._nativeBounds || { w: 180, h: 150, minX: 0, minY: 0 };
+    var s = Math.min(cssWidth / nb.w, cssHeight / nb.h) * 0.88;
+    if (s <= 0) s = 1;
+    var scale = ratio * s;
+    var offsetX = (cssWidth - nb.w * s) / 2 - nb.minX * s;
+    var offsetY = (cssHeight - nb.h * s) / 2 - nb.minY * s;
+    context.setTransform(scale, 0, 0, scale, Math.round(offsetX * ratio), Math.round(offsetY * ratio));
+    draw();
+}
 
     function measureNativeBounds() {
         try {

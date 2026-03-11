@@ -100,19 +100,21 @@
             <div class="settings-section">
                 <label class="section-label">Orientation</label>
                 <div class="settings-input-stack">
-                    <div class="sidebar-input-group">
-                        <label>Pre-Orientation</label>
-                        <input type="text" id="colourneutrality1" placeholder="e.g. z2">
-                    </div>
-                    <div class="sidebar-input-group">
-                        <label>LL Rotation</label>
-                        <input type="text" id="colourneutrality2" placeholder="y">
-                    </div>
-                    <div class="sidebar-input-group">
-                        <label>Side Rotation</label>
-                        <input type="text" id="colourneutrality3" placeholder="z">
-                    </div>
-                </div>
+    <div class="sidebar-input-group">
+        <label>Pre-Orientation</label>
+        <input type="text" id="colourneutrality1" placeholder="e.g. z2">
+    </div>
+    <div id="customOrientationSection" style="display:flex; flex-direction:column; gap:8px;">
+        <div class="sidebar-input-group">
+            <label>LL Rotation</label>
+            <input type="text" id="colourneutrality2" placeholder="y">
+        </div>
+        <div class="sidebar-input-group">
+            <label>Side Rotation</label>
+            <input type="text" id="colourneutrality3" placeholder="z">
+        </div>
+    </div>
+</div>
                 <a href="scramblingNote.html" class="settings-info-link">Notes on Orientation</a>
             </div>
         </div>

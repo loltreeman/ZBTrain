@@ -107,16 +107,23 @@ var holdStarted = false;
 
 var startStopTimer = true;
 
-trainerSetup();
+var startStopTimer = true;
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", trainerSetup);
+} else {
+    trainerSetup();
+}
 
 function trainerSetup() {
     timerStatus = "Stop";
     seconds = 0;
     milliseconds = 0;
     count = 0;
-    // Always generate the first scramble and show it in the header
+
     prevCase = generateScramble();
-    // Add this inside trainerSetup()
+
+    // Restore saved CN inputs
     document.getElementById("colourneutrality1").value =
         localStorage.getItem("colourneutrality1") || "";
     document.getElementById("colourneutrality2").value =
@@ -124,29 +131,47 @@ function trainerSetup() {
     document.getElementById("colourneutrality3").value =
         localStorage.getItem("colourneutrality3") || "";
 
-    var cb = document.getElementById("virtualCubeCheckbox");
-    var container = document.getElementById("virtualCubeContainer");
-    if (cb) {
-        if (cb.checked) {
-            container.style.display = "block";
-        } else {
-            container.style.display = "none";
-        }
-
-        // when the checkbox changes, show/hide cube without altering the scramble or sidebar
-        cb.removeEventListener("change", onVirtualCheckboxChange);
-        cb.addEventListener("change", onVirtualCheckboxChange);
+    // Restore full CN checkbox
+    var fullCN = document.getElementById("fullCN");
+    if (fullCN && localStorage.getItem("fullCN") === "true") {
+        fullCN.checked = true;
+        document.getElementById("customOrientationSection").style.display = "none";
     }
 
-    // this is to ensure virtual cube is solved and not interactive until a timed attempt starts
-    try {
-        if (window.virtualCube) {
-            window.virtualCube.reset();
-            window.virtualCube.disableMoves();
-            window.virtualCube.resize && window.virtualCube.resize();
-        }
-    } catch (e) { }
+    // Restore virtual cube checkbox and show/hide container
+    var cb = document.getElementById("virtualCubeCheckbox");
+var container = document.getElementById("virtualCubeContainer");
+if (cb) {
+    if (localStorage.getItem("virtualCubeEnabled") === "true") {
+        cb.checked = true;
+    }
 
+    if (cb.checked) {
+        container.style.display = "block";
+        setTimeout(function () {
+            try {
+                if (window.virtualCube) {
+                    window.virtualCube.reset(); // reset now calls resizeCanvas internally
+                    window.virtualCube.disableMoves();
+                }
+            } catch (e) {}
+            document.body.focus();
+        }, 150);
+    } else {
+        container.style.display = "none";
+        try {
+            if (window.virtualCube) {
+                window.virtualCube.reset();
+                window.virtualCube.disableMoves();
+            }
+        } catch (e) {}
+    }
+
+    cb.removeEventListener("change", onVirtualCheckboxChange);
+    cb.addEventListener("change", onVirtualCheckboxChange);
+}
+
+    // Fallback resize after a longer delay to catch any slow paint
     setTimeout(function () {
         try {
             if (
@@ -155,16 +180,15 @@ function trainerSetup() {
             ) {
                 window.virtualCube.resize();
             }
-        } catch (e) { }
-    }, 100);
+        } catch (e) {}
+    }, 300);
 
     awaitingNext = true;
     try {
         renderCaseAttempts(prevCase);
-    } catch (e) { }
-    // this if loop is to make sure the count of recap is correct depending on mode
+    } catch (e) {}
+
     if (recap) {
-        // in recap mode, show how many cases are left to recap
         displayCaseCount(toRecap, "numRecap", "to recap");
         displayCaseCount(toTrain, "numSelected", "selected");
     } else {
@@ -190,6 +214,7 @@ const fullCNCheckbox = document.getElementById("fullCN");
 const customSection = document.getElementById("customOrientationSection");
 
 fullCNCheckbox.addEventListener("change", function () {
+    localStorage.setItem("fullCN", this.checked);
     if (this.checked) {
         customSection.style.display = "none";
     } else {
@@ -198,37 +223,20 @@ fullCNCheckbox.addEventListener("change", function () {
 });
 
 function onVirtualCheckboxChange(e) {
+    localStorage.setItem("virtualCubeEnabled", e.target.checked);
     var container = document.getElementById("virtualCubeContainer");
     if (!container) return;
 
     if (e.target.checked) {
-        // Show the container first so clientWidth is real
         container.style.display = "block";
-
-        // Clear cached bounds so resizeCanvas remeasures with correct dimensions
-        if (window.virtualCube) {
-            window.virtualCube._nativeBounds = null;
-        }
-
-        try {
-            if (window.virtualCube) {
-                window.virtualCube.reset();
-                window.virtualCube.disableMoves();
-            }
-        } catch (err) {
-            console.error("Error resetting cube:", err);
-        }
-
-        // Wait for the browser to paint the container, then resize
         setTimeout(function () {
             try {
-                if (
-                    window.virtualCube &&
-                    typeof window.virtualCube.resize === "function"
-                ) {
-                    window.virtualCube.resize();
+                if (window.virtualCube) {
+                    window.virtualCube.reset();
+                    window.virtualCube.disableMoves();
                 }
-            } catch (e) { }
+            } catch (e) {}
+            document.body.focus();
         }, 50);
     } else {
         hideVirtualCube();
