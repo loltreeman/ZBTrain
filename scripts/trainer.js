@@ -1029,14 +1029,14 @@ function handleKeyUp(event) {
 
             document.querySelector("#case-text").innerHTML = "Result #" + count;
             document.querySelector("#case-time").innerHTML =
-                timerRef.textContent + " DNF";
+                timerRef.textContent;
             document.querySelector("#case-time").hidden = false;
             document.querySelector("#case-name").innerHTML = prevCase.getName();
             document.querySelector("#case-scram").innerHTML = prevScramble;
             document.querySelector("#case-algs").innerHTML = getAlgList();
 
             try {
-                logAttempt(prevCase, timerRef.textContent, "DNF");
+                logAttempt(prevCase, timerRef.textContent, "OK");
             } catch (e) {}
             if (recap) removeElement(prevCase);
             renderCaseAttempts(currentlyDisplayedCase);
@@ -1234,8 +1234,7 @@ function handleKeyUp(event) {
                 isVirtualOn &&
                 window.virtualCube &&
                 !window.virtualCube.isSolved();
-            var result =
-                currentRecogTime === null || cubeUnsolved ? "DNF" : "OK";
+            var result = cubeUnsolved ? "DNF" : "OK";
 
             count++;
             currentlyDisplayedCase = prevCase;
