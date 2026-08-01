@@ -42,7 +42,54 @@
         "2": "rotate_e", "9": "rotate_ep",
     };
 
+    /** Dvorak-equivalent bindings — same physical key positions as QWERTY defaults,
+     *  but using the characters Dvorak OS layout produces for those keys. */
+    var LAYOUT_DVORAK = {
+        d: "rotate_f",   i: "rotate_fp",  c: "rotate_r",   t: "rotate_rp",
+        h: "rotate_u",   u: "rotate_up",  ",": "rotate_b", r: "rotate_bp",
+        e: "rotate_l",   ".": "rotate_lp", o: "rotate_d",  n: "rotate_dp",
+        x: "rotate_x",   b: "rotate_x",   y: "rotate_xp", f: "rotate_xp",
+        a: "rotate_y",   s: "rotate_yp",  "'": "rotate_z", l: "rotate_zp",
+        g: "rotate_R",   m: "rotate_Rp",  k: "rotate_L",  p: "rotate_Lp",
+        "5": "rotate_m", "6": "rotate_mp", "0": "rotate_s", "1": "rotate_sp",
+        "2": "rotate_e", "9": "rotate_ep",
+    };
+
+    /** Colemak-equivalent bindings. */
+    var LAYOUT_COLEMAK = {
+        h: "rotate_f",   d: "rotate_fp",  u: "rotate_r",   e: "rotate_rp",
+        n: "rotate_u",   t: "rotate_up",  w: "rotate_b",   y: "rotate_bp",
+        s: "rotate_l",   f: "rotate_lp",  r: "rotate_d",   i: "rotate_dp",
+        b: "rotate_x",   k: "rotate_x",   g: "rotate_xp",  j: "rotate_xp",
+        a: "rotate_y",   o: "rotate_yp",  q: "rotate_z",   ";": "rotate_zp",
+        l: "rotate_R",   m: "rotate_Rp",  v: "rotate_L",   p: "rotate_Lp",
+        "5": "rotate_m", "6": "rotate_mp", "0": "rotate_s", "1": "rotate_sp",
+        "2": "rotate_e", "9": "rotate_ep",
+    };
+
+    /** Colemak-DH (Mod-DH) equivalent bindings.
+     *  Differs from Colemak: physical T->b, G->m, H->m-swap, B->d, M->h swapped. */
+    var LAYOUT_COLEMAK_DH = {
+        m: "rotate_f",   g: "rotate_fp",  u: "rotate_r",   e: "rotate_rp",
+        n: "rotate_u",   t: "rotate_up",  w: "rotate_b",   y: "rotate_bp",
+        s: "rotate_l",   f: "rotate_lp",  r: "rotate_d",   i: "rotate_dp",
+        d: "rotate_x",   k: "rotate_x",   b: "rotate_xp",  j: "rotate_xp",
+        a: "rotate_y",   o: "rotate_yp",  q: "rotate_z",   ";": "rotate_zp",
+        l: "rotate_R",   h: "rotate_Rp",  v: "rotate_L",   p: "rotate_Lp",
+        "5": "rotate_m", "6": "rotate_mp", "0": "rotate_s", "1": "rotate_sp",
+        "2": "rotate_e", "9": "rotate_ep",
+    };
+
+    var BUILT_IN_LAYOUTS = {
+        "QWERTY":     DEFAULT_CUBE_ACTIONS,
+        "Dvorak":     LAYOUT_DVORAK,
+        "Colemak":    LAYOUT_COLEMAK,
+        "Colemak-DH": LAYOUT_COLEMAK_DH,
+    };
+
     var LS_KEY = "cubeKeybinds";
+    var LS_ACTIVE_LAYOUT_KEY  = "cubeActiveLayout";
+    var LS_CUSTOM_LAYOUTS_KEY = "cubeCustomLayouts";
 
     /** Load merged keybinds: saved overrides on top of defaults. */
     function loadKeybinds() {
@@ -309,8 +356,82 @@
 
         /** Wipe custom bindings and restore defaults. */
         resetKeybinds: function () {
-            try { localStorage.removeItem(LS_KEY); } catch (e) { }
+            try {
+                localStorage.removeItem(LS_KEY);
+                localStorage.removeItem(LS_ACTIVE_LAYOUT_KEY);
+            } catch (e) { }
             cubeActions = loadKeybinds();
+        },
+
+        // ── Layout API ───────────────────────────────────────────────────────────
+
+        /** Returns all available layouts: built-in presets + saved custom layouts.
+         *  Each value is { builtin: true/false }. */
+        getLayouts: function () {
+            var result = {};
+            Object.keys(BUILT_IN_LAYOUTS).forEach(function (name) {
+                result[name] = { builtin: true };
+            });
+            try {
+                var custom = JSON.parse(localStorage.getItem(LS_CUSTOM_LAYOUTS_KEY) || "{}");
+                Object.keys(custom).forEach(function (name) {
+                    result[name] = { builtin: false };
+                });
+            } catch (e) { }
+            return result;
+        },
+
+        /** Returns the name of the currently active layout. */
+        getActiveLayoutName: function () {
+            try { return localStorage.getItem(LS_ACTIVE_LAYOUT_KEY) || "QWERTY"; } catch (e) { return "QWERTY"; }
+        },
+
+        /** Switch to a named preset or saved custom layout. Mutates cubeActions in-place. */
+        applyLayout: function (name) {
+            var bindings = null;
+            if (BUILT_IN_LAYOUTS[name]) {
+                bindings = BUILT_IN_LAYOUTS[name];
+            } else {
+                try {
+                    var custom = JSON.parse(localStorage.getItem(LS_CUSTOM_LAYOUTS_KEY) || "{}");
+                    if (custom[name]) bindings = custom[name];
+                } catch (e) { }
+            }
+            if (!bindings) return;
+            Object.keys(cubeActions).forEach(function (k) { delete cubeActions[k]; });
+            Object.keys(bindings).forEach(function (k) { cubeActions[k] = bindings[k]; });
+            saveKeybinds(cubeActions);
+            try { localStorage.setItem(LS_ACTIVE_LAYOUT_KEY, name); } catch (e) { }
+        },
+
+        /** Persist the given bindings as a named custom layout and make it the active layout. */
+        saveCustomLayout: function (name, bindings) {
+            try {
+                var custom = JSON.parse(localStorage.getItem(LS_CUSTOM_LAYOUTS_KEY) || "{}");
+                custom[name] = {};
+                Object.keys(bindings).forEach(function (k) { custom[name][k] = bindings[k]; });
+                localStorage.setItem(LS_CUSTOM_LAYOUTS_KEY, JSON.stringify(custom));
+                localStorage.setItem(LS_ACTIVE_LAYOUT_KEY, name);
+            } catch (e) { }
+        },
+
+        /** Remove a saved custom layout. If it was active, clears the active layout name. */
+        deleteCustomLayout: function (name) {
+            try {
+                var custom = JSON.parse(localStorage.getItem(LS_CUSTOM_LAYOUTS_KEY) || "{}");
+                delete custom[name];
+                localStorage.setItem(LS_CUSTOM_LAYOUTS_KEY, JSON.stringify(custom));
+                if (localStorage.getItem(LS_ACTIVE_LAYOUT_KEY) === name) {
+                    localStorage.removeItem(LS_ACTIVE_LAYOUT_KEY);
+                }
+            } catch (e) { }
+        },
+
+        /** Remove a single key binding without replacing it. */
+        unbindKey: function (key) {
+            if (key && key.length === 1) key = key.toLowerCase();
+            delete cubeActions[key];
+            saveKeybinds(cubeActions);
         },
     };
 
