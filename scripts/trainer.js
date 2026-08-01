@@ -101,7 +101,9 @@ var keyDownTime = 0;
 var tapThreshold = 10; // ms to distinguish tap vs hold
 var awaitingNext = false; // waiting to move to next scramble
 var revealed = false; // whether current scramble has been revealed to user
-var holdThreshold = 200; // ms to auto-start on hold
+var savedHoldThreshold = localStorage.getItem("timerHoldThreshold");
+var holdThreshold = savedHoldThreshold !== null ? parseInt(savedHoldThreshold, 10) : 200;
+if (isNaN(holdThreshold)) holdThreshold = 200;
 var holdTimer = null;
 var holdStarted = false;
 
@@ -130,6 +132,19 @@ function trainerSetup() {
         localStorage.getItem("colourneutrality2") || "";
     document.getElementById("colourneutrality3").value =
         localStorage.getItem("colourneutrality3") || "";
+
+    // Restore timer hold threshold setting
+    var holdSelect = document.getElementById("timerHoldThresholdSelect");
+    if (holdSelect) {
+        holdSelect.value = holdThreshold.toString();
+        holdSelect.addEventListener("change", function () {
+            var val = parseInt(this.value, 10);
+            if (!isNaN(val) && val >= 0) {
+                holdThreshold = val;
+                localStorage.setItem("timerHoldThreshold", val);
+            }
+        });
+    }
 
     // Restore full CN checkbox
     var fullCN = document.getElementById("fullCN");
@@ -968,13 +983,18 @@ function handleKeyDown(event) {
         if (timerStatus === "Stop" && !lockoutActive) {
             if (holdTimer) return;
 
-            timerRef.style.color = "#FFD700";
-            holdStarted = false;
-
-            holdTimer = setTimeout(function () {
+            if (holdThreshold === 0) {
                 holdStarted = true;
                 timerRef.style.color = "#32CD32";
-            }, holdThreshold);
+            } else {
+                timerRef.style.color = "#FFD700";
+                holdStarted = false;
+
+                holdTimer = setTimeout(function () {
+                    holdStarted = true;
+                    timerRef.style.color = "#32CD32";
+                }, holdThreshold);
+            }
         }
     }
 }

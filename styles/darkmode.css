@@ -85,7 +85,8 @@ body.dark-mode .sidebar-input-group {
     border-color: var(--border);
 }
 
-body.dark-mode .sidebar-input-group input {
+body.dark-mode .sidebar-input-group input,
+body.dark-mode .sidebar-input-group select {
     background: #334155;
     border-color: var(--border);
     color: var(--accent-blue);

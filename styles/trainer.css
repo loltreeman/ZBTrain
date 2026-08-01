@@ -356,6 +356,19 @@ body {
     color: var(--accent-blue);
 }
 
+.sidebar-input-group select {
+    background: #f1f5f9;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 13px;
+    font-family: "JetBrains Mono", monospace;
+    font-weight: 700;
+    color: var(--accent-blue);
+    cursor: pointer;
+    outline: none;
+}
+
 .settings-info-link {
     text-align: center;
     font-size: 12px;

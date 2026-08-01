@@ -94,7 +94,17 @@
                         LL side stickers grey out after your first move. Trains pure recall over recognition-assisted execution. Only works with Virtual Cube enabled.
                     </p>
                 </div>
-                <button type="button" class="kb-settings-btn" onclick="openKeybindModal()">
+                <div class="sidebar-input-group" style="margin-top: 10px;">
+                    <label for="timerHoldThresholdSelect">Hold Delay</label>
+                    <select id="timerHoldThresholdSelect">
+                        <option value="0">0ms (Instant)</option>
+                        <option value="100">100ms</option>
+                        <option value="200">200ms (Default)</option>
+                        <option value="300">300ms</option>
+                        <option value="500">500ms</option>
+                    </select>
+                </div>
+                <button type="button" class="kb-settings-btn" onclick="openKeybindModal()" style="margin-top: 10px;">
                     ⌨ Keybind Settings
                 </button>
                 <a href="controls.html" class="settings-info-link">Keyboard Controls Reference</a>
