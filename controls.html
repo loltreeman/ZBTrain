@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -153,8 +154,183 @@
         .back-link:hover {
             background: #dbeafe;
         }
+
+        .live-keyboard-container {
+            background: #1e293b;
+            border: 2px solid var(--border, #334155);
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+            overflow-x: auto;
+            margin-bottom: 1rem;
+        }
+
+        .live-keyboard {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-width: 680px;
+            max-width: 860px;
+            margin: 0 auto;
+            user-select: none;
+        }
+
+        .kb-row-keys {
+            display: flex;
+            gap: 5px;
+            width: 100%;
+        }
+
+        .key-cap {
+            flex: 1;
+            min-width: 0;
+            height: 52px;
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-bottom: 4px solid #94a3b8;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2px;
+            box-sizing: border-box;
+            transition: transform 0.08s ease, background 0.15s ease, border-color 0.15s ease;
+            position: relative;
+        }
+
+        .key-cap .move-label {
+            font-family: "JetBrains Mono", monospace;
+            font-weight: 900;
+            font-size: 13px;
+            line-height: 1.1;
+            color: #0f172a;
+            height: 16px;
+            display: flex;
+            align-items: center;
+        }
+
+        .key-cap .char-label {
+            font-family: "JetBrains Mono", monospace;
+            font-size: 11px;
+            font-weight: 700;
+            color: #64748b;
+            line-height: 1.1;
+        }
+
+        .key-backspace {
+            flex: 2;
+        }
+
+        .key-tab {
+            flex: 1.5;
+        }
+
+        .key-backslash {
+            flex: 1.5;
+        }
+
+        .key-caps {
+            flex: 1.75;
+        }
+
+        .key-enter {
+            flex: 2.25;
+        }
+
+        .key-shift-l {
+            flex: 2.25;
+        }
+
+        .key-shift-r {
+            flex: 2.75;
+        }
+
+        .key-ctrl {
+            flex: 1.25;
+        }
+
+        .key-meta {
+            flex: 1.25;
+        }
+
+        .key-alt {
+            flex: 1.25;
+        }
+
+        .key-space {
+            flex: 6.5;
+        }
+
+        .key-cap.move-F {
+            background: #bbf7d0;
+            border-color: #86efac;
+            border-bottom-color: #4ade80;
+        }
+
+        /* Green */
+        .key-cap.move-R {
+            background: #fecaca;
+            border-color: #fca5a5;
+            border-bottom-color: #f87171;
+        }
+
+        /* Red */
+        .key-cap.move-L {
+            background: #fed7aa;
+            border-color: #fdba74;
+            border-bottom-color: #fb923c;
+        }
+
+        /* Orange */
+        .key-cap.move-B {
+            background: #bfdbfe;
+            border-color: #93c5fd;
+            border-bottom-color: #60a5fa;
+        }
+
+        /* Blue */
+        .key-cap.move-D {
+            background: #fef08a;
+            border-color: #fde047;
+            border-bottom-color: #facc15;
+        }
+
+        /* Yellow */
+        .key-cap.move-U {
+            background: #e9d5ff;
+            border-color: #d8b4fe;
+            border-bottom-color: #c084fc;
+        }
+
+        /* Purple */
+
+        .key-cap.move-wide {
+            background: #ffffff;
+            border-color: #cbd5e1;
+            border-bottom-color: #94a3b8;
+        }
+
+        .key-cap.move-slice {
+            background: #e0f2fe;
+            border-color: #bae6fd;
+            border-bottom-color: #38bdf8;
+        }
+
+        .key-cap.move-rotation {
+            background: #ffffff;
+            border-color: #cbd5e1;
+            border-bottom-color: #94a3b8;
+        }
+
+        .key-cap.pressed {
+            transform: translateY(3px);
+            border-bottom-width: 1px !important;
+            filter: brightness(0.88);
+        }
     </style>
 </head>
+
 <body>
     <main class="container">
         <header class="main-header">
@@ -164,25 +340,206 @@
 
         <a href="trainer.html" class="back-link">← Back to Trainer</a>
 
+        <div id="keybind-note"
+            style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:12px; padding:12px 18px; margin-bottom:1.5rem; font-size:14px; color:#1d4ed8;">
+            Your personal keybind remappings (if any) are configured from the
+            <strong>⌨ Keybind Settings</strong> button in the trainer sidebar.
+        </div>
         <section class="keyboard-section">
-            <h3>Keyboard Layout</h3>
-            <img src="images/keyboard.png" alt="Keyboard layout diagram">
-            <p class="credit-note">Credits to Harry Richman for the keyboard controls and the keyboard diagram.</p>
+            <h3>Interactive Keyboard Layout</h3>
+            <div class="live-keyboard-container">
+                <div class="live-keyboard" id="live-keyboard">
+
+                    <div class="kb-row-keys">
+                        <div class="key-cap" data-key="`"><span class="move-label"></span><span class="char-label">~
+                                `</span></div>
+                        <div class="key-cap" data-key="1"><span class="move-label"></span><span class="char-label">!
+                                1</span></div>
+                        <div class="key-cap" data-key="2"><span class="move-label"></span><span class="char-label">@
+                                2</span></div>
+                        <div class="key-cap" data-key="3"><span class="move-label"></span><span class="char-label">#
+                                3</span></div>
+                        <div class="key-cap" data-key="4"><span class="move-label"></span><span class="char-label">$
+                                4</span></div>
+                        <div class="key-cap" data-key="5"><span class="move-label"></span><span class="char-label">%
+                                5</span></div>
+                        <div class="key-cap" data-key="6"><span class="move-label"></span><span class="char-label">^
+                                6</span></div>
+                        <div class="key-cap" data-key="7"><span class="move-label"></span><span class="char-label">&
+                                7</span></div>
+                        <div class="key-cap" data-key="8"><span class="move-label"></span><span class="char-label">*
+                                8</span></div>
+                        <div class="key-cap" data-key="9"><span class="move-label"></span><span class="char-label">(
+                                9</span></div>
+                        <div class="key-cap" data-key="0"><span class="move-label"></span><span class="char-label">)
+                                0</span></div>
+                        <div class="key-cap" data-key="-"><span class="move-label"></span><span class="char-label">_
+                                -</span></div>
+                        <div class="key-cap" data-key="="><span class="move-label"></span><span class="char-label">+
+                                =</span></div>
+                        <div class="key-cap key-backspace" data-key="Backspace"><span class="move-label"></span><span
+                                class="char-label">Backspace</span></div>
+                    </div>
+
+                    <div class="kb-row-keys">
+                        <div class="key-cap key-tab" data-key="Tab"><span class="move-label"></span><span
+                                class="char-label">Tab</span></div>
+                        <div class="key-cap" data-key="q"><span class="move-label"></span><span
+                                class="char-label">q</span></div>
+                        <div class="key-cap" data-key="w"><span class="move-label"></span><span
+                                class="char-label">w</span></div>
+                        <div class="key-cap" data-key="e"><span class="move-label"></span><span
+                                class="char-label">e</span></div>
+                        <div class="key-cap" data-key="r"><span class="move-label"></span><span
+                                class="char-label">r</span></div>
+                        <div class="key-cap" data-key="t"><span class="move-label"></span><span
+                                class="char-label">t</span></div>
+                        <div class="key-cap" data-key="y"><span class="move-label"></span><span
+                                class="char-label">y</span></div>
+                        <div class="key-cap" data-key="u"><span class="move-label"></span><span
+                                class="char-label">u</span></div>
+                        <div class="key-cap" data-key="i"><span class="move-label"></span><span
+                                class="char-label">i</span></div>
+                        <div class="key-cap" data-key="o"><span class="move-label"></span><span
+                                class="char-label">o</span></div>
+                        <div class="key-cap" data-key="p"><span class="move-label"></span><span
+                                class="char-label">p</span></div>
+                        <div class="key-cap" data-key="["><span class="move-label"></span><span class="char-label">{
+                                [</span></div>
+                        <div class="key-cap" data-key="]"><span class="move-label"></span><span class="char-label">}
+                                ]</span></div>
+                        <div class="key-cap key-backslash" data-key="\"><span class="move-label"></span><span
+                                class="char-label">| \</span></div>
+                    </div>
+
+                    <div class="kb-row-keys">
+                        <div class="key-cap key-caps" data-key="CapsLock"><span class="move-label"></span><span
+                                class="char-label">Caps Lock</span></div>
+                        <div class="key-cap" data-key="a"><span class="move-label"></span><span
+                                class="char-label">a</span></div>
+                        <div class="key-cap" data-key="s"><span class="move-label"></span><span
+                                class="char-label">s</span></div>
+                        <div class="key-cap" data-key="d"><span class="move-label"></span><span
+                                class="char-label">d</span></div>
+                        <div class="key-cap" data-key="f"><span class="move-label"></span><span
+                                class="char-label">f</span></div>
+                        <div class="key-cap" data-key="g"><span class="move-label"></span><span
+                                class="char-label">g</span></div>
+                        <div class="key-cap" data-key="h"><span class="move-label"></span><span
+                                class="char-label">h</span></div>
+                        <div class="key-cap" data-key="j"><span class="move-label"></span><span
+                                class="char-label">j</span></div>
+                        <div class="key-cap" data-key="k"><span class="move-label"></span><span
+                                class="char-label">k</span></div>
+                        <div class="key-cap" data-key="l"><span class="move-label"></span><span
+                                class="char-label">l</span></div>
+                        <div class="key-cap" data-key=";"><span class="move-label"></span><span class="char-label">:
+                                ;</span></div>
+                        <div class="key-cap" data-key="'"><span class="move-label"></span><span class="char-label">"
+                                '</span></div>
+                        <div class="key-cap key-enter" data-key="Enter"><span class="move-label"></span><span
+                                class="char-label">Return</span></div>
+                    </div>
+
+                    <div class="kb-row-keys">
+                        <div class="key-cap key-shift-l" data-key="Shift"><span class="move-label"></span><span
+                                class="char-label">Shift</span></div>
+                        <div class="key-cap" data-key="z"><span class="move-label"></span><span
+                                class="char-label">z</span></div>
+                        <div class="key-cap" data-key="x"><span class="move-label"></span><span
+                                class="char-label">x</span></div>
+                        <div class="key-cap" data-key="c"><span class="move-label"></span><span
+                                class="char-label">c</span></div>
+                        <div class="key-cap" data-key="v"><span class="move-label"></span><span
+                                class="char-label">v</span></div>
+                        <div class="key-cap" data-key="b"><span class="move-label"></span><span
+                                class="char-label">b</span></div>
+                        <div class="key-cap" data-key="n"><span class="move-label"></span><span
+                                class="char-label">n</span></div>
+                        <div class="key-cap" data-key="m"><span class="move-label"></span><span
+                                class="char-label">m</span></div>
+                        <div class="key-cap" data-key=","><span class="move-label"></span><span class="char-label">&lt;
+                                ,</span></div>
+                        <div class="key-cap" data-key="."><span class="move-label"></span><span class="char-label">&gt;
+                                .</span></div>
+                        <div class="key-cap" data-key="/"><span class="move-label"></span><span class="char-label">?
+                                /</span></div>
+                        <div class="key-cap key-shift-r" data-key="Shift"><span class="move-label"></span><span
+                                class="char-label">Shift</span></div>
+                    </div>
+
+                    <div class="kb-row-keys">
+                        <div class="key-cap key-ctrl" data-key="Control"><span class="move-label"></span><span
+                                class="char-label">Ctrl</span></div>
+                        <div class="key-cap key-meta" data-key="Meta"><span class="move-label"></span><span
+                                class="char-label">Win</span></div>
+                        <div class="key-cap key-alt" data-key="Alt"><span class="move-label"></span><span
+                                class="char-label">Alt</span></div>
+                        <div class="key-cap key-space" data-key=" "><span class="move-label"></span><span
+                                class="char-label">Space</span></div>
+                        <div class="key-cap key-alt" data-key="Alt"><span class="move-label"></span><span
+                                class="char-label">Alt</span></div>
+                        <div class="key-cap key-meta" data-key="Meta"><span class="move-label"></span><span
+                                class="char-label">Win</span></div>
+                        <div class="key-cap key-ctrl" data-key="Control"><span class="move-label"></span><span
+                                class="char-label">Ctrl</span></div>
+                    </div>
+                </div>
+            </div>
+            <p class="credit-note">This is assuming your keyboard is on the QWERTY keyboard layout.</p>
         </section>
+
 
         <div class="keys-grid">
 
             <div class="key-card face-card">
                 <h2>Face Moves</h2>
                 <table class="key-table">
-                    <thead><tr><th>Key</th><th>Move</th><th>Key</th><th>Move</th></tr></thead>
+                    <thead>
+                        <tr>
+                            <th>Key</th>
+                            <th>Move</th>
+                            <th>Key</th>
+                            <th>Move</th>
+                        </tr>
+                    </thead>
                     <tbody>
-                        <tr><td><span class="key">h</span></td><td><span class="move">F</span></td><td><span class="key">g</span></td><td><span class="move">F'</span></td></tr>
-                        <tr><td><span class="key">i</span></td><td><span class="move">R</span></td><td><span class="key">k</span></td><td><span class="move">R'</span></td></tr>
-                        <tr><td><span class="key">j</span></td><td><span class="move">U</span></td><td><span class="key">f</span></td><td><span class="move">U'</span></td></tr>
-                        <tr><td><span class="key">w</span></td><td><span class="move">B</span></td><td><span class="key">o</span></td><td><span class="move">B'</span></td></tr>
-                        <tr><td><span class="key">d</span></td><td><span class="move">L</span></td><td><span class="key">e</span></td><td><span class="move">L'</span></td></tr>
-                        <tr><td><span class="key">s</span></td><td><span class="move">D</span></td><td><span class="key">l</span></td><td><span class="move">D'</span></td></tr>
+                        <tr>
+                            <td data-method="rotate_f"><span class="key">h</span></td>
+                            <td><span class="move">F</span></td>
+                            <td data-method="rotate_fp"><span class="key">g</span></td>
+                            <td><span class="move">F'</span></td>
+                        </tr>
+                        <tr>
+                            <td data-method="rotate_r"><span class="key">i</span></td>
+                            <td><span class="move">R</span></td>
+                            <td data-method="rotate_rp"><span class="key">k</span></td>
+                            <td><span class="move">R'</span></td>
+                        </tr>
+                        <tr>
+                            <td data-method="rotate_u"><span class="key">j</span></td>
+                            <td><span class="move">U</span></td>
+                            <td data-method="rotate_up"><span class="key">f</span></td>
+                            <td><span class="move">U'</span></td>
+                        </tr>
+                        <tr>
+                            <td data-method="rotate_b"><span class="key">w</span></td>
+                            <td><span class="move">B</span></td>
+                            <td data-method="rotate_bp"><span class="key">o</span></td>
+                            <td><span class="move">B'</span></td>
+                        </tr>
+                        <tr>
+                            <td data-method="rotate_l"><span class="key">d</span></td>
+                            <td><span class="move">L</span></td>
+                            <td data-method="rotate_lp"><span class="key">e</span></td>
+                            <td><span class="move">L'</span></td>
+                        </tr>
+                        <tr>
+                            <td data-method="rotate_d"><span class="key">s</span></td>
+                            <td><span class="move">D</span></td>
+                            <td data-method="rotate_dp"><span class="key">l</span></td>
+                            <td><span class="move">D'</span></td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -190,10 +547,27 @@
             <div class="key-card wide-card">
                 <h2>Wide Moves</h2>
                 <table class="key-table">
-                    <thead><tr><th>Key</th><th>Move</th><th>Key</th><th>Move</th></tr></thead>
+                    <thead>
+                        <tr>
+                            <th>Key</th>
+                            <th>Move</th>
+                            <th>Key</th>
+                            <th>Move</th>
+                        </tr>
+                    </thead>
                     <tbody>
-                        <tr><td><span class="key">u</span></td><td><span class="move">r</span></td><td><span class="key">m</span></td><td><span class="move">r'</span></td></tr>
-                        <tr><td><span class="key">v</span></td><td><span class="move">l</span></td><td><span class="key">r</span></td><td><span class="move">l'</span></td></tr>
+                        <tr>
+                            <td data-method="rotate_R"><span class="key">u</span></td>
+                            <td><span class="move">r</span></td>
+                            <td data-method="rotate_Rp"><span class="key">m</span></td>
+                            <td><span class="move">r'</span></td>
+                        </tr>
+                        <tr>
+                            <td data-method="rotate_L"><span class="key">v</span></td>
+                            <td><span class="move">l</span></td>
+                            <td data-method="rotate_Lp"><span class="key">r</span></td>
+                            <td><span class="move">l'</span></td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -201,11 +575,33 @@
             <div class="key-card slice-card">
                 <h2>Slice Moves</h2>
                 <table class="key-table">
-                    <thead><tr><th>Key</th><th>Move</th><th>Key</th><th>Move</th></tr></thead>
+                    <thead>
+                        <tr>
+                            <th>Key</th>
+                            <th>Move</th>
+                            <th>Key</th>
+                            <th>Move</th>
+                        </tr>
+                    </thead>
                     <tbody>
-                        <tr><td><span class="key">5</span></td><td><span class="move">M</span></td><td><span class="key">6</span></td><td><span class="move">M'</span></td></tr>
-                        <tr><td><span class="key">2</span></td><td><span class="move">E</span></td><td><span class="key">9</span></td><td><span class="move">E'</span></td></tr>
-                        <tr><td><span class="key">0</span></td><td><span class="move">S</span></td><td><span class="key">1</span></td><td><span class="move">S'</span></td></tr>
+                        <tr>
+                            <td data-method="rotate_m"><span class="key">5</span></td>
+                            <td><span class="move">M</span></td>
+                            <td data-method="rotate_mp"><span class="key">6</span></td>
+                            <td><span class="move">M'</span></td>
+                        </tr>
+                        <tr>
+                            <td data-method="rotate_e"><span class="key">2</span></td>
+                            <td><span class="move">E</span></td>
+                            <td data-method="rotate_ep"><span class="key">9</span></td>
+                            <td><span class="move">E'</span></td>
+                        </tr>
+                        <tr>
+                            <td data-method="rotate_s"><span class="key">0</span></td>
+                            <td><span class="move">S</span></td>
+                            <td data-method="rotate_sp"><span class="key">1</span></td>
+                            <td><span class="move">S'</span></td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -213,16 +609,220 @@
             <div class="key-card rotation-card">
                 <h2>Cube Rotations</h2>
                 <table class="key-table">
-                    <thead><tr><th>Key</th><th>Move</th><th>Key</th><th>Move</th></tr></thead>
+                    <thead>
+                        <tr>
+                            <th>Key</th>
+                            <th>Move</th>
+                            <th>Key</th>
+                            <th>Move</th>
+                        </tr>
+                    </thead>
                     <tbody>
-                        <tr><td><span class="key">t</span> / <span class="key">y</span></td><td><span class="move">x</span></td><td><span class="key">b</span> / <span class="key">n</span></td><td><span class="move">x'</span></td></tr>
-                        <tr><td><span class="key">;</span></td><td><span class="move">y</span></td><td><span class="key">a</span></td><td><span class="move">y'</span></td></tr>
-                        <tr><td><span class="key">p</span></td><td><span class="move">z</span></td><td><span class="key">q</span></td><td><span class="move">z'</span></td></tr>
+                        <tr>
+                            <td data-method="rotate_x"><span class="key">b</span> / <span class="key">n</span></td>
+                            <td><span class="move">x</span></td>
+                            <td data-method="rotate_xp"><span class="key">t</span> / <span class="key">y</span></td>
+                            <td><span class="move">x'</span></td>
+                        </tr>
+                        <tr>
+                            <td data-method="rotate_y"><span class="key">a</span></td>
+                            <td><span class="move">y</span></td>
+                            <td data-method="rotate_yp"><span class="key">;</span></td>
+                            <td><span class="move">y'</span></td>
+                        </tr>
+                        <tr>
+                            <td data-method="rotate_z"><span class="key">p</span></td>
+                            <td><span class="move">z</span></td>
+                            <td data-method="rotate_zp"><span class="key">q</span></td>
+                            <td><span class="move">z'</span></td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
 
         </div>
     </main>
+    <script>
+        (function () {
+            var DEFAULT_CUBE_ACTIONS = {
+                h: "rotate_f", g: "rotate_fp", i: "rotate_r", k: "rotate_rp",
+                j: "rotate_u", f: "rotate_up", w: "rotate_b", o: "rotate_bp",
+                d: "rotate_l", e: "rotate_lp", s: "rotate_d", l: "rotate_dp",
+                b: "rotate_x", n: "rotate_x", t: "rotate_xp", y: "rotate_xp",
+                a: "rotate_y", ";": "rotate_yp", q: "rotate_z", p: "rotate_zp",
+                u: "rotate_R", m: "rotate_Rp", v: "rotate_L", r: "rotate_Lp",
+                "5": "rotate_m", "6": "rotate_mp", "0": "rotate_s", "1": "rotate_sp",
+                "2": "rotate_e", "9": "rotate_ep"
+            };
+
+            var METHOD_META = {
+                rotate_f: { label: "F", cls: "move-F" },
+                rotate_fp: { label: "F'", cls: "move-F" },
+                rotate_r: { label: "R", cls: "move-R" },
+                rotate_rp: { label: "R'", cls: "move-R" },
+                rotate_l: { label: "L", cls: "move-L" },
+                rotate_lp: { label: "L'", cls: "move-L" },
+                rotate_b: { label: "B", cls: "move-B" },
+                rotate_bp: { label: "B'", cls: "move-B" },
+                rotate_d: { label: "D", cls: "move-D" },
+                rotate_dp: { label: "D'", cls: "move-D" },
+                rotate_u: { label: "U", cls: "move-U" },
+                rotate_up: { label: "U'", cls: "move-U" },
+
+                rotate_R: { label: "r", cls: "move-wide" },
+                rotate_Rp: { label: "r'", cls: "move-wide" },
+                rotate_L: { label: "l", cls: "move-wide" },
+                rotate_Lp: { label: "l'", cls: "move-wide" },
+
+                rotate_m: { label: "M", cls: "move-slice" },
+                rotate_mp: { label: "M'", cls: "move-slice" },
+                rotate_e: { label: "E", cls: "move-slice" },
+                rotate_ep: { label: "E'", cls: "move-slice" },
+                rotate_s: { label: "S", cls: "move-slice" },
+                rotate_sp: { label: "S'", cls: "move-slice" },
+
+                rotate_x: { label: "x", cls: "move-rotation" },
+                rotate_xp: { label: "x'", cls: "move-rotation" },
+                rotate_y: { label: "y", cls: "move-rotation" },
+                rotate_yp: { label: "y'", cls: "move-rotation" },
+                rotate_z: { label: "z", cls: "move-rotation" },
+                rotate_zp: { label: "z'", cls: "move-rotation" },
+            };
+
+            function loadKeybinds() {
+                var merged = {};
+                Object.keys(DEFAULT_CUBE_ACTIONS).forEach(function (k) {
+                    merged[k] = DEFAULT_CUBE_ACTIONS[k];
+                });
+                try {
+                    var saved = JSON.parse(localStorage.getItem("cubeKeybinds") || "null");
+                    if (saved && typeof saved === "object") {
+                        Object.keys(saved).forEach(function (k) {
+                            merged[k] = saved[k];
+                        });
+                        var savedValues = Object.values ? Object.values(saved) : Object.keys(saved).map(function (k) { return saved[k]; });
+                        Object.keys(DEFAULT_CUBE_ACTIONS).forEach(function (defKey) {
+                            if (!saved[defKey] && savedValues.indexOf(DEFAULT_CUBE_ACTIONS[defKey]) !== -1) {
+                                var count = Object.keys(merged).filter(function (k) { return merged[k] === DEFAULT_CUBE_ACTIONS[defKey]; }).length;
+                                if (count > 1) {
+                                    delete merged[defKey];
+                                }
+                            }
+                        });
+                    }
+                } catch (e) { }
+                return merged;
+            }
+
+            function keyLabel(k) {
+                if (!k) return "—";
+                if (k === " ") return "Space";
+                if (k.length === 1) return k.toUpperCase();
+                return k;
+            }
+
+            function updateControlsTable() {
+                var bindings = loadKeybinds();
+                var inv = {};
+                Object.keys(bindings).forEach(function (k) {
+                    var m = bindings[k];
+                    if (!inv[m]) inv[m] = [];
+                    inv[m].push(k);
+                });
+
+                // Update table badges
+                document.querySelectorAll("[data-method]").forEach(function (td) {
+                    var method = td.getAttribute("data-method");
+                    var keys = inv[method] || [];
+                    if (keys.length === 0) {
+                        td.innerHTML = '<span class="key" style="opacity:0.6; font-style:italic;">unbound</span>';
+                    } else {
+                        td.innerHTML = keys.map(function (k) {
+                            return '<span class="key">' + keyLabel(k) + '</span>';
+                        }).join(' / ');
+                    }
+                });
+
+                // Reset keycaps on live keyboard
+                document.querySelectorAll(".key-cap").forEach(function (cap) {
+                    var moveEl = cap.querySelector(".move-label");
+                    if (moveEl) moveEl.textContent = "";
+                    cap.className = cap.className.replace(/\bmove-\S+/g, "").trim();
+                });
+
+                // Populate live keyboard keycaps with move labels and colors
+                Object.keys(bindings).forEach(function (key) {
+                    var method = bindings[key];
+                    var meta = METHOD_META[method];
+                    if (!meta) return;
+
+                    try {
+                        var cap = document.querySelector('.key-cap[data-key="' + CSS.escape(key) + '"]');
+                        if (cap) {
+                            var moveEl = cap.querySelector(".move-label");
+                            if (moveEl) moveEl.textContent = meta.label;
+                            cap.classList.add(meta.cls);
+                        }
+                    } catch (e) { }
+                });
+
+                var hasCustom = !!localStorage.getItem("cubeKeybinds");
+                var noteEl = document.getElementById("keybind-note");
+                if (noteEl) {
+                    if (hasCustom) {
+                        noteEl.innerHTML = '<strong>⌨ Custom Keybinds Active.</strong> The keyboard and table below reflect your current saved keybind settings. Rebind anytime from <strong>Keybind Settings</strong> in the trainer.';
+                        noteEl.style.background = '#f0fdf4';
+                        noteEl.style.borderColor = '#bbf7d0';
+                        noteEl.style.color = '#15803d';
+                    } else {
+                        noteEl.innerHTML = '<strong> Default keyboard layout shown.</strong> Customize your keybinds anytime using the <strong>⌨ Keybind Settings</strong> button in the trainer sidebar.';
+                        noteEl.style.background = '#eff6ff';
+                        noteEl.style.borderColor = '#bfdbfe';
+                        noteEl.style.color = '#1d4ed8';
+                    }
+                }
+            }
+
+            var keyAlias = {
+                " ": " ",
+                "Control": "Control",
+                "Meta": "Meta",
+                "Alt": "Alt",
+                "Shift": "Shift",
+                "Tab": "Tab",
+                "CapsLock": "CapsLock",
+                "Enter": "Enter",
+                "Backspace": "Backspace"
+            };
+
+            document.addEventListener("keydown", function (e) {
+                if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+                var k = e.key;
+                if (k.length === 1) k = k.toLowerCase();
+                var searchKey = keyAlias[e.key] || k;
+                try {
+                    var caps = document.querySelectorAll('.key-cap[data-key="' + CSS.escape(searchKey) + '"]');
+                    caps.forEach(function (cap) { cap.classList.add("pressed"); });
+                } catch (err) { }
+            });
+
+            document.addEventListener("keyup", function (e) {
+                var k = e.key;
+                if (k.length === 1) k = k.toLowerCase();
+                var searchKey = keyAlias[e.key] || k;
+                try {
+                    var caps = document.querySelectorAll('.key-cap[data-key="' + CSS.escape(searchKey) + '"]');
+                    caps.forEach(function (cap) { cap.classList.remove("pressed"); });
+                } catch (err) { }
+            });
+
+            if (document.readyState === "loading") {
+                document.addEventListener("DOMContentLoaded", updateControlsTable);
+            } else {
+                updateControlsTable();
+            }
+        })();
+    </script>
 </body>
+
 </html>
