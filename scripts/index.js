@@ -350,8 +350,8 @@ function toggleExpand(expand) {
         const el = document.getElementById(`subsets-${set}`);
         const arrow = document.getElementById(`arrow-${set}`);
         if (el) {
-            el.style.display = expand ? "block" : "none";
-            if (arrow) arrow.innerText = expand ? "▲" : "▼";
+            el.style.display = expand ? "grid" : "none";
+            if (arrow) arrow.classList.toggle("is-open", expand);
         }
     });
 }
@@ -390,8 +390,8 @@ function toggleSubsets(set) {
     const arrow = document.getElementById(`arrow-${set}`);
     if (!el) return;
     const isHidden = el.style.display === "none" || el.style.display === "";
-    el.style.display = isHidden ? "block" : "none";
-    if (arrow) arrow.innerText = isHidden ? "▲" : "▼";
+    el.style.display = isHidden ? "grid" : "none";
+    if (arrow) arrow.classList.toggle("is-open", isHidden);
 }
 
 function loadCases(isRecap) {
@@ -519,17 +519,19 @@ function buildHeatmapData() {
 
 // ── Get color for a given avg time ───────────────────────────
 function heatmapColor(avg) {
-    if (avg < HEATMAP_THRESHOLDS.great) return { bg: '#dcfce7', border: '#16a34a', text: '#15803d', label: 'Fast' };
-    if (avg < HEATMAP_THRESHOLDS.good)  return { bg: '#fef9c3', border: '#ca8a04', text: '#92400e', label: 'OK' };
-    if (avg < HEATMAP_THRESHOLDS.slow)  return { bg: '#ffedd5', border: '#ea580c', text: '#9a3412', label: 'Slow' };
-    return                                     { bg: '#fee2e2', border: '#dc2626', text: '#991b1b', label: 'Hard' };
+    // Colours come from tokens.css (--heat-*), so they follow light/dark mode.
+    function tone(name, label) {
+        var c = 'var(--heat-' + name + ')';
+        return { bg: 'color-mix(in srgb, ' + c + ' 14%, var(--surface))', border: 'transparent', text: c, label: label };
+    }
+    if (avg < HEATMAP_THRESHOLDS.great) return tone('fast', 'Fast');
+    if (avg < HEATMAP_THRESHOLDS.good)  return tone('ok', 'OK');
+    if (avg < HEATMAP_THRESHOLDS.slow)  return tone('slow', 'Slow');
+    return tone('hard', 'Hard');
 }
 
 function heatmapColorDark(avg) {
-    if (avg < HEATMAP_THRESHOLDS.great) return { bg: '#052e16', border: '#16a34a', text: '#4ade80', label: 'Fast' };
-    if (avg < HEATMAP_THRESHOLDS.good)  return { bg: '#422006', border: '#ca8a04', text: '#fbbf24', label: 'OK' };
-    if (avg < HEATMAP_THRESHOLDS.slow)  return { bg: '#431407', border: '#ea580c', text: '#fb923c', label: 'Slow' };
-    return                                     { bg: '#450a0a', border: '#dc2626', text: '#f87171', label: 'Hard' };
+    return heatmapColor(avg);
 }
 
 // ── Apply heatmap colors to all .zbll-card elements ──────────
@@ -624,11 +626,11 @@ function initHeatmapToggle() {
 function updateHeatmapBtn(btn, active) {
     var legendEl = document.getElementById('heatmapLegend');
     if (active) {
-        btn.textContent = '🗺 Hide Heatmap';
+        btn.textContent = 'Hide heatmap';
         btn.classList.add('heatmap-active');
         if (legendEl) legendEl.style.display = 'flex';
     } else {
-        btn.textContent = '🗺 Show Heatmap';
+        btn.textContent = 'Show heatmap';
         btn.classList.remove('heatmap-active');
         if (legendEl) legendEl.style.display = 'none';
     }

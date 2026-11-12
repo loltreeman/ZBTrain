@@ -11,44 +11,50 @@ Cube = function (colors, x, y, z) {
   this.x = x; this.y = y; this.z = z;
 }
 
-Cube.prototype.draw = function (ctx, x, y) {
+// `visible` (optional) limits drawing to the faces the viewer can see:
+// { front: bool, up: bool, right: bool }. Hidden faces are skipped so they
+// can't bleed through gaps or translucent stickers.
+Cube.prototype.draw = function (ctx, x, y, visible) {
   var fillColors = this.colors;
+  var all = !visible;
 
   ctx.save();
   ctx.translate(x, y);
 
-  // down face
-  ctx.save();
-  ctx.translate(0, 60);
-  drawParallelogram(fillColors[5], ctx, 60, 0, -20, 40);
-  ctx.restore();
+  if (all) {
+    // down face
+    ctx.save();
+    ctx.translate(0, 60);
+    drawParallelogram(fillColors[5], ctx, 60, 0, -20, 40);
+    ctx.restore();
 
-  // left face
-  ctx.save();
-  drawParallelogram(fillColors[4], ctx, 0, 60, -20, 40);
-  ctx.restore();
+    // left face
+    drawParallelogram(fillColors[4], ctx, 0, 60, -20, 40);
 
-  // back face 
-  ctx.save();
-  drawParallelogram(fillColors[3], ctx, 60, 0, 0, 60);
-  ctx.restore();
+    // back face
+    drawParallelogram(fillColors[3], ctx, 60, 0, 0, 60);
+  }
 
   // up face
-  ctx.save();
-  drawParallelogram(fillColors[2], ctx, 60, 0, -20, 40, 0);
-  ctx.restore();
+  if (all || visible.up) {
+    drawParallelogram(fillColors[2], ctx, 60, 0, -20, 40, 0);
+  }
 
   // right face
-  ctx.save();
-  ctx.translate(60, 0);
-  drawParallelogram(fillColors[1], ctx, 0, 60, -20, 40, 0.25);
-  ctx.restore();
+  if (all || visible.right) {
+    ctx.save();
+    ctx.translate(60, 0);
+    drawParallelogram(fillColors[1], ctx, 0, 60, -20, 40, 0.25);
+    ctx.restore();
+  }
 
   // front face
-  ctx.save();
-  ctx.translate(-20, 40);
-  drawParallelogram(fillColors[0], ctx, 60, 0, 0, 60, 0.1);
-  ctx.restore();
+  if (all || visible.front) {
+    ctx.save();
+    ctx.translate(-20, 40);
+    drawParallelogram(fillColors[0], ctx, 60, 0, 0, 60, 0.1);
+    ctx.restore();
+  }
 
   ctx.restore();
 }
