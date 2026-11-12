@@ -1,0 +1,143 @@
+/* ==========================================================================
+   ZBTrain design tokens
+   One source of truth for colour, type, spacing, radius and motion.
+   Dark mode only swaps values — components never hardcode colours.
+   ========================================================================== */
+
+@import url("https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap");
+
+:root,
+body {
+    color-scheme: light;
+
+    /* Surfaces — separation comes from tint, not borders */
+    --bg: #f6f6f4;
+    --surface: #ffffff;
+    --surface-2: #f1f1ee;
+    --surface-3: #e7e7e3;
+    --overlay: rgb(20 20 22 / 0.4);
+
+    /* Hairlines — used sparingly (inputs, one divider) */
+    --line: rgb(0 0 0 / 0.07);
+    --line-strong: rgb(0 0 0 / 0.13);
+
+    /* Text */
+    --text: #1b1b1e;
+    --text-2: #5d5d65;
+    --text-3: #8e8e96;
+    --text-on-accent: #ffffff;
+
+    /* One accent */
+    --accent: #3767d0;
+    --accent-hover: #2d58b8;
+    --accent-soft: rgb(55 103 208 / 0.1);
+    --accent-text: #2d58b8;
+
+    /* Semantic — data only */
+    --good: #2a8a57;
+    --good-soft: rgb(42 138 87 / 0.1);
+    --bad: #cc4339;
+    --bad-soft: rgb(204 67 57 / 0.09);
+    --warn: #b9770e;
+    --warn-soft: rgb(185 119 14 / 0.11);
+
+    /* Timer states */
+    --timer-idle: var(--text);
+    --timer-hold: var(--warn);
+    --timer-ready: var(--good);
+    --timer-armed: #2b8f8a;
+    --timer-stopped: var(--bad);
+
+    /* Heatmap scale (fast -> hard) */
+    --heat-fast: #2a8a57;
+    --heat-ok: #9a7d00;
+    --heat-slow: #c2621a;
+    --heat-hard: #cc4339;
+
+    /* Type */
+    --font-sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+    --fs-xs: 12px;
+    --fs-sm: 13px;
+    --fs-md: 15px;
+    --fs-lg: 18px;
+    --fs-xl: 24px;
+    --fs-timer: clamp(64px, 9vw, 112px);
+
+    /* Spacing — 4px base */
+    --sp-1: 4px;
+    --sp-2: 8px;
+    --sp-3: 12px;
+    --sp-4: 16px;
+    --sp-5: 24px;
+    --sp-6: 32px;
+    --sp-7: 48px;
+
+    /* Radius */
+    --r-sm: 6px;
+    --r-md: 10px;
+    --r-pill: 999px;
+
+    /* Elevation — modals and floating things only */
+    --shadow-pop: 0 1px 2px rgb(0 0 0 / 0.06), 0 12px 32px rgb(0 0 0 / 0.12);
+
+    /* Motion */
+    --ease: cubic-bezier(0.2, 0, 0, 1);
+    --dur: 120ms;
+
+    /* Legacy aliases so older inline styles keep resolving */
+    --bg-main: var(--bg);
+    --card-bg: var(--surface);
+    --text-main: var(--text);
+    --text-muted: var(--text-2);
+    --border: var(--line);
+    --accent-blue: var(--accent);
+    --accent-green: var(--good);
+    --accent-red: var(--bad);
+}
+
+body.dark-mode {
+    color-scheme: dark;
+
+    --bg: #161618;
+    --surface: #1e1e21;
+    --surface-2: #26262a;
+    --surface-3: #303035;
+    --overlay: rgb(0 0 0 / 0.55);
+
+    --line: rgb(255 255 255 / 0.06);
+    --line-strong: rgb(255 255 255 / 0.12);
+
+    --text: #ececef;
+    --text-2: #a3a3ab;
+    --text-3: #6e6e77;
+    --text-on-accent: #10131a;
+
+    --accent: #8aaef5;
+    --accent-hover: #a3c0f8;
+    --accent-soft: rgb(138 174 245 / 0.12);
+    --accent-text: #9dbbf7;
+
+    --good: #6cc495;
+    --good-soft: rgb(108 196 149 / 0.12);
+    --bad: #ec8178;
+    --bad-soft: rgb(236 129 120 / 0.12);
+    --warn: #e2ad5b;
+    --warn-soft: rgb(226 173 91 / 0.12);
+
+    --timer-armed: #5cc2bc;
+
+    --heat-fast: #6cc495;
+    --heat-ok: #d6c15e;
+    --heat-slow: #e89a5c;
+    --heat-hard: #ec8178;
+
+    --shadow-pop: 0 1px 2px rgb(0 0 0 / 0.3), 0 16px 40px rgb(0 0 0 / 0.45);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    :root,
+    body {
+        --dur: 0ms;
+    }
+}

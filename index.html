@@ -6,22 +6,21 @@
     <title>ZBLL Trainer</title>
 
     <link rel="icon" type="image/png" href="images/logo.png" sizes="72x72">
+    <link rel="stylesheet" href="styles/tokens.css">
+    <link rel="stylesheet" href="styles/base.css">
     <link rel="stylesheet" href="styles/homepage.css">
     <link rel="stylesheet" href="styles/modal.css">
-    <link rel="stylesheet" href="styles/darkmode.css">
   </head>
   <body>
 
-    <div class="nav-wrapper">
-      <div class="grad-bar"></div>
-      <nav class="navbar">
-        <div class="brand-container">
-          <img src="images/logo.png" alt="ZBTrain" class="logoimg">
-          <span class="brand-text">ZBTrain - ZBLL Trainer</span>
-        </div>
-        <button type="button" id="darkModeToggle" class="btn-nav dark-mode-toggle" onclick="toggleDarkMode()">🌙 Dark Mode</button>
-      </nav>
+    <header class="site-header">
+      <div class="brand-container">
+        <img src="images/logo.png" alt="" class="logoimg">
+        <span class="brand-text">ZBTrain</span>
+        <span class="brand-sub">ZBLL trainer</span>
       </div>
+      <button type="button" id="darkModeToggle" class="btn btn-ghost btn-icon dark-mode-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode"></button>
+    </header>
 
     <div class="layout">
       <main class="left-column">
@@ -33,7 +32,7 @@
               <button type="button" onclick="toggleSubsets('T')">
                 <span class="set-title"><b>T</b></span>
                 <span class="set-info">
-                  (<span id="count-T">0</span>/72)
+                  <span class="set-count"><span id="count-T">0</span>/72</span>
                   <span class="subset-arrow" id="arrow-T">▼</span>
                 </span>
               </button>
@@ -49,7 +48,7 @@
               </div>
               
               <div class="other-orientations">
-                <p class="orientation-label">View Other Orientations:</p>
+                <p class="orientation-label">Other angles</p>
                 <div class="orientation-options" id="orientations-T">
                   <button class="case-trigger" data-angle="90">
                     <img src="svg/T.svg" style="transform: rotate(90deg)">
@@ -125,7 +124,7 @@
               <button type="button" onclick="toggleSubsets('U')">
                 <span class="set-title"><b>U</b></span>
                 <span class="set-info">
-                  (<span id="count-U">0</span>/72)
+                  <span class="set-count"><span id="count-U">0</span>/72</span>
                   <span class="subset-arrow" id="arrow-U">▼</span>
                 </span>
               </button>
@@ -141,7 +140,7 @@
               </div>
 
               <div class="other-orientations">
-                <p class="orientation-label">View Other Orientations:</p>
+                <p class="orientation-label">Other angles</p>
                 <div class="orientation-options" id="orientations-U">
                   <button class="case-trigger" data-angle="90">
                     <img src="svg/U.svg" style="transform: rotate(90deg)">
@@ -214,7 +213,7 @@
               <button type="button" onclick="toggleSubsets('L')">
                 <span class="set-title"><b>L</b></span>
                 <span class="set-info">
-                  (<span id="count-L">0</span>/72)
+                  <span class="set-count"><span id="count-L">0</span>/72</span>
                   <span class="subset-arrow" id="arrow-L">▼</span>
                 </span>
               </button>
@@ -230,7 +229,7 @@
               </div>
 
               <div class="other-orientations">
-                <p class="orientation-label">View Other Orientations:</p>
+                <p class="orientation-label">Other angles</p>
                 <div class="orientation-options" id="orientations-L">
                   <button class="case-trigger" data-angle="90">
                     <img src="svg/L.svg" style="transform: rotate(90deg)">
@@ -303,7 +302,7 @@
               <button type="button" onclick="toggleSubsets('H')">
                 <span class="set-title"><b>H</b></span>
                 <span class="set-info">
-                  (<span id="count-H">0</span>/40)
+                  <span class="set-count"><span id="count-H">0</span>/40</span>
                   <span class="subset-arrow" id="arrow-H">▼</span>
                 </span>
               </button>
@@ -319,7 +318,7 @@
               </div>
 
               <div class="other-orientations">
-                <p class="orientation-label">View Other Orientations:</p>
+                <p class="orientation-label">Other angles</p>
                 <div class="orientation-options" id="orientations-H">
                   <button class="case-trigger" data-angle="90">
                     <img src="svg/H.svg" style="transform: rotate(90deg)">
@@ -376,7 +375,7 @@
               <button type="button" onclick="toggleSubsets('Pi')">
                 <span class="set-title"><b>Pi</b></span>
                 <span class="set-info">
-                  (<span id="count-Pi">0</span>/72)
+                  <span class="set-count"><span id="count-Pi">0</span>/72</span>
                   <span class="subset-arrow" id="arrow-Pi">▼</span>
                 </span>
               </button>
@@ -392,7 +391,7 @@
               </div>
 
               <div class="other-orientations">
-                <p class="orientation-label">View Other Orientations:</p>
+                <p class="orientation-label">Other angles</p>
                 <div class="orientation-options" id="orientations-Pi">
                   <button class="case-trigger" data-angle="90">
                     <img src="svg/Pi.svg" style="transform: rotate(90deg)">
@@ -465,7 +464,7 @@
               <button type="button" onclick="toggleSubsets('Sune')">
                 <span class="set-title"><b>Sune</b></span>
                 <span class="set-info">
-                  (<span id="count-Sune">0</span>/72)
+                  <span class="set-count"><span id="count-Sune">0</span>/72</span>
                   <span class="subset-arrow" id="arrow-Sune">▼</span>
                 </span>
               </button>
@@ -481,7 +480,7 @@
               </div>
 
               <div class="other-orientations">
-                <p class="orientation-label">View Other Orientations:</p>
+                <p class="orientation-label">Other angles</p>
                 <div class="orientation-options" id="orientations-Sune">
                   <button class="case-trigger" data-angle="90">
                     <img src="svg/S.svg" style="transform: rotate(90deg)">
@@ -554,7 +553,7 @@
               <button type="button" onclick="toggleSubsets('Antisune')">
                 <span class="set-title"><b>Antisune</b></span>
                 <span class="set-info">
-                  (<span id="count-Antisune">0</span>/72)
+                  <span class="set-count"><span id="count-Antisune">0</span>/72</span>
                   <span class="subset-arrow" id="arrow-Antisune">▼</span>
                 </span>
               </button>
@@ -570,7 +569,7 @@
               </div>
 
               <div class="other-orientations">
-                <p class="orientation-label">View Other Orientations:</p>
+                <p class="orientation-label">Other angles</p>
                 <div class="orientation-options" id="orientations-U">
                   <button class="case-trigger" data-angle="90">
                     <img src="svg/aS.svg" style="transform: rotate(90deg)">
@@ -602,7 +601,7 @@
 
               <!-- This contains the Antisune-3 set -->
               <div class="zbll-card" data-subset="3">
-                <p class="subset-title">Anitsune – 3</p>
+                <p class="subset-title">Antisune – 3</p>
                 <div class="main-image-container">
                   <img src="svg/top/Antisune-3.svg" class="main-case-svg subset-orientation">
                 </div>
@@ -639,55 +638,66 @@
       </main>
 
       <aside class="right-column">
-        <div class="sticky-controls">
-          <button type="button" id="heatmapToggle">🗺 Show Heatmap</button>
-          <div id="heatmapLegend"></div>
-          <button type="button" onclick="loadCases(false)" class="train" id="start" disabled>Start</button>
-          <button type="button" onclick="loadCases(true)" class="train" id="recap" disabled>Recap</button>
+        <div class="side-card sticky-controls">
           <p id="selected">0 cases selected</p>
-          <button type="button" onclick="toggleAll(true)" class="selectToggle" id="selectAll">Select All</button>
-          <button type="button" onclick="toggleAll(false)" class="selectToggle" id="deselectAll">Deselect All</button>
-          <button type="button" onclick="toggleExpand(true)" class="collapseToggle" id="open">Expand All</button>
-          <button type="button" onclick="toggleExpand(false)" class="collapseToggle" id="close">Collapse All</button>
+          <div class="btn-pair">
+            <button type="button" onclick="loadCases(false)" class="btn btn-primary train" id="start" disabled>Start</button>
+            <button type="button" onclick="loadCases(true)" class="btn btn-secondary train" id="recap" disabled>Recap</button>
+          </div>
+
+          <div class="control-group">
+            <span class="group-label">Selection</span>
+            <div class="btn-pair">
+              <button type="button" onclick="toggleAll(true)" class="btn btn-secondary selectToggle" id="selectAll">Select all</button>
+              <button type="button" onclick="toggleAll(false)" class="btn btn-secondary selectToggle" id="deselectAll">Clear</button>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <span class="group-label">View</span>
+            <div class="btn-pair">
+              <button type="button" onclick="toggleExpand(true)" class="btn btn-secondary collapseToggle" id="open">Expand all</button>
+              <button type="button" onclick="toggleExpand(false)" class="btn btn-secondary collapseToggle" id="close">Collapse all</button>
+            </div>
+            <button type="button" id="heatmapToggle" class="btn btn-secondary btn-block">Show heatmap</button>
+            <div id="heatmapLegend"></div>
+          </div>
         </div>
 
-        <!-- This part of the code is for the preset, credits to masadl | 2017HAYA03 for making this.-->
-        <div id="preset-controls">
-                      <h3>Presets</h3>
-                      <div style="display: flex; gap: 10px; align-items: flex-start;">
-                          <div style="flex: 1;">
-                              <select id="presetList" size="8"
-                                  style="width: 100%; border: 1px solid #555;"></select>
-                          </div>
+        <!-- Presets: credits to masadl | 2017HAYA03 for the original implementation. -->
+        <details class="side-card presets" id="preset-controls">
+          <summary>
+            <span>Presets</span>
+            <svg class="icon chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+          </summary>
+          <div class="presets-body">
+            <select id="presetList" class="preset-list" size="6" aria-label="Saved presets"></select>
 
-                          <div style="flex: 1; display: flex; flex-direction: column; gap: 5px; align-items: stretch;">
-                              <div>
-                                  <label style="font-size: 0.8em; display:block;">Save preset as</label>
-                                  <div style="display: flex;">
-                                      <input type="text" id="presetNameInput" style="width: 100%; box-sizing: border-box;"
-                                          placeholder="Name">
-                                      <button id="savePresetBtn" style="padding: 2px 6px; margin: 0 0 0 5px;"
-                                          title="Save">Save</button>
-                                  </div>
-                              </div>
+            <div class="preset-row">
+              <input type="text" id="presetNameInput" class="input" placeholder="Preset name" aria-label="Preset name">
+              <button id="savePresetBtn" class="btn btn-primary" title="Save">Save</button>
+            </div>
 
-                              <button id="loadPresetBtn">Load</button>
-                              <button id="exportPresetsBtn">Export</button>
-                              <button id="importPresetsBtn">Import</button>
+            <div class="preset-row">
+              <button id="loadPresetBtn" class="btn btn-secondary">Load</button>
+              <button id="deletePresetBtn" class="btn btn-secondary btn-danger-hover">Delete</button>
+              <button id="undoDeleteBtn" class="btn btn-ghost" title="Undo delete" disabled>Undo</button>
+            </div>
 
-                              <div style="display: flex; align-items: center;">
-                                  <button id="deletePresetBtn" style="flex: 1;">Delete</button>
-                                  <button id="undoDeleteBtn" style="padding: 6px; margin-left: 5px;" title="Undo Delete"
-                                      disabled>Undo</button>
-                              </div>
-
-                              <div style="display: flex; gap: 5px; margin-top: 5px; justify-content: flex-start;">
-                                  <button id="moveUpBtn" class="square-btn">▲</button>
-                                  <button id="moveDownBtn" class="square-btn">▼</button>
-                              </div>
-                          </div>
-                      </div>
-                  </div>
+            <div class="preset-row preset-row-quiet">
+              <button id="moveUpBtn" class="btn btn-ghost btn-icon" title="Move up" aria-label="Move up"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m18 15-6-6-6 6"/></svg></button>
+              <button id="moveDownBtn" class="btn btn-ghost btn-icon" title="Move down" aria-label="Move down"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+              <span class="preset-spacer"></span>
+              <button id="importPresetsBtn" class="btn btn-ghost">Import</button>
+              <button id="exportPresetsBtn" class="btn btn-ghost">Export</button>
+            </div>
+          </div>
+        </details>
+        <script>
+          if (window.matchMedia('(min-width: 861px)').matches) {
+            document.getElementById('preset-controls').open = true;
+          }
+        </script>
       </aside>
     </div>
 
@@ -696,36 +706,27 @@
     <div class="modal-header">
       <h3 id="zwHeaderMessage"></h3>
       <div class="modal-btns">
-        <button id="modal-select-all">All</button>
-        <button id="modal-select-none">None</button>
-        <button class="close-x" onclick="closeZW()">&times;</button>
+        <button id="modal-select-all" class="btn btn-secondary">Select all</button>
+        <button id="modal-select-none" class="btn btn-secondary">Clear</button>
+        <button class="btn btn-ghost btn-icon close-x" onclick="closeZW()" aria-label="Close">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
       </div>
     </div>
     <div id="zwPics" class="zbll-grid"></div>
   </div>
 
   <footer class="site-footer">
-      <div class="footer-row">
-        <span>
-          Created by
-          <a href="https://www.worldcubeassociation.org/persons/2016NAGU02" target="_blank" rel="noopener" class="footer-link">Christian Naguio</a>
-        </span>
-        <span class="footer-separator">|</span>
-        <a href="https://github.com/loltreeman/ZBTrain" target="_blank" rel="noopener" class="footer-link">
-          <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/github.svg" alt="GitHub" class="footer-icon">
-          GitHub
-        </a>
-        <span class="footer-separator">|</span>
-        <span>Last updated: January 2026</span>
-        <span class="footer-separator">|</span>
-        <span>My ZBLL Sheet:
-          <a href="https://docs.google.com/spreadsheets/d/1pyB2bGwk0q0BnMybOqWPwOMTMX2WIEH0--qecpG5fCM/edit?usp=sharing" target="_blank" rel="noopener" class="footer-link">
-            Trix's ZBLL Sheet
-          </a>
-        </span> 
-        <span class="footer-separator">|</span>
-      </div>
-    </footer>
+    <div class="footer-row">
+      <span>Made by <a href="https://www.worldcubeassociation.org/persons/2016NAGU02" target="_blank" rel="noopener" class="footer-link">Christian Naguio</a></span>
+      <span class="footer-separator" aria-hidden="true">·</span>
+      <a href="https://github.com/loltreeman/ZBTrain" target="_blank" rel="noopener" class="footer-link">GitHub</a>
+      <span class="footer-separator" aria-hidden="true">·</span>
+      <a href="https://docs.google.com/spreadsheets/d/1pyB2bGwk0q0BnMybOqWPwOMTMX2WIEH0--qecpG5fCM/edit?usp=sharing" target="_blank" rel="noopener" class="footer-link">Trix's ZBLL sheet</a>
+      <span class="footer-separator" aria-hidden="true">·</span>
+      <span>Updated January 2026</span>
+    </div>
+  </footer>
 
   <script src="scripts/index.js"></script>
   <script src="scripts/presets.js"></script>

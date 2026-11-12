@@ -115,7 +115,7 @@
         headerLabel.textContent = "Virtual Cube";
         var headerTitle = document.createElement("h2");
         headerTitle.className = "kb-header-title";
-        headerTitle.textContent = "\u2328\uFE0F Keybind Settings";
+        headerTitle.textContent = "Keybinds";
         headerLeft.appendChild(headerLabel);
         headerLeft.appendChild(headerTitle);
 
@@ -141,12 +141,12 @@
         var listViewBtn = document.createElement("button");
         listViewBtn.className = "kb-view-btn kb-view-btn-active";
         listViewBtn.id = "kb-list-view-btn";
-        listViewBtn.textContent = "Move List";
+        listViewBtn.textContent = "Move list";
 
         var editorViewBtn = document.createElement("button");
         editorViewBtn.className = "kb-view-btn";
         editorViewBtn.id = "kb-editor-view-btn";
-        editorViewBtn.textContent = "\u2328 Edit Layout";
+        editorViewBtn.textContent = "Keyboard layout";
 
         viewBar.appendChild(listViewBtn);
         viewBar.appendChild(editorViewBtn);
@@ -178,7 +178,7 @@
         var resetBtn = document.createElement("button");
         resetBtn.className = "kb-reset-btn";
         resetBtn.id = "kb-reset-btn";
-        resetBtn.textContent = "\u21BA Reset to Defaults";
+        resetBtn.textContent = "Reset to defaults";
         resetBtn.addEventListener("click", function () {
             if (confirm("Reset all keybinds to their defaults?")) {
                 vc.resetKeybinds();
@@ -218,7 +218,7 @@
             listViewBtn.classList.remove("kb-view-btn-active");
             moveBody.style.display = "none";
             editorBody.style.display = "";
-            hint.textContent = "Click a key to assign a move. Use \u201C+ Save Layout\u201D to create a named preset.";
+            hint.textContent = "Click a key to assign a move. Use \u201C+ Save layout\u201D to create a named preset.";
             card.classList.add("kb-card-wide");
             buildKeyboardEditorContent(vc, editorBody);
         });
@@ -299,7 +299,7 @@
         var saveBtn = document.createElement("button");
         saveBtn.className = "kb-layout-save-btn";
         saveBtn.title = "Save current bindings as a named custom layout";
-        saveBtn.textContent = "+ Save Layout";
+        saveBtn.textContent = "+ Save layout";
         saveBtn.addEventListener("click", function () {
             var name = prompt("Name for this custom layout:");
             if (!name || !name.trim()) return;
@@ -419,7 +419,7 @@
             extraRow.className = "kb-key-row kb-key-row-extra";
             var extraLbl = document.createElement("span");
             extraLbl.className = "kb-extra-label";
-            extraLbl.textContent = "Other:";
+            extraLbl.textContent = "Other";
             extraRow.appendChild(extraLbl);
             extraBound.forEach(function (k) {
                 extraRow.appendChild(createKeyTile(k, bindings[k] || null, vc, editorBody, kbWrap));
@@ -515,7 +515,7 @@
         // Unbound / clear button
         var clearBtn = document.createElement("button");
         clearBtn.className = "kb-picker-clear" + (!currentMethod ? " kb-picker-pill-active" : "");
-        clearBtn.textContent = "\u2715 Unbound";
+        clearBtn.textContent = "Unbind";
         clearBtn.addEventListener("click", function () {
             if (typeof vc.unbindKey === "function") vc.unbindKey(selectedKey);
             refreshEditorAndList(vc, editorBody, kbWrap);
@@ -618,7 +618,7 @@
                 if (MOVE_LIST[i].method === conflictMethod) { conflictLabel = MOVE_LIST[i].label; break; }
             }
             var warn = tr.querySelector(".kb-warn");
-            warn.textContent = "\u26A0\uFE0F  \"" + keyLabel(k) + "\" is bound to " + conflictLabel + ". Confirm to override.";
+            warn.textContent = "\"" + keyLabel(k) + "\" is bound to " + conflictLabel + ". Confirm to override.";
             warn.classList.add("kb-warn-visible");
 
             stopListening(false);

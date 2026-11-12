@@ -1,7 +1,7 @@
 // This file is used to embed the virtual cube onto the trainer.
 
 (function (window, document) {
-    var T = 0.9;
+    var T = 1; // opaque stickers; hidden faces are no longer drawn
     var colors = [
         "rgba(20,200,20," + T + ")",
         "rgba(255,0,0," + T + ")",
@@ -12,6 +12,21 @@
     ];
 
     var canvas = document.getElementById("canvas");
+    var container = document.getElementById("virtualCubeContainer");
+    // Same origin for drawing and measuring, so centring is exact.
+    // Large enough that nothing is clipped when measuring.
+    var ORIGIN = 300;
+    // Which view to draw (see cubeViews.js). Saved between visits.
+    var view = "classic";
+    try {
+        var savedView = localStorage.getItem("cubeView");
+        if (savedView && window.CubeViews && CubeViews.has(savedView)) view = savedView;
+    } catch (e) {}
+
+    function renderCube(ctx) {
+        if (window.CubeViews) CubeViews.draw(view, ctx, cube3, ORIGIN, ORIGIN);
+        else cube3.draw(ctx, ORIGIN, ORIGIN);
+    }
     var context = canvas && canvas.getContext ? canvas.getContext("2d") : null;
 
     window.cube3 = new Cube3(colors);
@@ -24,8 +39,12 @@
 
     function draw() {
         if (!context) return;
+        // Clear in device pixels regardless of the current transform
+        context.save();
+        context.setTransform(1, 0, 0, 1, 0, 0);
         context.clearRect(0, 0, canvas.width, canvas.height);
-        cube3.draw(context, 80, 30);
+        context.restore();
+        renderCube(context);
     }
 
     // ─── Keybind system ────────────────────────────────────────────────────
@@ -214,8 +233,11 @@
         setTimeout(function () { resizeCanvas(); }, 10);
     }
 
-    function applyScrambleString(scramble) {
-        if (!scramble || !scramble.length) return;
+    var INVERTED_METHODS = { rotate_x: 1, rotate_y: 1, rotate_z: 1 };
+
+    // Apply a move string (e.g. "z2 R U R' U'") to any Cube3.
+    function applyMoves(cube, scramble) {
+        if (!scramble || !scramble.trim().length) return;
         var tokens = scramble.trim().split(/\s+/).filter(Boolean);
         tokens.forEach(function (tok) {
             var base = tok.charAt(0).toUpperCase();
@@ -230,11 +252,22 @@
             else if (sliceMap[base])    { method = sliceMap[base];    if (isInverse) method += "p"; }
             else if (wideMoveMap[baseOrig]) { method = wideMoveMap[baseOrig]; if (isInverse) method += "p"; }
             else { method = "rotate_" + base.toLowerCase(); if (isInverse) method += "p"; }
+            // Cube3's rotate_x / rotate_y / rotate_z turn the opposite
+            // way to standard notation (the default keybinds compensate), so flip
+            // them here to make typed notation like "y" behave correctly.
+            if (INVERTED_METHODS[method.replace(/p$/, "")]) {
+                method = /p$/.test(method) ? method.slice(0, -1) : method + "p";
+            }
             for (var i = 0; i < times; i++) {
-                if (typeof cube3[method] === "function") cube3[method]();
+                if (typeof cube[method] === "function") cube[method]();
                 else console.warn("Unknown move method:", method, "from token:", tok);
             }
         });
+    }
+
+    function applyScrambleString(scramble) {
+        if (!scramble || !scramble.length) return;
+        applyMoves(cube3, scramble);
         draw();
         window._firstMoveFired = false;
         window._aufMoveFired = false;
@@ -244,8 +277,10 @@
 
     function resizeCanvas() {
         if (!canvas) return;
-        var cssWidth = 400;
-        var cssHeight = 300;
+        // Fill the container; its size comes from CSS (and the Cube size setting)
+        var cssWidth = container ? Math.floor(container.clientWidth) : 400;
+        var cssHeight = container ? Math.floor(container.clientHeight) : 300;
+        if (!cssWidth || !cssHeight) return; // hidden (virtual cube off)
         var ratio = window.devicePixelRatio || 1;
         canvas.width  = Math.round(cssWidth  * ratio);
         canvas.height = Math.round(cssHeight * ratio);
@@ -273,7 +308,7 @@
             off.width = W; off.height = H;
             var octx = off.getContext("2d");
             octx.clearRect(0, 0, W, H);
-            cube3.draw(octx, 0, 0);
+            renderCube(octx);
             var data = octx.getImageData(0, 0, W, H).data;
             var minX = W, minY = H, maxX = 0, maxY = 0;
             for (var y = 0; y < H; y++) {
@@ -301,6 +336,17 @@
 
     window.addEventListener("resize", resizeCanvas);
 
+    // Re-fit whenever the container changes size (window, layout, Cube size setting)
+    if (container && "ResizeObserver" in window) {
+        var lastW = 0, lastH = 0;
+        new ResizeObserver(function () {
+            var w = Math.floor(container.clientWidth), h = Math.floor(container.clientHeight);
+            if (w === lastW && h === lastH) return;
+            lastW = w; lastH = h;
+            resizeCanvas();
+        }).observe(container);
+    }
+
     // ─── public API ───────────────────────────────────────────────────────
 
     window.virtualCube = {
@@ -313,6 +359,20 @@
         areMovesAllowed: function () { return !!allowMoves; },
         reset:          resetCube,
         resize:         function () { resizeCanvas(); },
+        getView:        function () { return view; },
+        // A fresh cube (same colours as the virtual cube) with moves applied.
+        // Used for case images; does not touch the cube you are turning.
+        makeCube:       function (moves) {
+            var c = new Cube3(colors.slice());
+            applyMoves(c, moves || "");
+            return c;
+        },
+        setView:        function (name) {
+            if (!window.CubeViews || !CubeViews.has(name)) return;
+            view = name;
+            try { localStorage.setItem("cubeView", name); } catch (e) {}
+            resizeCanvas(); // re-measure: each view has a different shape
+        },
 
         // ── keybind API ──────────────────────────────────────────────────
         /** Return a copy of the live key → method map. */

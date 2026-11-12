@@ -2,6 +2,7 @@ var selectedCasesRaw = JSON.parse(sessionStorage.getItem("selectedCases")); // t
 var recap = false;
 var toTrain = [];
 var currentlyDisplayedCase = null; // Track what is actually on the results screen
+var displayedScramble = ""; // Scramble of the case on the results screen (for AUF-adjusted algs)
 var justFinishedSolve = false; // Add this with your other global variables
 var lockoutActive = false; // Prevents accidental double-starts
 var currentOrientation = ""; // To track the orientation used for the current scramble
@@ -649,7 +650,7 @@ function generateScramble() {
     c._orientation = c._orientation || 0;
 
     var rawScramble = c.getSetup();
-    scrambleRef.innerHTML = `<span class="label">Scramble:</span> ${rawScramble}`;
+    scrambleRef.innerHTML = `<span class="label">Scramble</span><span id="current-scramble">${rawScramble}</span>`;
     prevScramble = rawScramble;
 
     return c;
@@ -809,6 +810,7 @@ function displayCaseInfo() {
     document.querySelector("#case-time").innerHTML = timerRef.textContent;
     document.querySelector("#case-time").hidden = false;
     document.querySelector("#case-name").innerHTML = prevCase.getName();
+    displayedScramble = prevScramble;
     document.querySelector("#case-scram").innerHTML = prevScramble;
     document.querySelector("#case-algs").innerHTML = getAlgList();
 
@@ -824,6 +826,7 @@ function displayCaseInfo() {
 
     var imgRef = document.querySelector("#case-img");
     imgRef.src = prevCase.getImg();
+    if (window.updateCaseImage) window.updateCaseImage(currentOrientation + " " + prevScramble);
     imgRef.alt = prevCase.getName();
     imgRef.width = 150;
     imgRef.height = 150;
@@ -867,14 +870,14 @@ function handleTouchStart(event) {
 
     //start or stop timer depending on value of timerStatus
     if (timerStatus === "Stop") {
-        timerRef.style.color = "#40B5AD";
+        timerRef.style.color = "var(--timer-armed)";
     } else if (timerStatus === "Start") {
         //stop timer and change timerStatus
         timerStatus = "Paused";
         clearInterval(int);
 
         //change text color
-        timerRef.style.color = "#E34234";
+        timerRef.style.color = "var(--timer-stopped)";
     }
 }
 
@@ -985,14 +988,14 @@ function handleKeyDown(event) {
 
             if (holdThreshold === 0) {
                 holdStarted = true;
-                timerRef.style.color = "#32CD32";
+                timerRef.style.color = "var(--timer-ready)";
             } else {
-                timerRef.style.color = "#FFD700";
+                timerRef.style.color = "var(--timer-hold)";
                 holdStarted = false;
 
                 holdTimer = setTimeout(function () {
                     holdStarted = true;
-                    timerRef.style.color = "#32CD32";
+                    timerRef.style.color = "var(--timer-ready)";
                 }, holdThreshold);
             }
         }
@@ -1052,7 +1055,8 @@ function handleKeyUp(event) {
                 timerRef.textContent;
             document.querySelector("#case-time").hidden = false;
             document.querySelector("#case-name").innerHTML = prevCase.getName();
-            document.querySelector("#case-scram").innerHTML = prevScramble;
+            displayedScramble = prevScramble;
+    document.querySelector("#case-scram").innerHTML = prevScramble;
             document.querySelector("#case-algs").innerHTML = getAlgList();
 
             try {
@@ -1063,6 +1067,7 @@ function handleKeyUp(event) {
 
             var imgRef = document.querySelector("#case-img");
             imgRef.src = prevCase.getImg();
+    if (window.updateCaseImage) window.updateCaseImage(currentOrientation + " " + prevScramble);
             imgRef.alt = prevCase.getName();
             imgRef.width = 150;
             imgRef.height = 150;
@@ -1146,7 +1151,8 @@ function handleKeyUp(event) {
                 document.querySelector(
                     "#case-name"
                 ).innerHTML = prevCase.getName();
-                document.querySelector("#case-scram").innerHTML = prevScramble;
+                displayedScramble = prevScramble;
+    document.querySelector("#case-scram").innerHTML = prevScramble;
                 document.querySelector("#case-algs").innerHTML = getAlgList();
 
                 try {
@@ -1157,6 +1163,7 @@ function handleKeyUp(event) {
 
                 var imgRef = document.querySelector("#case-img");
                 imgRef.src = prevCase.getImg();
+    if (window.updateCaseImage) window.updateCaseImage(currentOrientation + " " + prevScramble);
                 imgRef.alt = prevCase.getName();
                 imgRef.width = 150;
                 imgRef.height = 150;
@@ -1230,8 +1237,8 @@ function handleKeyUp(event) {
 
                 var banner = document.getElementById("recallBanner");
                 if (banner) {
-                    banner.textContent = "👀 Inspect — press space to confirm";
-                    banner.style.background = "rgba(80, 80, 180, 0.9)";
+                    banner.textContent = "Inspect — press Space to confirm";
+                    banner.classList.add("is-inspect");
                     banner.style.display = "flex";
                     banner.style.opacity = "1";
                 }
@@ -1263,7 +1270,8 @@ function handleKeyUp(event) {
                 timerRef.textContent + (result === "DNF" ? " DNF" : "");
             document.querySelector("#case-time").hidden = false;
             document.querySelector("#case-name").innerHTML = prevCase.getName();
-            document.querySelector("#case-scram").innerHTML = prevScramble;
+            displayedScramble = prevScramble;
+    document.querySelector("#case-scram").innerHTML = prevScramble;
             document.querySelector("#case-algs").innerHTML = getAlgList();
 
             try {
@@ -1273,6 +1281,7 @@ function handleKeyUp(event) {
 
             var imgRef = document.querySelector("#case-img");
             imgRef.src = prevCase.getImg();
+    if (window.updateCaseImage) window.updateCaseImage(currentOrientation + " " + prevScramble);
             imgRef.alt = prevCase.getName();
             imgRef.width = 150;
             imgRef.height = 150;
@@ -1534,8 +1543,8 @@ if (window.virtualCube && typeof window.virtualCube.onSolve === "function") {
             // 3. Show neutral "inspect" banner
             var banner = document.getElementById("recallBanner");
             if (banner) {
-                banner.textContent = "👀 Inspect — press space to confirm";
-                banner.style.background = "rgba(80, 80, 180, 0.9)";
+                banner.textContent = "Inspect — press Space to confirm";
+                banner.classList.add("is-inspect");
                 banner.style.display = "flex";
                 banner.style.opacity = "1";
             }
@@ -1557,8 +1566,8 @@ if (window.virtualCube && typeof window.virtualCube.onSolve === "function") {
 
             var banner = document.getElementById("recallBanner");
             if (banner) {
-                banner.textContent = "👀 Inspect — press space to confirm";
-                banner.style.background = "rgba(80, 80, 180, 0.9)";
+                banner.textContent = "Inspect — press Space to confirm";
+                banner.classList.add("is-inspect");
                 banner.style.display = "flex";
                 banner.style.opacity = "1";
             }
@@ -1599,7 +1608,41 @@ function setMainAlg(caseObj, index) {
 
 // ── Replace your existing getAlgList() with this ─────────────
 
+// ── AUF-adjusted algorithm display (see scripts/algAuf.js) ──────────────
+var adjustedAlgs = {}; // alg index → { pre, core, post, ok } for the displayed case
+
+function escapeHtml(text) {
+    return String(text).replace(/[&<>"]/g, function (ch) {
+        return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[ch];
+    });
+}
+
+function renderAdjustedAlg(alg, idx) {
+    var a = window.AlgAuf && displayedScramble
+        ? AlgAuf.adjust(displayedScramble, alg)
+        : { pre: "", core: alg, post: "", ok: false };
+    adjustedAlgs[idx] = a;
+    if (!a.ok) {
+        return '<div class="alg-text" title="Could not check this alg against the scramble">' +
+            escapeHtml(alg) + "</div>";
+    }
+    return (
+        '<div class="alg-text">' +
+        (a.pre ? '<span class="auf auf-pre" title="Pre-AUF">' + a.pre + "</span> " : "") +
+        '<span class="alg-core">' + escapeHtml(a.core) + "</span>" +
+        (a.post ? ' <span class="auf auf-post" title="Post-AUF">' + a.post + "</span>" : "") +
+        "</div>"
+    );
+}
+
+// The alg exactly as shown (with AUFs), for copying
+function getDisplayedAlgText(idx, fallback) {
+    var a = adjustedAlgs[idx];
+    return a && a.ok && window.AlgAuf ? AlgAuf.toText(a) : fallback;
+}
+
 function getAlgList() {
+    adjustedAlgs = {};
     if (!currentlyDisplayedCase)
         return "<p class='no-algs'>No algorithms found.</p>";
 
@@ -1633,23 +1676,21 @@ function getAlgList() {
                 '">' +
                 '<div class="alg-entry-top">' +
                 (isMain
-                    ? '<span class="alg-main-badge">★ Main</span>'
+                    ? '<span class="alg-main-badge">Main</span>'
                     : '<button class="alg-set-main-btn" onclick="handleSetMainAlg(' +
                       item.idx +
                       ')">Set Main</button>') +
                 '<button class="alg-edit-btn" onclick="handleEditAlg(' +
                 item.idx +
-                ')">✏</button>' +
+                ')" title="Edit" aria-label="Edit"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>' +
                 '<button class="alg-copy-btn" onclick="handleCopyAlg(' +
                 item.idx +
-                ')" title="Copy">⧉</button>' +
+                ')" title="Copy" aria-label="Copy"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg></button>' +
                 '<button class="alg-note-btn" onclick="handleToggleNote(' +
                 item.idx +
-                ')" title="Note">📝</button>' +
+                ')" title="Note" aria-label="Note"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg></button>' +
                 "</div>" +
-                '<div class="alg-text">' +
-                item.alg +
-                "</div>" +
+                renderAdjustedAlg(item.alg, item.idx) +
                 '<div class="alg-note-row" id="alg-note-row-' +
                 item.idx +
                 '" style="display:' +
@@ -1749,25 +1790,26 @@ function handleCopyAlg(index) {
     if (!currentlyDisplayedCase) return;
     var algs = currentlyDisplayedCase.getAlgsArray();
     if (!algs || index >= algs.length) return;
+    var copyText = getDisplayedAlgText(index, algs[index]);
 
     navigator.clipboard
-        .writeText(algs[index])
+        .writeText(copyText)
         .then(function () {
             // Brief visual feedback on the button
             var btn = document.querySelector(
                 '[data-alg-idx="' + index + '"] .alg-copy-btn'
             );
             if (btn) {
-                btn.textContent = "✓";
+                btn.innerHTML = '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
                 setTimeout(function () {
-                    btn.textContent = "⧉";
+                    btn.innerHTML = '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>';
                 }, 1000);
             }
         })
         .catch(function () {
             // Fallback for older browsers
             var ta = document.createElement("textarea");
-            ta.value = algs[index];
+            ta.value = copyText;
             document.body.appendChild(ta);
             ta.select();
             document.execCommand("copy");
@@ -2098,11 +2140,11 @@ document.addEventListener("cubeFirstMove", function (e) {
     if (splitEl) {
         splitEl.style.display = "flex";
         splitEl.innerHTML =
-            '<span class="split-item split-recog">👁 Recog: <b>' +
+            '<span class="split-item split-recog">Recog <b>' +
             currentRecogTime +
             "s</b></span>" +
             '<span class="split-divider">|</span>' +
-            '<span class="split-item split-exec">⚡ Executing...</span>';
+            '<span class="split-item split-exec">Executing…</span>';
     }
 
     // Recall mode mask
@@ -2128,11 +2170,11 @@ document.addEventListener("cubeAUFMove", function (e) {
         var elapsed = ((e.detail.time - solveStartTime) / 1000).toFixed(2);
         splitEl.style.display = "flex";
         splitEl.innerHTML =
-            '<span class="split-item split-recog">👁 Recognizing... <b>' +
+            '<span class="split-item split-recog">Recognizing <b>' +
             elapsed +
             "s</b></span>" +
             '<span class="split-divider">|</span>' +
-            '<span class="split-item split-exec" style="opacity:0.4;">⚡ Waiting for alg</span>';
+            '<span class="split-item split-exec is-pending">Waiting for alg</span>';
     }
 
     var recallCheckbox = document.getElementById("recallModeCheckbox");
@@ -2327,11 +2369,11 @@ function updateSplitDisplay(recog, exec) {
 
     el.style.display = "flex";
     el.innerHTML =
-        '<span class="split-item split-recog">👁 Recog: <b>' +
+        '<span class="split-item split-recog">Recog <b>' +
         parseFloat(recog).toFixed(2) +
         "s</b></span>" +
         '<span class="split-divider">|</span>' +
-        '<span class="split-item split-exec">⚡ Exec: <b>' +
+        '<span class="split-item split-exec">Exec <b>' +
         parseFloat(exec).toFixed(2) +
         "s</b></span>";
 }

@@ -5,247 +5,300 @@
     <link rel="icon" type="image/png" href="images/logo.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles/tokens.css">
+    <link rel="stylesheet" href="styles/base.css">
     <link rel="stylesheet" href="styles/trainer.css">
-    <link rel="stylesheet" href="styles/darkmode.css">
 </head>
 <body>
 
     <div id="slowModeBanner" style="display:none;"></div>
-    <header class="app-header">
-        <div class="header-center">
-            <div id="scramble-display" class="scramble">
-                <span class="label">Scramble:</span>
-                <span id="current-scramble">Loading...</span>
-            </div>
-        </div>
 
-        <div class="header-bottom-row">
-            <div class="header-left">
-                <button type="button" id="back" class="btn-nav" onclick="goBack()">← Select Cases</button>
-                <button type="button" id="toggleSettings" class="btn-nav mobile-only" onclick="toggleSettings()">⚙ Settings</button>
-                <button type="button" id="darkModeToggle" class="btn-nav dark-mode-toggle" onclick="toggleDarkMode()">🌙 Dark Mode</button>
-            </div>
+    <div class="app-shell">
+        <header class="app-header">
+            <div class="header-bar">
+                <div class="header-left">
+                    <button type="button" id="back" class="btn btn-ghost" onclick="goBack()">
+                        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                        Select cases
+                    </button>
+                    <button type="button" id="toggleSettings" class="btn btn-ghost mobile-only" onclick="toggleSettings()">
+                        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/></svg>
+                        Settings
+                    </button>
+                </div>
 
-
-            <div class="header-right">
-                <div class="status-header-row">
+                <div class="header-right">
                     <div class="status-group">
                         <p id="numSelected" class="status-item"></p>
                         <p id="numRecap" class="status-item"></p>
                     </div>
+                    <button type="button" id="darkModeToggle" class="btn btn-ghost btn-icon dark-mode-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode"></button>
                 </div>
             </div>
-        </div>
-    </header>
 
-    <main class="trainer-container">
-        <div class="trainer-grid">
-            <aside class="side-panel left-panel" id="settingsSidebar">
-    <div class="settings-card">
-        <div class="settings-card-header">
-            <p class="settings-label-sm">Configuration</p>
-            <h2 class="settings-title-lg">Trainer Settings</h2>
-            <button class="mobile-only btn-sidebar-alt" onclick="toggleSettings()" style="width: auto; padding: 5px 10px;">✕</button>
-        </div>
+            <div id="scramble-display" class="scramble">
+                <span class="label">Scramble</span>
+                <span id="current-scramble">Loading…</span>
+            </div>
+        </header>
 
-        <div class="settings-card-body">
-            <div class="settings-section">
-                <label class="section-label">Mask Settings</label>
-                    <div class="mask-content-box">
-                        <label>
-                            <input id="useUserDefinedMask" type="checkbox">
-                            <span>Use user defined mask</span>
-                        </label>
-                        
-                        <div id="maskSettings" style="display:none;">
-                            <label>Initial mask</label>
-                            <input id="initialMask" type="text" placeholder="e.g. UF, UFR, BU">
-                            
-                            <label>Final mask</label>
-                            <input id="finalMask" type="text" placeholder="e.g. D, DR, DLB">
+        <main class="trainer-container">
+            <div class="trainer-grid">
+                <aside class="side-panel left-panel" id="settingsSidebar">
+                    <div class="panel settings-card">
+                        <div class="panel-header settings-card-header">
+                            <h2 class="panel-title">Settings</h2>
+                            <button type="button" class="btn btn-ghost btn-icon mobile-only" onclick="toggleSettings()" aria-label="Close settings">
+                                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                            </button>
+                        </div>
+
+                        <div class="panel-body settings-card-body">
+                            <section class="settings-section">
+                                <h3 class="section-label">Trainer</h3>
+                                <div class="toggle-list">
+                                    <label class="toggle-row">
+                                        <span class="toggle-text">Virtual cube</span>
+                                        <input id="virtualCubeCheckbox" type="checkbox" class="switch" />
+                                    </label>
+                                    <label class="toggle-row">
+                                        <span class="toggle-text">Full colour neutrality</span>
+                                        <input id="fullCN" type="checkbox" class="switch">
+                                    </label>
+                                    <!--<label class="toggle-row">
+                                        <span class="toggle-text">Include recognition time</span>
+                                        <input id="includeRecognitionTime" type="checkbox" class="switch" />
+                                    </label>-->
+                                    <label class="toggle-row" id="recallToggleRow">
+                                        <span class="toggle-text">
+                                            Recall mode
+                                            <span class="toggle-badge">Experimental</span>
+                                        </span>
+                                        <input id="recallModeCheckbox" type="checkbox" class="switch" />
+                                    </label>
+                                    <p class="field-hint">
+                                        Last-layer side stickers grey out after your first move, so you train recall instead of recognition. Needs the virtual cube.
+                                    </p>
+                                </div>
+
+                                <div class="field-row">
+                                    <label for="timerHoldThresholdSelect">Hold delay</label>
+                                    <select id="timerHoldThresholdSelect" class="input">
+                                        <option value="0">0 ms (instant)</option>
+                                        <option value="100">100 ms</option>
+                                        <option value="200">200 ms (default)</option>
+                                        <option value="300">300 ms</option>
+                                        <option value="500">500 ms</option>
+                                    </select>
+                                </div>
+
+                                <button type="button" class="btn btn-secondary btn-block kb-settings-btn" onclick="openKeybindModal()">
+                                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg>
+                                    Keybinds
+                                </button>
+                                <a href="controls.html" class="text-link">Keyboard controls reference</a>
+                            </section>
+
+                            <section class="settings-section">
+                                <h3 class="section-label">Display</h3>
+                                <div class="field-row">
+                                    <label for="cubeViewSelect">Cube view</label>
+                                    <select id="cubeViewSelect" class="input">
+                                        <optgroup label="3D">
+                                            <option value="classic">Classic 3D</option>
+                                            <option value="iso">Isometric</option>
+                                            <option value="top">Top (4 sides)</option>
+                                        </optgroup>
+                                        <optgroup label="Flat (csTimer style)">
+                                            <option value="qcube">qCube</option>
+                                            <option value="qlast">qLast</option>
+                                            <option value="q2look">q2Look</option>
+                                        </optgroup>
+                                        <optgroup label="Other">
+                                            <option value="net">Net</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                                <div class="field-row">
+                                    <label for="caseImageSelect">Case image</label>
+                                    <select id="caseImageSelect" class="input">
+                                        <option value="diagram">Diagram</option>
+                                        <optgroup label="3D">
+                                            <option value="classic">Classic 3D</option>
+                                            <option value="iso">Isometric</option>
+                                            <option value="top">Top (4 sides)</option>
+                                        </optgroup>
+                                        <optgroup label="Flat (csTimer style)">
+                                            <option value="qcube">qCube</option>
+                                            <option value="qlast">qLast</option>
+                                            <option value="q2look">q2Look</option>
+                                        </optgroup>
+                                        <optgroup label="Other">
+                                            <option value="net">Net</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                                <div class="range-row">
+                                    <label for="cubeSizeSlider">Cube size</label>
+                                    <input type="range" id="cubeSizeSlider" min="0.6" max="1.6" step="0.05" value="1">
+                                    <output id="cubeSizeValue" for="cubeSizeSlider">100%</output>
+                                </div>
+                                <div class="range-row">
+                                    <label for="timerSizeSlider">Timer size</label>
+                                    <input type="range" id="timerSizeSlider" min="0.6" max="1.4" step="0.05" value="1">
+                                    <output id="timerSizeValue" for="timerSizeSlider">100%</output>
+                                </div>
+                            </section>
+
+                            <section class="settings-section">
+                                <h3 class="section-label">Mask</h3>
+                                <label class="toggle-row">
+                                    <span class="toggle-text">Custom mask</span>
+                                    <input id="useUserDefinedMask" type="checkbox" class="switch">
+                                </label>
+
+                                <div id="maskSettings" style="display:none;">
+                                    <div class="field">
+                                        <label for="initialMask">Initial mask</label>
+                                        <input id="initialMask" class="input input-mono" type="text" placeholder="UF, UFR, BU">
+                                    </div>
+                                    <div class="field">
+                                        <label for="finalMask">Final mask</label>
+                                        <input id="finalMask" class="input input-mono" type="text" placeholder="D, DR, DLB">
+                                    </div>
+                                </div>
+                                <a href="maskNote.html" class="text-link">How masks work</a>
+                            </section>
+
+                            <section class="settings-section">
+                                <h3 class="section-label">Orientation</h3>
+                                <div class="field-row">
+                                    <label for="colourneutrality1">Pre-orientation</label>
+                                    <input type="text" id="colourneutrality1" class="input input-mono input-short" placeholder="z2">
+                                </div>
+                                <div id="customOrientationSection" class="field-stack">
+                                    <div class="field-row">
+                                        <label for="colourneutrality2">LL rotation</label>
+                                        <input type="text" id="colourneutrality2" class="input input-mono input-short" placeholder="y">
+                                    </div>
+                                    <div class="field-row">
+                                        <label for="colourneutrality3">Side rotation</label>
+                                        <input type="text" id="colourneutrality3" class="input input-mono input-short" placeholder="z">
+                                    </div>
+                                </div>
+                                <a href="scramblingNote.html" class="text-link">How orientation works</a>
+                            </section>
                         </div>
                     </div>
-                <a href="maskNote.html" class="settings-info-link">Notes on Cube Masks</a>
-            </div>
+                </aside>
 
-            <div class="settings-section">
-                <label class="section-label">Trainer Options</label>
-                <div class="settings-toggle-list">
-                    <label class="custom-toggle-row">
-                        <input id="virtualCubeCheckbox" type="checkbox" />
-                        <span class="toggle-text">Virtual Cube</span>
-                    </label>
-                    <label class="custom-toggle-row">
-                        <input id="fullCN" type="checkbox"> 
-                        <span class="toggle-text">Full Color Neutrality</span>
-                    </label>
-                <!--<label class="custom-toggle-row" >
-                        <input id="includeRecognitionTime" type="checkbox" />
-                        <span class="toggle-text">Include Recognition Time</span>
-                    </label>-->
-                    <label class="custom-toggle-row recall-toggle-row" id="recallToggleRow">
-                        <input id="recallModeCheckbox" type="checkbox" />
-                        <span class="toggle-text">
-                            Recall Mode
-                            <span class="toggle-badge">EXPERIMENTAL</span>
-                        </span>
-                    </label>
-                    <p class="recall-mode-hint">
-                        LL side stickers grey out after your first move. Trains pure recall over recognition-assisted execution. Only works with Virtual Cube enabled.
-                    </p>
-                </div>
-                <div class="sidebar-input-group" style="margin-top: 10px;">
-                    <label for="timerHoldThresholdSelect">Hold Delay</label>
-                    <select id="timerHoldThresholdSelect">
-                        <option value="0">0ms (Instant)</option>
-                        <option value="100">100ms</option>
-                        <option value="200">200ms (Default)</option>
-                        <option value="300">300ms</option>
-                        <option value="500">500ms</option>
-                    </select>
-                </div>
-                <button type="button" class="kb-settings-btn" onclick="openKeybindModal()" style="margin-top: 10px;">
-                    ⌨ Keybind Settings
-                </button>
-                <a href="controls.html" class="settings-info-link">Keyboard Controls Reference</a>
-            </div>
-
-            <div class="settings-section">
-                <label class="section-label">Orientation</label>
-                <div class="settings-input-stack">
-    <div class="sidebar-input-group">
-        <label>Pre-Orientation</label>
-        <input type="text" id="colourneutrality1" placeholder="e.g. z2">
-    </div>
-    <div id="customOrientationSection" style="display:flex; flex-direction:column; gap:8px;">
-        <div class="sidebar-input-group">
-            <label>LL Rotation</label>
-            <input type="text" id="colourneutrality2" placeholder="y">
-        </div>
-        <div class="sidebar-input-group">
-            <label>Side Rotation</label>
-            <input type="text" id="colourneutrality3" placeholder="z">
-        </div>
-    </div>
-</div>
-                <a href="scramblingNote.html" class="settings-info-link">Notes on Orientation</a>
-            </div>
-        </div>
-    </div>
-</aside>
-
-        <section class="main-training-area">
-            <div class="timer-wrapper">
-                <div id="virtualCubeContainer">
-                    <canvas id="canvas" width="500" height="400"></canvas>
-                </div>
-                
-                <div id="timer" class="timer-display">0.00</div>
-                <p class="timer-hint">Hold Space to Start</p>
-                <div id="splitDisplay" style="display:none;"></div> 
-                
-                <div id="recallBanner" style="display:none;">
-                    <span>Recall Mode — stickers hidden</span>
-                </div>
-                
-            </div>
-        </section>
-
-        <aside class="side-panel right-panel">
-                <div class="case-sidebar">
-                    <div class="case-card">
-                        <div class="case-card-header">
-                            <p id="case-text"></p>
-                            <span id="case-time" class="last-time" hidden></span>
+                <section class="main-training-area">
+                    <div class="timer-wrapper">
+                        <div id="virtualCubeContainer">
+                            <canvas id="canvas" width="500" height="400"></canvas>
                         </div>
 
-                        <div class="case-card-body">
-                            <img id="case-img" src="" alt="Case Image">
-                            <h2 id="case-name">---</h2>
-                        </div>
+                        <div id="timer" class="timer-display">0.00</div>
+                        <p class="timer-hint">Hold <kbd>Space</kbd> to start</p>
+                        <div id="splitDisplay" style="display:none;"></div>
 
-                        <div class="case-card-footer">
-                            <div class="info-grid">
+                        <div id="recallBanner" style="display:none;">
+                            <span>Recall mode — stickers hidden</span>
+                        </div>
+                    </div>
+                </section>
+
+                <aside class="side-panel right-panel">
+                    <div class="case-sidebar">
+                        <div class="panel case-card">
+                            <div class="panel-header case-card-header">
+                                <p id="case-text"></p>
+                                <span id="case-time" class="last-time" hidden></span>
+                            </div>
+
+                            <div class="case-card-body">
+                                <img id="case-img" src="" alt="">
+                                <canvas id="case-canvas" hidden aria-hidden="true"></canvas>
+                                <h2 id="case-name">—</h2>
+                            </div>
+
+                            <div class="panel-body case-card-footer">
                                 <div class="info-block">
                                     <label>Scramble</label>
-                                    <p id="case-scram">--</p>
+                                    <p id="case-scram">—</p>
                                 </div>
                                 <div class="info-block">
                                     <label>Algorithms</label>
-                                    <p id="case-algs">--</p>
+                                    <div id="case-algs">—</div>
                                 </div>
-                            </div>
 
-                            <div id="caseStatsContainer">
-                                <div class="info-block">
-                                    <label>Per-Case Attempts</label>
-                                </div>
-                                <div id="caseStatsSummary"></div>
-                                <div id="caseAttemptsList"></div>
-                                
-                                <div class="stats-actions">
-                                    <button type="button" class="btn-sidebar-alt" onclick="clearCaseAttempts()">Clear Case</button>
-                                    <button type="button" class="btn-sidebar-alt" onclick="clearAllAttempts()">Clear All</button>
+                                <div id="caseStatsContainer" class="info-block">
+                                    <label>This case</label>
+                                    <div id="caseStatsSummary"></div>
+                                    <div id="caseAttemptsList"></div>
+
+                                    <div class="stats-actions">
+                                        <button type="button" class="btn btn-secondary btn-danger-hover" onclick="clearCaseAttempts()">Clear case</button>
+                                        <button type="button" class="btn btn-secondary btn-danger-hover" onclick="clearAllAttempts()">Clear all</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </aside>
-
-        </div> 
-    </main>
+                </aside>
+            </div>
+        </main>
+    </div>
 
     <footer class="action-footer">
         <div class="footer-controls">
-            <button type="button" id="showStats" class="btn-secondary" onclick="showStatsPanel()">Show Stats</button>
-            <button type="button" id="showSlowBtn"  class="btn-secondary" onclick="showSlowCasesPanel()">Slow Cases</button>
-            <button type="button" id="exportCsv" class="btn-secondary" onclick="exportAttemptsCsv()">Export CSV</button>
+            <button type="button" id="showStats" class="btn btn-secondary" onclick="showStatsPanel()">Stats</button>
+            <button type="button" id="showSlowBtn" class="btn btn-secondary" onclick="showSlowCasesPanel()">Slow cases</button>
+            <button type="button" id="exportCsv" class="btn btn-secondary" onclick="exportAttemptsCsv()">Export CSV</button>
         </div>
     </footer>
 
-    <div id="statsPanel" style="display: none; width: 100%; max-width: 800px; margin: 40px auto; padding: 20px; border-top: 2px solid #eee;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-        <h3>Statistics and Summary</h3>
-        <button type="button" class="btn-sidebar-alt" onclick="hideStatsPanel()">Hide Statistics</button>
-    </div>
-    <div id="statsContent">
+    <section id="statsPanel" class="panel sheet" style="display: none;">
+        <div class="sheet-header">
+            <h3>Statistics</h3>
+            <button type="button" class="btn btn-ghost" onclick="hideStatsPanel()">Hide</button>
         </div>
+        <div id="statsContent"></div>
+    </section>
+
+    <section id="slowCasesPanel" class="panel sheet" style="display:none;">
+        <div class="sheet-header">
+            <div>
+                <h3>Slow cases</h3>
+                <p id="slowCasesCount" class="sheet-sub"></p>
+            </div>
+            <button type="button" class="btn btn-ghost" onclick="hideSlowCasesPanel()">Hide</button>
         </div>
 
-<div id="slowModeBanner" style="display:none;"></div>
-
-<div id="slowCasesPanel" style="display:none; width:100%; max-width:800px; margin:30px auto; padding:24px; background:var(--card-bg); border:1px solid var(--border); border-radius:20px;">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-        <div>
-            <h3 style="margin:0; font-size:22px; font-weight:800;">Slow Cases</h3>
-            <p id="slowCasesCount" style="margin:4px 0 0; font-size:13px; color:var(--text-muted);"></p>
+        <div class="threshold-row">
+            <label for="thresholdSlider">Threshold</label>
+            <input type="range" id="thresholdSlider" min="1" max="15" step="0.5">
+            <span id="thresholdLabel"></span>
         </div>
-        <button type="button" class="btn-sidebar-alt" onclick="hideSlowCasesPanel()">Hide</button>
-    </div>
 
-    <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px; padding:12px 16px; background:var(--bg-main); border-radius:12px; border:1px solid var(--border);">
-        <label style="font-size:13px; font-weight:700; color:var(--text-muted); white-space:nowrap;">Threshold:</label>
-        <input type="range" id="thresholdSlider" min="1" max="15" step="0.5" style="flex:1; accent-color:var(--accent-blue);">
-        <span id="thresholdLabel" style="font-family:'JetBrains Mono',monospace; font-weight:800; font-size:16px; color:var(--accent-blue); min-width:40px; text-align:right;"></span>
-    </div>
+        <div id="slowCasesList"></div>
 
-    <div id="slowCasesList" style="display:flex; flex-direction:column; gap:6px; max-height:400px; overflow-y:auto; margin-bottom:16px;"></div>
-
-    <button type="button" id="trainSlowBtn" class="btn-secondary" onclick="trainSlowCases()" disabled>
-        Train These Cases
-    </button>
-</div>
-</div>
+        <button type="button" id="trainSlowBtn" class="btn btn-primary btn-block" onclick="trainSlowCases()" disabled>
+            Train these cases
+        </button>
+    </section>
 
     <script src="scripts/scrambles.js"></script>
     <script src="scripts/algorithms.js"></script>
     <script src="scripts/cube.js"></script>
     <script src="scripts/cube3x3.js"></script>
+    <script src="scripts/cubeViews.js"></script>
+    <script src="scripts/algAuf.js"></script>
     <script src="scripts/virtualCubeEmbed.js"></script>
     <script src="scripts/keybindModal.js"></script>
     <script src="scripts/trainer.js"></script>
     <script src="scripts/slowcases.js"></script>
+    <script src="scripts/displaySettings.js"></script>
     <script src="scripts/darkmode.js"></script>
 </body>
 </html>

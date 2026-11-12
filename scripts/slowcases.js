@@ -92,7 +92,7 @@ function refreshSlowCasesList() {
     var trainBtn = document.getElementById('trainSlowBtn');
 
     if (slowCases.length === 0) {
-        listEl.innerHTML = '<p class="no-slow-cases">🎉 No slow cases! All averages are under ' + slowCaseThreshold + 's.</p>';
+        listEl.innerHTML = '<p class="no-slow-cases">No slow cases — every average is under ' + slowCaseThreshold + 's.</p>';
         if (trainBtn) trainBtn.disabled = true;
         return;
     }
@@ -225,8 +225,8 @@ function showSlowCasesBanner(count) {
     if (!banner) return;
     banner.style.display = 'flex';
     banner.innerHTML =
-        '<span>🐢 Slow Case Mode — training ' + count + ' slow case' + (count !== 1 ? 's' : '') + '</span>' +
-        '<button onclick="exitSlowCaseMode()">✕ Exit</button>';
+        '<span>Slow case mode · training ' + count + ' slow case' + (count !== 1 ? 's' : '') + '</span>' +
+        '<button onclick="exitSlowCaseMode()">Exit</button>';
 }
 
 function exitSlowCaseMode() {
