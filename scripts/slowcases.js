@@ -65,6 +65,13 @@ function getImgPath(c) {
     return '';
 }
 
+// Same angle as chosen for the set on the case selection page
+function slowCaseAngleStyle(c) {
+    var set = c.set || String(c.caseName || "").split("-")[0];
+    var angle = window.caseOrientation ? parseInt(window.caseOrientation[set], 10) || 0 : 0;
+    return angle ? ' style="transform: rotate(' + angle + 'deg)"' : "";
+}
+
 function refreshSlowCasesList() {
     var listEl  = document.getElementById('slowCasesList');
     var countEl = document.getElementById('slowCasesCount');
@@ -128,7 +135,7 @@ function refreshSlowCasesList() {
 
             // Case image
             (imgPath ?
-                '<img class="slow-case-img" src="' + imgPath + '" alt="' + c.caseName + '" onerror="this.style.display=\'none\'">'
+                '<img class="slow-case-img" src="' + imgPath + '" alt="' + c.caseName + '"' + slowCaseAngleStyle(c) + ' onerror="this.style.display=\'none\'">'
                 : '') +
 
             // Case info
@@ -214,7 +221,7 @@ function trainSlowCases() {
 
     prevCase = generateScramble();
     awaitingNext = true;
-    renderCaseAttempts(prevCase);
+    renderCaseAttempts(currentlyDisplayedCase);
 
     hideSlowCasesPanel();
     showSlowCasesBanner(matched.length);

@@ -99,6 +99,30 @@
         while (tokens.length && isAuf(tokens[0])) tokens.shift();
         while (tokens.length && isAuf(tokens[tokens.length - 1])) tokens.pop();
 
+        // Prefer the alg without a leading y rotation (and any U turns around
+        // it): for a last-layer alg, a y and a U turn look the same to the
+        // last layer, so the pre-AUF can stand in for the rotation. Only used
+        // if it actually solves; otherwise the rotation stays.
+        var candidates = [];
+        var noRotation = tokens.slice();
+        var droppedRotation = false;
+        while (noRotation.length && (isAuf(noRotation[0]) || isYRotation(noRotation[0]))) {
+            if (isYRotation(noRotation[0])) droppedRotation = true;
+            noRotation.shift();
+        }
+        if (droppedRotation) candidates.push(noRotation);
+        candidates.push(tokens);
+
+        for (var k = 0; k < candidates.length; k++) {
+            var found = search(scramble, candidates[k]);
+            if (found) return found;
+        }
+        return { pre: "", core: String(alg), post: "", ok: false };
+    }
+
+    function isYRotation(t) { return /^y(2|')?$/.test(t); }
+
+    function search(scramble, tokens) {
         var core = tokens.join(" ");
         var coreMoves = toCubeMoves(tokens);
         for (var i = 0; i < AUFS.length; i++) {
@@ -108,7 +132,7 @@
                 }
             }
         }
-        return { pre: "", core: String(alg), post: "", ok: false };
+        return null;
     }
 
     function toText(a) {

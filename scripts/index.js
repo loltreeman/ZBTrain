@@ -412,6 +412,8 @@ function loadCases(isRecap) {
     // Save to sessionStorage for trainer page to consume
     sessionStorage.setItem("selectedCases", JSON.stringify(selected));
     sessionStorage.setItem("recapMode", JSON.stringify(!!isRecap));
+    // The angle picked for each set ("Other angles"), so the trainer's case image matches
+    sessionStorage.setItem("caseOrientation", JSON.stringify(activeOrientation));
 
     // Navigate to trainer page (same folder)
     const base = location.pathname.replace(/index.html$/, "");
@@ -472,6 +474,8 @@ function loadCases(isRecap) {
 
     sessionStorage.setItem("selectedCases", JSON.stringify(selected));
     sessionStorage.setItem("recapMode", JSON.stringify(!!isRecap));
+    // The angle picked for each set ("Other angles"), so the trainer's case image matches
+    sessionStorage.setItem("caseOrientation", JSON.stringify(activeOrientation));
 
     const base = location.pathname.replace(/index.html$/, "");
     location.href = base + "trainer.html";

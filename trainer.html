@@ -61,6 +61,10 @@
                                         <span class="toggle-text">Virtual cube</span>
                                         <input id="virtualCubeCheckbox" type="checkbox" class="switch" />
                                     </label>
+                                    <label class="toggle-row" title="After each solve the next case starts on its own. Esc pauses, Space resumes. Needs the virtual cube.">
+                                        <span class="toggle-text">Continuous training</span>
+                                        <input id="continuousCheckbox" type="checkbox" class="switch" />
+                                    </label>
                                     <label class="toggle-row">
                                         <span class="toggle-text">Full colour neutrality</span>
                                         <input id="fullCN" type="checkbox" class="switch">
@@ -97,6 +101,29 @@
                                     Keybinds
                                 </button>
                                 <a href="controls.html" class="text-link">Keyboard controls reference</a>
+                            </section>
+
+                            <section class="settings-section" id="smartCubeSection">
+                                <h3 class="section-label">Smart cube</h3>
+                                <div class="smart-status">
+                                    <span class="smart-dot" id="smartCubeDot" aria-hidden="true"></span>
+                                    <span id="smartCubeStatus">Not connected</span>
+                                </div>
+                                <button type="button" class="btn btn-secondary btn-block" id="smartCubeConnect">
+                                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10-5 5V2l5 5L7 17"/></svg>
+                                    <span>Connect smart cube</span>
+                                </button>
+                                <div class="field-row">
+                                    <label for="smartCubeGrip" title="How you hold the smart cube">Grip</label>
+                                    <select id="smartCubeGrip" class="input">
+                                        <option value="auto">Same as screen</option>
+                                    </select>
+                                </div>
+                                <p class="field-hint" id="smartCubeHint">
+                                    Start each solve with Space, then solve on your smart cube; it turns the case on screen. Works in Chrome or Edge.
+                                    GAN, MoYu, QiYi, GoCube and Giiker cubes are supported.
+                                </p>
+                                <a href="https://gist.github.com/afedotov/52057533a8b27a0277598160c384ae71" class="text-link" target="_blank" rel="noopener">Bluetooth and MAC address help (GAN)</a>
                             </section>
 
                             <section class="settings-section">
@@ -294,11 +321,15 @@
     <script src="scripts/cube3x3.js"></script>
     <script src="scripts/cubeViews.js"></script>
     <script src="scripts/algAuf.js"></script>
+    <script src="scripts/algPlayer.js"></script>
+    <script src="scripts/algDetect.js"></script>
+    <script src="scripts/solveStats.js"></script>
     <script src="scripts/virtualCubeEmbed.js"></script>
     <script src="scripts/keybindModal.js"></script>
     <script src="scripts/trainer.js"></script>
     <script src="scripts/slowcases.js"></script>
     <script src="scripts/displaySettings.js"></script>
+    <script type="module" src="scripts/smartCube.js"></script>
     <script src="scripts/darkmode.js"></script>
 </body>
 </html>
