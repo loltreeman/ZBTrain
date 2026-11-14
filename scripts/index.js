@@ -242,8 +242,6 @@ function displayZW(set, coll, angle = 0) {
 
     const key = `${set}-${coll}`;
 
-    // if this subset has never been touched, initialize all cases to 'false'
-    // This ensures (0/12 selected) shows up instead of an error or blank text
     if (!modalSelections[key]) {
         modalSelections[key] = {};
         zbllMap[set][coll].forEach((caseName) => {
@@ -258,13 +256,44 @@ function displayZW(set, coll, angle = 0) {
     if (allBtn) allBtn.onclick = () => selectAllZw(true, key);
     if (noneBtn) noneBtn.onclick = () => selectAllZw(false, key);
 
+    // ── GET heatmap data if active ──
+    var heatmapActive = localStorage.getItem('heatmapActive') === 'true';
+    var heatmapData = heatmapActive ? buildHeatmapData() : null;
+    var isDark = document.body.classList.contains('dark-mode');
+
     zbllMap[set][coll].forEach((caseName) => {
         const div = document.createElement("div");
         div.className = "zbllItem";
 
-        // does this case exist in our tracker as 'true'?
         if (modalSelections[key][caseName] === true) {
             div.classList.add("selected");
+        }
+
+        // ── APPLY per-case heatmap color ──
+        if (heatmapData) {
+            var fullCaseName = set + '-' + coll + '-' + caseName;
+            var caseData = heatmapData[fullCaseName];
+
+            if (caseData) {
+                var colors = isDark ? heatmapColorDark(caseData.avg) : heatmapColor(caseData.avg);
+                div.style.borderColor = colors.border;
+                div.style.background  = colors.bg;
+
+                // Add a small time badge
+                var badge = document.createElement('div');
+                badge.className = 'zbll-item-heatmap-badge';
+                badge.textContent = caseData.avg.toFixed(2) + 's';
+                badge.style.color = colors.text;
+                div.appendChild(badge);
+            } else {
+                // No data yet — subtle indicator
+                div.style.borderColor = '';
+                div.style.background  = '';
+                var badge = document.createElement('div');
+                badge.className = 'zbll-item-heatmap-badge zbll-item-no-data';
+                badge.textContent = '—';
+                div.appendChild(badge);
+            }
         }
 
         const img = document.createElement("img");
@@ -275,14 +304,12 @@ function displayZW(set, coll, angle = 0) {
         div.addEventListener("click", () => {
             modalSelections[key][caseName] = !modalSelections[key][caseName];
             div.classList.toggle("selected");
-            // this updates the (X/Total) header every time you click an item
             updateZwHeaderSelection(set, coll);
         });
 
         zwPics.appendChild(div);
     });
 
-    // force header Sync immediately upon opening
     updateZwHeaderSelection(set, coll);
     zwPics.scrollTop = 0;
 }
@@ -323,8 +350,8 @@ function toggleExpand(expand) {
         const el = document.getElementById(`subsets-${set}`);
         const arrow = document.getElementById(`arrow-${set}`);
         if (el) {
-            el.style.display = expand ? "block" : "none";
-            if (arrow) arrow.innerText = expand ? "▲" : "▼";
+            el.style.display = expand ? "grid" : "none";
+            if (arrow) arrow.classList.toggle("is-open", expand);
         }
     });
 }
@@ -363,8 +390,8 @@ function toggleSubsets(set) {
     const arrow = document.getElementById(`arrow-${set}`);
     if (!el) return;
     const isHidden = el.style.display === "none" || el.style.display === "";
-    el.style.display = isHidden ? "block" : "none";
-    if (arrow) arrow.innerText = isHidden ? "▲" : "▼";
+    el.style.display = isHidden ? "grid" : "none";
+    if (arrow) arrow.classList.toggle("is-open", isHidden);
 }
 
 function loadCases(isRecap) {
@@ -385,6 +412,8 @@ function loadCases(isRecap) {
     // Save to sessionStorage for trainer page to consume
     sessionStorage.setItem("selectedCases", JSON.stringify(selected));
     sessionStorage.setItem("recapMode", JSON.stringify(!!isRecap));
+    // The angle picked for each set ("Other angles"), so the trainer's case image matches
+    sessionStorage.setItem("caseOrientation", JSON.stringify(activeOrientation));
 
     // Navigate to trainer page (same folder)
     const base = location.pathname.replace(/index.html$/, "");
@@ -445,7 +474,194 @@ function loadCases(isRecap) {
 
     sessionStorage.setItem("selectedCases", JSON.stringify(selected));
     sessionStorage.setItem("recapMode", JSON.stringify(!!isRecap));
+    // The angle picked for each set ("Other angles"), so the trainer's case image matches
+    sessionStorage.setItem("caseOrientation", JSON.stringify(activeOrientation));
 
     const base = location.pathname.replace(/index.html$/, "");
     location.href = base + "trainer.html";
 }
+
+
+var HEATMAP_THRESHOLDS = {
+    great:  3.0,   // < 3s  → green
+    good:   5.0,   // < 5s  → yellow
+    slow:   7.0,   // < 7s  → orange
+                   // ≥ 7s  → red
+};
+
+function getAttempts() {
+    try {
+        return JSON.parse(localStorage.getItem('zbllAttempts') || '[]');
+    } catch(e) { return []; }
+}
+
+// Build a map: caseName → { avg, count, min }
+function buildHeatmapData() {
+    var attempts = getAttempts();
+    var byCase = {};
+
+    attempts.forEach(function(a) {
+        var key = a.caseName;
+        if (!key || !a.time) return;
+        if (!byCase[key]) byCase[key] = { total: 0, count: 0, min: Infinity };
+        byCase[key].total += a.time;
+        byCase[key].count++;
+        if (a.time < byCase[key].min) byCase[key].min = a.time;
+    });
+
+    var result = {};
+    Object.keys(byCase).forEach(function(k) {
+        var d = byCase[k];
+        result[k] = {
+            avg: d.total / d.count,
+            count: d.count,
+            min: d.min
+        };
+    });
+    return result;
+}
+
+// ── Get color for a given avg time ───────────────────────────
+function heatmapColor(avg) {
+    // Colours come from tokens.css (--heat-*), so they follow light/dark mode.
+    function tone(name, label) {
+        var c = 'var(--heat-' + name + ')';
+        return { bg: 'color-mix(in srgb, ' + c + ' 14%, var(--surface))', border: 'transparent', text: c, label: label };
+    }
+    if (avg < HEATMAP_THRESHOLDS.great) return tone('fast', 'Fast');
+    if (avg < HEATMAP_THRESHOLDS.good)  return tone('ok', 'OK');
+    if (avg < HEATMAP_THRESHOLDS.slow)  return tone('slow', 'Slow');
+    return tone('hard', 'Hard');
+}
+
+function heatmapColorDark(avg) {
+    return heatmapColor(avg);
+}
+
+// ── Apply heatmap colors to all .zbll-card elements ──────────
+function applyHeatmap() {
+    var data = buildHeatmapData();
+    var isDark = document.body.classList.contains('dark-mode');
+
+    // Find all zbll-card elements that have a data-subset attribute
+    var cards = document.querySelectorAll('.zbll-card[data-subset]');
+
+    cards.forEach(function(card) {
+        var subset = card.getAttribute('data-subset');
+        var setContainer = card.closest('[id^="subsets-"]');
+        if (!setContainer) return;
+        var set = setContainer.id.replace('subsets-', '');
+
+        // Build the case name as trainer stores it: "SET-SUBSET-CaseName"
+        // We need to match against attempt caseName format
+        // caseName format in attempts: "T-2GLL-CsA" etc.
+        // We match by checking if any attempt caseName starts with set + "-" + subset
+        var prefix = set + '-' + subset;
+        var matchingKeys = Object.keys(data).filter(function(k) {
+            return k.startsWith(prefix + '-') || k === prefix;
+        });
+
+        if (matchingKeys.length === 0) {
+            // No data yet — show neutral "untrained" indicator
+            removeHeatmap(card);
+            return;
+        }
+
+        // Compute average across all cases in this subset
+        var totalAvg = 0;
+        var totalCount = 0;
+        matchingKeys.forEach(function(k) {
+            totalAvg += data[k].avg * data[k].count;
+            totalCount += data[k].count;
+        });
+        var subsetAvg = totalAvg / totalCount;
+
+        var colors = isDark ? heatmapColorDark(subsetAvg) : heatmapColor(subsetAvg);
+
+        // Apply to card
+        card.style.background = colors.bg;
+        card.style.borderColor = colors.border;
+
+        // Add or update the heatmap badge
+        var existing = card.querySelector('.heatmap-badge');
+        if (!existing) {
+            existing = document.createElement('div');
+            existing.className = 'heatmap-badge';
+            card.appendChild(existing);
+        }
+        existing.style.color = colors.text;
+        existing.style.background = 'transparent';
+        existing.innerHTML =
+            '<span class="heatmap-avg">' + subsetAvg.toFixed(2) + 's</span>' +
+            '<span class="heatmap-count">(' + totalCount + ' solves)</span>';
+    });
+}
+
+function removeHeatmap(card) {
+    card.style.background = '';
+    card.style.borderColor = '';
+    var badge = card.querySelector('.heatmap-badge');
+    if (badge) badge.remove();
+}
+
+// ── Heatmap toggle button ─────────────────────────────────────
+function initHeatmapToggle() {
+    var btn = document.getElementById('heatmapToggle');
+    if (!btn) return;
+
+    var active = localStorage.getItem('heatmapActive') === 'true';
+    updateHeatmapBtn(btn, active);
+    if (active) applyHeatmap();
+
+    btn.addEventListener('click', function() {
+        active = !active;
+        localStorage.setItem('heatmapActive', active);
+        updateHeatmapBtn(btn, active);
+
+        if (active) {
+            applyHeatmap();
+        } else {
+            // Remove all heatmap styling
+            document.querySelectorAll('.zbll-card[data-subset]').forEach(removeHeatmap);
+        }
+    });
+}
+
+function updateHeatmapBtn(btn, active) {
+    var legendEl = document.getElementById('heatmapLegend');
+    if (active) {
+        btn.textContent = 'Hide heatmap';
+        btn.classList.add('heatmap-active');
+        if (legendEl) legendEl.style.display = 'flex';
+    } else {
+        btn.textContent = 'Show heatmap';
+        btn.classList.remove('heatmap-active');
+        if (legendEl) legendEl.style.display = 'none';
+    }
+}
+
+// Re-apply heatmap when dark mode toggles
+var _origToggleDarkMode = window.toggleDarkMode;
+window.toggleDarkMode = function() {
+    if (_origToggleDarkMode) _origToggleDarkMode();
+    if (localStorage.getItem('heatmapActive') === 'true') {
+        setTimeout(applyHeatmap, 50);
+    }
+};
+
+function renderHeatmapLegend() {
+    var el = document.getElementById('heatmapLegend');
+    if (!el) return;
+    var t = HEATMAP_THRESHOLDS;
+    el.innerHTML =
+        '<span class="legend-item legend-great">< ' + t.great + 's Fast</span>' +
+        '<span class="legend-item legend-good">< ' + t.good + 's OK</span>' +
+        '<span class="legend-item legend-slow">< ' + t.slow + 's Slow</span>' +
+        '<span class="legend-item legend-hard">≥ ' + t.slow + 's Hard</span>';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    initHeatmapToggle();
+    renderHeatmapLegend();
+});
+

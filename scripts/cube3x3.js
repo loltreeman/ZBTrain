@@ -148,12 +148,14 @@ Cube3.prototype.rotate_d = Cube3.get_rotate(function(p){return(p[2]=="D")},
                               ["FRD","FLD","BLD","BRD"], 
                               ["_RD","F_D","_LD","B_D"]);
 
-Cube3.prototype.rotate_s = Cube3.get_rotate(function(p) {return (p[0]=="_")},
+// The quarter turn below is S' in standard notation (it turns the middle
+// slice the opposite way to F), so it is named rotate_sp; rotate_s is S.
+Cube3.prototype.rotate_sp = Cube3.get_rotate(function(p) {return (p[0]=="_")},
                               function(c) {c.rotate_x()},
                               ["_RU","_RD","_LD","_LU"],
                               ["_R_","__D","_L_","__U"]);
-Cube3.prototype.rotate_sp = function() {
-    this.rotate_s(); this.rotate_s(); this.rotate_s();
+Cube3.prototype.rotate_s = function() {
+    this.rotate_sp(); this.rotate_sp(); this.rotate_sp();
 }
 
 Cube3.prototype.rotate_m = Cube3.get_rotate(function(p) {return (p[1]=="_")},
@@ -205,11 +207,11 @@ Cube3.prototype.rotate_yp = function() {
 
 Cube3.prototype.rotate_z = function() {
     this.rotate_fp();
-    this.rotate_s();
+    this.rotate_sp();
     this.rotate_b();
 }
 Cube3.prototype.rotate_zp = function() {
-    this.rotate_f(); this.rotate_sp(); this.rotate_bp();
+    this.rotate_f(); this.rotate_s(); this.rotate_bp();
 }
 
 Cube3.prototype.rotate_R = function() {
@@ -233,9 +235,11 @@ Cube3.prototype.draw = function(ctx, px, py) {
   ctx.save();
   ctx.translate(px,py);
   
-  var FR_H = 23; // horiz. cubie distance along x-coord
-  var FR_V = 46; // vertical cubie distance along x-coord
-  var UP = 69; // cubie distance along y- and z- coordinates
+  // Cubies sit flush (spacing == cubie size); the sticker outlines provide
+  // the black "plastic" between them. Wider spacing exposed hidden faces.
+  var FR_H = 20; // horiz. cubie distance along x-coord
+  var FR_V = 40; // vertical cubie distance along x-coord
+  var UP = 60; // cubie distance along y- and z- coordinates
  
   var x_coords = {"B":[0, 0], "_":[-FR_H, FR_V], "F":[-2*FR_H, 2*FR_V]};
   var y_coords = {"L":[0, 0], "_":[UP, 0], "R":[2*UP, 0]};
@@ -245,7 +249,12 @@ Cube3.prototype.draw = function(ctx, px, py) {
       for (z in z_coords) {
         var h_pos = x_coords[x][0] + y_coords[y][0] + z_coords[z][0];
         var v_pos = x_coords[x][1] + y_coords[y][1] + z_coords[z][1];
-        this.cubies[x+y+z].draw(ctx, h_pos, v_pos);
+        // Only outer faces facing the viewer are drawn
+        this.cubies[x+y+z].draw(ctx, h_pos, v_pos, {
+          front: x === "F",
+          up: z === "U",
+          right: y === "R"
+        });
         //console.log(x+y+z+": "+this.cubies[x+y+z].colors);
       }
     }
