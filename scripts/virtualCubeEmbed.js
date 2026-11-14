@@ -171,17 +171,20 @@
 
     var allowMoves = false;
 
-    document.addEventListener("keydown", function (event) {
-        if (event.target.tagName === "INPUT" || event.target.tagName === "TEXTAREA") return;
-        if (!allowMoves) return;
-        var k = event.key;
-        if (!k) return;
-        if (k.length === 1) k = k.toLowerCase();
-        if (!(k in cubeActions)) return;
+    // Moves done during the current solve (Cube3 method names), and the
+    // setup they started from. Read by algDetect.js after each solve.
+    var moveLog = [];
+    var currentSetup = "";
+    var lastSolve = null;
+
+    // One move, from any input (keyboard, smart cube). Returns false if
+    // moves aren't allowed right now.
+    function performMethod(method, source) {
+        if (!allowMoves) return false;
+        if (typeof cube3[method] !== "function") return false;
 
         if (cube3.isSolving) {
-            var aufKeys = getAUFKeys();
-            var isAUF = !!aufKeys[k];
+            var isAUF = method === "rotate_u" || method === "rotate_up";
             if (!window._firstMoveFired && !isAUF) {
                 window._firstMoveFired = true;
                 document.dispatchEvent(new CustomEvent("cubeFirstMove", { detail: { time: performance.now() } }));
@@ -189,14 +192,27 @@
                 window._aufMoveFired = true;
                 document.dispatchEvent(new CustomEvent("cubeAUFMove", { detail: { time: performance.now() } }));
             }
+            moveLog.push({ method: method, source: source || "keyboard", time: performance.now() });
         }
 
-        var method = cubeActions[k];
+        cube3[method]();
+        cube3.moveCount = (cube3.moveCount || 0) + 1;
+        draw();
+        return true;
+    }
+
+    document.addEventListener("keydown", function (event) {
+        if (event.target.tagName === "INPUT" || event.target.tagName === "TEXTAREA") return;
+        if (!allowMoves) return;
+        var k = event.key;
+        if (!k) return;
+        if (k.length === 1) k = k.toLowerCase();
+        if (!(k in cubeActions)) return;
+        // With a smart cube connected, only the cube turns the cube
+        if (window.SmartCube && window.SmartCube.isConnected()) return;
+
         try {
-            if (typeof cube3[method] === "function") cube3[method]();
-            cube3.moveCount = (cube3.moveCount || 0) + 1;
-            draw();
-            event.preventDefault();
+            if (performMethod(cubeActions[k], "keyboard")) event.preventDefault();
         } catch (e) { }
     });
 
@@ -213,6 +229,9 @@
         var now = cube3.isSolved();
 
         if (!prevSolved && now) {
+            // Keep this solve's moves so the trainer can work out which alg was used
+            lastSolve = { setup: currentSetup, moves: moveLog.slice() };
+            document.dispatchEvent(new CustomEvent("cubeSolved", { detail: lastSolve }));
             if (typeof solveCallback === "function") solveCallback();
             cube3.isSolving = false;
             window._firstMoveFired = false;
@@ -235,32 +254,39 @@
 
     var INVERTED_METHODS = { rotate_x: 1, rotate_y: 1, rotate_z: 1 };
 
+    // Turn one notation token (e.g. "R'", "y2", "r") into a Cube3 method
+    // name and how many times to call it.
+    function tokenToMethod(tok) {
+        var base = tok.charAt(0).toUpperCase();
+        var isInverse = tok.indexOf("'") !== -1;
+        var times = tok.indexOf("2") !== -1 ? 2 : 1;
+        var rotationMap = { X: "rotate_x", Y: "rotate_y", Z: "rotate_z" };
+        var sliceMap    = { M: "rotate_m", E: "rotate_e", S: "rotate_s" };
+        var wideMoveMap = { r: "rotate_R", u: "rotate_U", f: "rotate_F", l: "rotate_L", d: "rotate_D", b: "rotate_B" };
+        var method;
+        var baseOrig = tok.charAt(0);
+        if (rotationMap[base])      { method = rotationMap[base]; if (isInverse) method += "p"; }
+        else if (sliceMap[base])    { method = sliceMap[base];    if (isInverse) method += "p"; }
+        else if (wideMoveMap[baseOrig]) { method = wideMoveMap[baseOrig]; if (isInverse) method += "p"; }
+        else { method = "rotate_" + base.toLowerCase(); if (isInverse) method += "p"; }
+        // Cube3's rotate_x / rotate_y / rotate_z turn the opposite
+        // way to standard notation (the default keybinds compensate), so flip
+        // them here to make typed notation like "y" behave correctly.
+        if (INVERTED_METHODS[method.replace(/p$/, "")]) {
+            method = /p$/.test(method) ? method.slice(0, -1) : method + "p";
+        }
+        return { method: method, times: times };
+    }
+
     // Apply a move string (e.g. "z2 R U R' U'") to any Cube3.
     function applyMoves(cube, scramble) {
         if (!scramble || !scramble.trim().length) return;
         var tokens = scramble.trim().split(/\s+/).filter(Boolean);
         tokens.forEach(function (tok) {
-            var base = tok.charAt(0).toUpperCase();
-            var isInverse = tok.indexOf("'") !== -1;
-            var times = tok.indexOf("2") !== -1 ? 2 : 1;
-            var rotationMap = { X: "rotate_x", Y: "rotate_y", Z: "rotate_z" };
-            var sliceMap    = { M: "rotate_m", E: "rotate_e", S: "rotate_s" };
-            var wideMoveMap = { r: "rotate_R", u: "rotate_U", f: "rotate_F", l: "rotate_L", d: "rotate_D", b: "rotate_B" };
-            var method;
-            var baseOrig = tok.charAt(0);
-            if (rotationMap[base])      { method = rotationMap[base]; if (isInverse) method += "p"; }
-            else if (sliceMap[base])    { method = sliceMap[base];    if (isInverse) method += "p"; }
-            else if (wideMoveMap[baseOrig]) { method = wideMoveMap[baseOrig]; if (isInverse) method += "p"; }
-            else { method = "rotate_" + base.toLowerCase(); if (isInverse) method += "p"; }
-            // Cube3's rotate_x / rotate_y / rotate_z turn the opposite
-            // way to standard notation (the default keybinds compensate), so flip
-            // them here to make typed notation like "y" behave correctly.
-            if (INVERTED_METHODS[method.replace(/p$/, "")]) {
-                method = /p$/.test(method) ? method.slice(0, -1) : method + "p";
-            }
-            for (var i = 0; i < times; i++) {
-                if (typeof cube[method] === "function") cube[method]();
-                else console.warn("Unknown move method:", method, "from token:", tok);
+            var m = tokenToMethod(tok);
+            for (var i = 0; i < m.times; i++) {
+                if (typeof cube[m.method] === "function") cube[m.method]();
+                else console.warn("Unknown move method:", m.method, "from token:", tok);
             }
         });
     }
@@ -268,6 +294,8 @@
     function applyScrambleString(scramble) {
         if (!scramble || !scramble.length) return;
         applyMoves(cube3, scramble);
+        currentSetup = scramble;
+        moveLog = [];
         draw();
         window._firstMoveFired = false;
         window._aufMoveFired = false;
@@ -360,6 +388,16 @@
         reset:          resetCube,
         resize:         function () { resizeCanvas(); },
         getView:        function () { return view; },
+        // A move in standard notation from another input (smart cube).
+        applyMove:      function (notation, source) {
+            var m = tokenToMethod(String(notation).trim());
+            var ok = false;
+            for (var i = 0; i < m.times; i++) ok = performMethod(m.method, source || "smartcube") || ok;
+            return ok;
+        },
+        getMoveLog:     function () { return moveLog.slice(); },
+        getSetup:       function () { return currentSetup; },
+        getLastSolve:   function () { return lastSolve; },
         // A fresh cube (same colours as the virtual cube) with moves applied.
         // Used for case images; does not touch the cube you are turning.
         makeCube:       function (moves) {

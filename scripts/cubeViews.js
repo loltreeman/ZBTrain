@@ -288,6 +288,8 @@
         return { minX: minX - 4, minY: minY - 4, w: maxX - minX + 9, h: maxY - minY + 9 };
     }
 
+    var measureCache = {};
+
     // Draw a cube state into any canvas, scaled to fit and centred.
     // Used for the case image. cssSize = displayed size in CSS pixels.
     function renderTo(canvas, name, cube, cssSize, fill) {
@@ -296,7 +298,8 @@
         canvas.height = Math.round(cssSize * ratio);
         canvas.style.width = canvas.style.height = cssSize + "px";
         var ctx = canvas.getContext("2d");
-        var b = measure(name, cube);
+        // A view's outline doesn't depend on the cube's colours, so measure once
+        var b = measureCache[name] || (measureCache[name] = measure(name, cube));
         var s = Math.min(cssSize / b.w, cssSize / b.h) * (fill || 0.94);
         var offX = (cssSize - b.w * s) / 2 - b.minX * s;
         var offY = (cssSize - b.h * s) / 2 - b.minY * s;

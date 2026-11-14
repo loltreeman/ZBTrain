@@ -3,6 +3,7 @@ var recap = false;
 var toTrain = [];
 var currentlyDisplayedCase = null; // Track what is actually on the results screen
 var displayedScramble = ""; // Scramble of the case on the results screen (for AUF-adjusted algs)
+var displayedSetup = ""; // Orientation + scramble of that case, as the virtual cube showed it (for the alg player)
 var justFinishedSolve = false; // Add this with your other global variables
 var lockoutActive = false; // Prevents accidental double-starts
 var currentOrientation = ""; // To track the orientation used for the current scramble
@@ -200,7 +201,8 @@ function trainerSetup() {
 
     awaitingNext = true;
     try {
-        renderCaseAttempts(prevCase);
+        // Only the case you just solved is shown; nothing until the first result
+        renderCaseAttempts(currentlyDisplayedCase);
     } catch (e) {}
     // this if loop is to make sure the count of recap is correct depending on mode
     if (recap) {
@@ -284,7 +286,15 @@ function saveAttempts() {
 // render case-specific attempts/stats in the sidebar and under the timer
 function renderCaseAttempts(caseObj) {
     var targetCase = caseObj || currentlyDisplayedCase;
-    if (!targetCase) return;
+    if (!targetCase) {
+        // Before your first solve: say what this area is for
+        var summary = document.getElementById("caseStatsSummary");
+        var list = document.getElementById("caseAttemptsList");
+        if (summary) summary.innerHTML =
+            '<p class="case-stats-empty">Solve a case and its times and stats show up here.</p>';
+        if (list) list.innerHTML = "";
+        return;
+    }
 
     var name = targetCase.getName ? targetCase.getName() : targetCase.name;
 
@@ -360,7 +370,8 @@ function renderCaseAttempts(caseObj) {
               '<div class="stat-square stat-exec"><span class="stat-label">Avg Exec</span><span class="stat-value exec-value">' +
               avgExec +
               "</span></div>"
-            : "");
+            : "") +
+        renderMoveStats(filtered, targetCase);
 
     // Attempt tags — show recog/exec as tooltip
     listEl.innerHTML = "";
@@ -396,11 +407,118 @@ function renderCaseAttempts(caseObj) {
                     "</span>";
             }
 
-            tag.onclick = function () {
-                deleteAttempt(a._idx);
-            };
+            if (a.moves && a.moves.length) {
+                tag.classList.add("has-replay");
+                tag.title = (tag.title ? tag.title + " · " : "") + "Click to replay this solve";
+                tag.onclick = function () {
+                    openSolveReplay(a._idx);
+                };
+            } else {
+                tag.onclick = function () {
+                    deleteAttempt(a._idx);
+                };
+            }
             listEl.appendChild(tag);
         });
+}
+
+// The moves of the solve that just ended, as [["R", ms], ...] measured from
+// when the case appeared. Uses the finished solve if it matches the case on
+// screen, otherwise the moves so far (e.g. a solve stopped with Esc).
+var lastRecordedSolve = null;
+
+function getRecordedSolve() {
+    if (!window.virtualCube || !window.AlgDetect || !virtualCube.getLastSolve) return null;
+    var setup = normSetup(displayedSetup);
+    var solve = virtualCube.getLastSolve();
+    var moves = null;
+    if (solve && solve !== lastRecordedSolve && normSetup(solve.setup) === setup) {
+        moves = solve.moves;
+        lastRecordedSolve = solve;
+    } else if (normSetup(virtualCube.getSetup()) === setup) {
+        moves = virtualCube.getMoveLog();
+    }
+    if (!moves || !moves.length) return null;
+    var start = solveStartTime || moves[0].time;
+    var out = [];
+    moves.forEach(function (m) {
+        var tok = AlgDetect.methodNotation[m.method];
+        if (tok) out.push([tok, Math.max(0, Math.round(m.time - start))]);
+    });
+    return out.length ? { setup: setup, moves: out } : null;
+}
+
+// Turns, TPS and fluidity for a case, plus where you struggle in your main alg
+function renderMoveStats(caseAttempts, caseObj) {
+    if (!window.SolveStats) return "";
+    var sum = SolveStats.summarize(caseAttempts);
+    if (!sum) return "";
+    var html =
+        '<div class="stat-square" title="Face turns per solve, mistakes included"><span class="stat-label">Avg turns</span><span class="stat-value">' +
+        sum.turns.toFixed(1) + "</span></div>" +
+        '<div class="stat-square" title="Turns per second from your first turn to your last"><span class="stat-label">Avg TPS</span><span class="stat-value">' +
+        sum.tps.toFixed(1) + "</span></div>" +
+        '<div class="stat-square" title="Share of execution time spent turning rather than pausing (gaps over ' +
+        SolveStats.PAUSE_MS + 'ms count as pauses)"><span class="stat-label">Fluidity</span><span class="stat-value">' +
+        Math.round(sum.fluidity * 100) + "%</span></div>" +
+        '<div class="stat-square" title="Solves where you undid at least one move"><span class="stat-label">With mistakes</span><span class="stat-value">' +
+        Math.round(sum.mistakeRate * 100) + "%</span></div>";
+
+    var algs = caseObj && caseObj.getAlgsArray ? caseObj.getAlgsArray() : [];
+    var mainAlg = algs[getMainAlgIndex(caseObj)];
+    var spots = SolveStats.troubleSpots(caseAttempts, mainAlg);
+    if (spots && spots.solves >= 3) {
+        var lines = [];
+        if (spots.mistake) {
+            lines.push(
+                "<li><b>Most undone moves</b> after turn " + spots.mistake.position + ": <code>" +
+                escapeHtml(SolveStats.contextAt(spots.algTurns, spots.mistake.position)) + "</code> (" +
+                spots.mistake.count + " of " + spots.solves + " solves)</li>"
+            );
+        }
+        if (spots.slowest) {
+            lines.push(
+                "<li><b>Longest pause</b> after turn " + spots.slowest.position + ": <code>" +
+                escapeHtml(SolveStats.contextAt(spots.algTurns, spots.slowest.position)) + "</code> (avg " +
+                spots.slowest.avgGap.toFixed(2) + "s)</li>"
+            );
+        }
+        if (lines.length) {
+            html += '<div class="alg-insights"><p class="alg-insights-title">Your main alg · ' +
+                spots.solves + " solves</p><ul>" + lines.join("") + "</ul></div>";
+        }
+    }
+    return html;
+}
+
+// Replay a saved solve in the alg player (click a time under "This case")
+function openSolveReplay(index) {
+    var a = attempts[index];
+    if (!a || !a.moves || !window.AlgPlayer) return;
+    var tokens = a.moves.map(function (m) { return m[0]; });
+    var stats = window.SolveStats ? SolveStats.analyze(a) : null;
+    var trace = window.AlgDetect ? AlgDetect.trace(tokens) : null;
+    AlgPlayer.open({
+        setup: a.setup || "",
+        core: tokens.join(" "),
+        title: a.caseName + " · " + (a.result === "DNF" ? "DNF(" + a.time.toFixed(2) + ")" : a.time.toFixed(2) + "s"),
+        heading: "Solve replay",
+        timings: a.moves.map(function (m) { return m[1]; }),
+        undone: trace ? trace.cancelled : null,
+        info: stats
+            ? [
+                  ["Recog", (a.recogTime != null ? a.recogTime : stats.firstMove).toFixed(2) + "s"],
+                  ["Turns", String(stats.turns)],
+                  ["TPS", stats.tps.toFixed(1)],
+                  ["Fluidity", Math.round(stats.fluidity * 100) + "%"],
+                  ["Undone", stats.mistakes ? String(stats.mistakes) : "0"],
+              ]
+            : null,
+        onDelete: function () {
+            AlgPlayer.close();
+            deleteAttempt(index);
+        },
+    });
 }
 
 function deleteAttempt(index) {
@@ -427,20 +545,12 @@ function clearCaseAttempts() {
     renderCaseAttempts(currentlyDisplayedCase);
 }
 
-function clearCaseAttempts() {
-    if (!prevCase) return;
-    var name = prevCase.getName ? prevCase.getName() : prevCase.name;
-    if (!confirm("Clear all attempts for " + name + "?")) return;
-    attempts = attempts.filter((a) => a.caseName !== name);
-    saveAttempts();
-    renderCaseAttempts(prevCase);
-}
 
 function clearAllAttempts() {
     if (!confirm("Clear ALL saved attempts? This cannot be undone.")) return;
     attempts = [];
     saveAttempts();
-    renderCaseAttempts(prevCase);
+    renderCaseAttempts(currentlyDisplayedCase);
 }
 
 function logAttempt(caseObj, timeStr, result) {
@@ -470,6 +580,13 @@ function logAttempt(caseObj, timeStr, result) {
         result: result || "OK",
         solvedByVirtualCube: !!virtualSolvedByCube,
     };
+
+    // Moves you did and when (for replays and TPS / fluidity stats)
+    var recorded = getRecordedSolve();
+    if (recorded) {
+        entry.setup = recorded.setup;
+        entry.moves = recorded.moves;
+    }
 
     virtualSolvedByCube = false;
 
@@ -553,7 +670,10 @@ function showStatsPanel() {
 
     var html = "<h4>Per-case stats</h4>";
     html +=
-        "<table><tr><th>Case</th><th>Count</th><th>Avg</th><th>Best</th><th>Worst</th><th>Avg Recog</th><th>Avg Exec</th></tr>";
+        "<table><tr><th>Case</th><th>Count</th><th>Avg</th><th>Best</th><th>Worst</th><th>Avg Recog</th><th>Avg Exec</th>" +
+        '<th title="Face turns per solve, mistakes included">Turns</th>' +
+        '<th title="Turns per second while executing">TPS</th>' +
+        '<th title="Share of execution time spent turning rather than pausing">Fluidity</th></tr>';
     Object.keys(byCase)
         .sort()
         .forEach(function (k) {
@@ -565,6 +685,11 @@ function showStatsPanel() {
             var avgExec = s.splitCount
                 ? (s.execTotal / s.splitCount).toFixed(2)
                 : "-";
+            var moveSum = window.SolveStats
+                ? SolveStats.summarize(attempts.filter(function (a) {
+                      return (a.caseName || a.set + "-" + a.subset + "-" + a.caseId) === k;
+                  }))
+                : null;
             html +=
                 "<tr>" +
                 "<td>" +
@@ -588,6 +713,9 @@ function showStatsPanel() {
                 '<td class="exec-col">' +
                 avgExec +
                 "</td>" +
+                "<td>" + (moveSum ? moveSum.turns.toFixed(1) : "-") + "</td>" +
+                "<td>" + (moveSum ? moveSum.tps.toFixed(1) : "-") + "</td>" +
+                "<td>" + (moveSum ? Math.round(moveSum.fluidity * 100) + "%" : "-") + "</td>" +
                 "</tr>";
         });
     html += "</table>";
@@ -811,6 +939,7 @@ function displayCaseInfo() {
     document.querySelector("#case-time").hidden = false;
     document.querySelector("#case-name").innerHTML = prevCase.getName();
     displayedScramble = prevScramble;
+    displayedSetup = currentOrientation + " " + prevScramble;
     document.querySelector("#case-scram").innerHTML = prevScramble;
     document.querySelector("#case-algs").innerHTML = getAlgList();
 
@@ -826,6 +955,7 @@ function displayCaseInfo() {
 
     var imgRef = document.querySelector("#case-img");
     imgRef.src = prevCase.getImg();
+    rotateCaseImage(prevCase);
     if (window.updateCaseImage) window.updateCaseImage(currentOrientation + " " + prevScramble);
     imgRef.alt = prevCase.getName();
     imgRef.width = 150;
@@ -938,6 +1068,8 @@ function handleKeyDown(event) {
     ) {
         event.preventDefault();
     }
+
+    if (event.key === "Escape" && isContinuousOn()) pauseContinuous();
 
     if (event.key === "Escape" && timerStatus === "Start") {
         clearInterval(int); // Stop the clock
@@ -1056,6 +1188,7 @@ function handleKeyUp(event) {
             document.querySelector("#case-time").hidden = false;
             document.querySelector("#case-name").innerHTML = prevCase.getName();
             displayedScramble = prevScramble;
+    displayedSetup = currentOrientation + " " + prevScramble;
     document.querySelector("#case-scram").innerHTML = prevScramble;
             document.querySelector("#case-algs").innerHTML = getAlgList();
 
@@ -1067,6 +1200,7 @@ function handleKeyUp(event) {
 
             var imgRef = document.querySelector("#case-img");
             imgRef.src = prevCase.getImg();
+    rotateCaseImage(prevCase);
     if (window.updateCaseImage) window.updateCaseImage(currentOrientation + " " + prevScramble);
             imgRef.alt = prevCase.getName();
             imgRef.width = 150;
@@ -1152,6 +1286,7 @@ function handleKeyUp(event) {
                     "#case-name"
                 ).innerHTML = prevCase.getName();
                 displayedScramble = prevScramble;
+    displayedSetup = currentOrientation + " " + prevScramble;
     document.querySelector("#case-scram").innerHTML = prevScramble;
                 document.querySelector("#case-algs").innerHTML = getAlgList();
 
@@ -1163,6 +1298,7 @@ function handleKeyUp(event) {
 
                 var imgRef = document.querySelector("#case-img");
                 imgRef.src = prevCase.getImg();
+    rotateCaseImage(prevCase);
     if (window.updateCaseImage) window.updateCaseImage(currentOrientation + " " + prevScramble);
                 imgRef.alt = prevCase.getName();
                 imgRef.width = 150;
@@ -1271,6 +1407,7 @@ function handleKeyUp(event) {
             document.querySelector("#case-time").hidden = false;
             document.querySelector("#case-name").innerHTML = prevCase.getName();
             displayedScramble = prevScramble;
+    displayedSetup = currentOrientation + " " + prevScramble;
     document.querySelector("#case-scram").innerHTML = prevScramble;
             document.querySelector("#case-algs").innerHTML = getAlgList();
 
@@ -1281,6 +1418,7 @@ function handleKeyUp(event) {
 
             var imgRef = document.querySelector("#case-img");
             imgRef.src = prevCase.getImg();
+    rotateCaseImage(prevCase);
     if (window.updateCaseImage) window.updateCaseImage(currentOrientation + " " + prevScramble);
             imgRef.alt = prevCase.getName();
             imgRef.width = 150;
@@ -1304,36 +1442,8 @@ function handleKeyUp(event) {
             }
 
             if (holdStarted) {
-                if (isVirtualOn && window.virtualCube) {
-                    try {
-                        window.virtualCube.reset();
-
-                        var oriData = generateOrientation();
-                        currentOrientation = Array.isArray(oriData)
-                            ? oriData[0]
-                            : oriData;
-
-                        var fullSetup =
-                            currentOrientation + " " + (prevScramble || "");
-                        window.virtualCube.applyScramble(fullSetup);
-                        window.virtualCube.enableMoves();
-                    } catch (e) {
-                        console.error("Virtual cube setup error:", e);
-                    }
-                }
-
-                // Record solve start time for recog split
-                solveStartTime = performance.now();
-                firstMoveTime = null;
-                currentRecogTime = null;
-                currentExecTime = null;
-                window._firstMoveFired = false;
-                milliseconds = 0;
-                if (int !== null) clearInterval(int);
-                int = setInterval(displayTimer, 10);
-                timerStatus = "Start";
-                awaitingNext = false;
-                revealed = true;
+                continuousPaused = false; // Space resumes continuous training
+                beginSolve(isVirtualOn);
             } else {
                 if (
                     isVirtualOn &&
@@ -1359,6 +1469,120 @@ function handleKeyUp(event) {
         holdStarted = false;
     }
 }
+
+// Show the next case on the virtual cube and start the timer.
+// Used by the Space key and by continuous training.
+function beginSolve(isVirtualOn) {
+    if (isVirtualOn && window.virtualCube) {
+        try {
+            window.virtualCube.reset();
+
+            var oriData = generateOrientation();
+            currentOrientation = Array.isArray(oriData) ? oriData[0] : oriData;
+
+            var fullSetup = currentOrientation + " " + (prevScramble || "");
+            window.virtualCube.applyScramble(fullSetup);
+            window.virtualCube.enableMoves();
+        } catch (e) {
+            console.error("Virtual cube setup error:", e);
+        }
+    }
+
+    // Record solve start time for recog split
+    solveStartTime = performance.now();
+    firstMoveTime = null;
+    currentRecogTime = null;
+    currentExecTime = null;
+    window._firstMoveFired = false;
+    milliseconds = 0;
+    if (int !== null) clearInterval(int);
+    int = setInterval(displayTimer, 10);
+    timerStatus = "Start";
+    awaitingNext = false;
+    revealed = true;
+    updateContinuousHint();
+}
+
+// ── Case image angle ────────────────────────────────────────────────────
+// Rotate the case diagram to the angle chosen for its set on the case
+// selection page ("Other angles"), the same way that page rotates it.
+var caseOrientation = {};
+try {
+    caseOrientation = JSON.parse(sessionStorage.getItem("caseOrientation") || "{}") || {};
+} catch (e) {}
+
+function rotateCaseImage(caseObj) {
+    var img = document.getElementById("case-img");
+    if (!img || !caseObj) return;
+    var angle = parseInt(caseOrientation[caseObj.set], 10) || 0;
+    img.style.transform = angle ? "rotate(" + angle + "deg)" : "";
+}
+
+// ── Continuous training (like csTimer) ──────────────────────────────────
+// After each solve, the next case starts on its own. Esc pauses; Space resumes.
+var CONTINUOUS_DELAY_MS = 600;
+var continuousPaused = false;
+var continuousTimeout = null;
+
+function isVirtualCubeOn() {
+    var container = document.getElementById("virtualCubeContainer");
+    return !!(container && container.style.display !== "none");
+}
+
+function isContinuousOn() {
+    var cb = document.getElementById("continuousCheckbox");
+    return !!(cb && cb.checked && isVirtualCubeOn());
+}
+
+function scheduleContinuousNext() {
+    if (!isContinuousOn() || continuousPaused) return;
+    if (continuousTimeout) clearTimeout(continuousTimeout);
+    continuousTimeout = setTimeout(function () {
+        continuousTimeout = null;
+        if (!isContinuousOn() || continuousPaused) return;
+        if (timerStatus !== "Stop") return;
+        beginSolve(true);
+    }, CONTINUOUS_DELAY_MS);
+    updateContinuousHint();
+}
+
+function pauseContinuous() {
+    continuousPaused = true;
+    if (continuousTimeout) clearTimeout(continuousTimeout);
+    continuousTimeout = null;
+    updateContinuousHint();
+}
+
+function updateContinuousHint() {
+    var hint = document.querySelector(".timer-hint");
+    if (!hint) return;
+    if (!isContinuousOn()) {
+        hint.innerHTML = "Hold <kbd>Space</kbd> to start";
+    } else if (continuousPaused) {
+        hint.innerHTML = "Continuous training paused · <kbd>Space</kbd> to resume";
+    } else {
+        hint.innerHTML = "Continuous training · <kbd>Esc</kbd> to pause";
+    }
+}
+
+(function initContinuous() {
+    var cb = document.getElementById("continuousCheckbox");
+    if (!cb) return;
+    cb.checked = localStorage.getItem("continuousTraining") === "true";
+    cb.addEventListener("change", function () {
+        localStorage.setItem("continuousTraining", this.checked);
+        continuousPaused = false;
+        if (!this.checked && continuousTimeout) {
+            clearTimeout(continuousTimeout);
+            continuousTimeout = null;
+        }
+        updateContinuousHint();
+        this.blur();
+    });
+    var vc = document.getElementById("virtualCubeCheckbox");
+    if (vc) vc.addEventListener("change", function () { setTimeout(updateContinuousHint, 0); });
+    updateContinuousHint();
+})();
 
 function goBack() {
     window.location.href = "index.html";
@@ -1585,6 +1809,7 @@ if (window.virtualCube && typeof window.virtualCube.onSolve === "function") {
             }, 500);
             awaitingNext = true;
             holdStarted = false;
+            scheduleContinuousNext();
         }
     });
 }
@@ -1607,6 +1832,88 @@ function setMainAlg(caseObj, index) {
 }
 
 // ── Replace your existing getAlgList() with this ─────────────
+
+// ── Detected alg from the last solve (see scripts/algDetect.js) ─────────
+var detectedAlg = null; // { key, methods, source, dismissed, result }
+
+function normSetup(text) {
+    return String(text || "").trim().split(/\s+/).join(" ");
+}
+
+function getDetectedAlg(algs, mainIdx) {
+    if (!window.AlgDetect || !window.virtualCube || !virtualCube.getLastSolve) return null;
+    var solve = virtualCube.getLastSolve();
+    if (!solve || !solve.moves.length) return null;
+    if (normSetup(solve.setup) !== normSetup(displayedSetup)) return null;
+    var key = normSetup(solve.setup) + "|" + solve.moves.length + "|" + solve.moves[0].time;
+    if (!detectedAlg || detectedAlg.key !== key) {
+        detectedAlg = {
+            key: key,
+            methods: solve.moves.map(function (m) { return m.method; }),
+            source: solve.moves.some(function (m) { return m.source === "smartcube"; })
+                ? "smart cube" : "virtual cube",
+            dismissed: false,
+        };
+    }
+    // Recompute every time: the alg list changes when you add or edit algs
+    detectedAlg.result = AlgDetect.detect(detectedAlg.methods, algs, mainIdx);
+    return detectedAlg;
+}
+
+function renderDetectedBanner(det, mainIdx) {
+    if (!det || det.dismissed) return "";
+    var r = det.result;
+    if (r.index === mainIdx) return "";
+    if (r.index >= 0) {
+        return (
+            '<div class="alg-detect">' +
+            '<p class="alg-detect-text">You used a different alg from your main one.</p>' +
+            '<div class="alg-detect-actions">' +
+            '<button type="button" class="btn btn-primary" onclick="handleSetMainAlg(' + r.index + ')">Make it main</button>' +
+            '<button type="button" class="btn btn-ghost" onclick="dismissDetectedAlg()">Dismiss</button>' +
+            "</div></div>"
+        );
+    }
+    if (!r.cleaned) return "";
+    return (
+        '<div class="alg-detect is-new">' +
+        '<p class="alg-detect-title">New alg detected</p>' +
+        '<p class="alg-detect-text">You solved this with an alg that is not in your list (from your ' + det.source + ").</p>" +
+        '<div class="alg-text">' + escapeHtml(r.cleaned) + "</div>" +
+        (r.messy
+            ? '<p class="alg-detect-warn">This solve had a lot of corrections, so it may not be a clean alg. Check it before adding.</p>'
+            : "") +
+        '<div class="alg-detect-actions">' +
+        '<button type="button" class="btn btn-primary" onclick="handleAddDetectedAlg(true)">Add as main</button>' +
+        '<button type="button" class="btn btn-secondary" onclick="handleAddDetectedAlg(false)">Add</button>' +
+        '<button type="button" class="btn btn-ghost" onclick="dismissDetectedAlg()">Dismiss</button>' +
+        "</div></div>"
+    );
+}
+
+function dismissDetectedAlg() {
+    if (detectedAlg) detectedAlg.dismissed = true;
+    document.querySelector("#case-algs").innerHTML = getAlgList();
+}
+
+// Save the detected alg to this case's list (same storage as editing an alg)
+function handleAddDetectedAlg(asMain) {
+    if (!currentlyDisplayedCase || !detectedAlg || !detectedAlg.result) return;
+    var alg = detectedAlg.result.cleaned;
+    if (!alg) return;
+    var algs = currentlyDisplayedCase.getAlgsArray() || [];
+    var caseKey =
+        currentlyDisplayedCase.set + "-" +
+        currentlyDisplayedCase.subset + "-" +
+        currentlyDisplayedCase.caseName;
+    var savedAlgs = JSON.parse(localStorage.getItem("customAlgs") || "{}");
+    if (!savedAlgs[caseKey]) savedAlgs[caseKey] = algs.slice();
+    savedAlgs[caseKey].push(alg);
+    localStorage.setItem("customAlgs", JSON.stringify(savedAlgs));
+    if (asMain) setMainAlg(currentlyDisplayedCase, savedAlgs[caseKey].length - 1);
+    detectedAlg.dismissed = true;
+    document.querySelector("#case-algs").innerHTML = getAlgList();
+}
 
 // ── AUF-adjusted algorithm display (see scripts/algAuf.js) ──────────────
 var adjustedAlgs = {}; // alg index → { pre, core, post, ok } for the displayed case
@@ -1635,6 +1942,20 @@ function renderAdjustedAlg(alg, idx) {
     );
 }
 
+// Open the alg player (scripts/algPlayer.js) for one alg of the displayed case
+function openAlgPlayerFor(idx) {
+    if (!window.AlgPlayer || !currentlyDisplayedCase) return;
+    var algs = currentlyDisplayedCase.getAlgsArray();
+    var a = adjustedAlgs[idx];
+    AlgPlayer.open({
+        setup: displayedSetup,
+        pre: a && a.ok ? a.pre : "",
+        core: a && a.ok ? a.core : algs[idx],
+        post: a && a.ok ? a.post : "",
+        title: currentlyDisplayedCase.getName ? currentlyDisplayedCase.getName() : "",
+    });
+}
+
 // The alg exactly as shown (with AUFs), for copying
 function getDisplayedAlgText(idx, fallback) {
     var a = adjustedAlgs[idx];
@@ -1652,6 +1973,8 @@ function getAlgList() {
     }
 
     var mainIdx = getMainAlgIndex(currentlyDisplayedCase);
+    var detected = getDetectedAlg(algs, mainIdx);
+    var usedIdx = detected ? detected.result.index : -1;
 
     // Sort so main alg is always first
     var sorted = algs.map(function (alg, idx) {
@@ -1663,7 +1986,7 @@ function getAlgList() {
         return 0;
     });
 
-    return sorted
+    return renderDetectedBanner(detected, mainIdx) + sorted
         .map(function (item) {
             var isMain = item.idx === mainIdx;
             var note = getAlgNote(currentlyDisplayedCase, item.idx);
@@ -1680,6 +2003,12 @@ function getAlgList() {
                     : '<button class="alg-set-main-btn" onclick="handleSetMainAlg(' +
                       item.idx +
                       ')">Set Main</button>') +
+                (item.idx === usedIdx
+                    ? '<span class="alg-used-badge" title="The alg you used in your last solve">Used</span>'
+                    : "") +
+                '<button class="alg-play-btn" onclick="openAlgPlayerFor(' +
+                item.idx +
+                ')" title="Play" aria-label="Play this algorithm"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l12-7.5z"/></svg></button>' +
                 '<button class="alg-edit-btn" onclick="handleEditAlg(' +
                 item.idx +
                 ')" title="Edit" aria-label="Edit"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>' +
@@ -2229,10 +2558,11 @@ if (window.virtualCube && window.virtualCube.applyScramble) {
 
         saveOriginalColors();
 
-        setTimeout(function () {
-            snapshotRecallStickers();
-            applyMaskToVirtualCube();
-        }, 10);
+        // Apply right away: applyMaskToVirtualCube restores the colours saved
+        // above, so running it later (it used to be on a 10ms timer) could wipe
+        // out moves made in between, e.g. from a smart cube or continuous mode.
+        snapshotRecallStickers();
+        applyMaskToVirtualCube();
     };
 }
 
@@ -2245,9 +2575,9 @@ if (window.virtualCube && window.virtualCube.reset) {
         originalCubeColors = null;
         saveOriginalColors();
 
-        setTimeout(function () {
-            applyMaskToVirtualCube();
-        }, 10);
+        // Run now, not on a timer: a delayed call would restore saved colours
+        // over any moves made in the meantime (see the applyScramble wrapper).
+        applyMaskToVirtualCube();
     };
 }
 
