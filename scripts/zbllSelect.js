@@ -438,7 +438,7 @@ function loadCases(isRecap) {
     sessionStorage.setItem("caseOrientation", JSON.stringify(activeOrientation));
 
     // Navigate to trainer page (same folder)
-    const base = location.pathname.replace(/index.html$/, "");
+    const base = location.pathname.replace(/(zbll\.html|index\.html)$/, "");
     location.href = base + "trainer.html";
 }
 
@@ -516,7 +516,7 @@ function loadCases(isRecap) {
     // The angle picked for each set ("Other angles"), so the trainer's case image matches
     sessionStorage.setItem("caseOrientation", JSON.stringify(activeOrientation));
 
-    const base = location.pathname.replace(/index.html$/, "");
+    const base = location.pathname.replace(/(zbll\.html|index\.html)$/, "");
     location.href = base + "trainer.html";
 }
 

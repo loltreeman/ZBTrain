@@ -1,4 +1,4 @@
-var selectedCasesRaw = JSON.parse(sessionStorage.getItem("selectedCases")); // this would prefer selectedCases produced by index.js (array of {set, subset, caseName, algs?})
+var selectedCasesRaw = JSON.parse(sessionStorage.getItem("selectedCases")); // this would prefer selectedCases produced by zbllSelect.js / zblsSelect.js (array of {set, subset, caseName, algs?})
 var recap = false;
 var toTrain = [];
 var currentlyDisplayedCase = null; // Track what is actually on the results screen
@@ -1677,7 +1677,7 @@ if (window.CubeGoals) CubeGoals.active = trainingSetInfo ? trainingSetInfo.goal 
 if (trainingSetInfo) document.title = trainingSetInfo.label + " Trainer";
 
 function goBack() {
-    window.location.href = trainingSetInfo ? trainingSetInfo.selectPage : "index.html";
+    window.location.href = trainingSetInfo ? trainingSetInfo.selectPage : "zbll.html";
 }
 
 function toggleVirtualCube() {
