@@ -1,5 +1,8 @@
 var selectedCasesRaw = JSON.parse(sessionStorage.getItem("selectedCases")); // this would prefer selectedCases produced by zbllSelect.js / zblsSelect.js (array of {set, subset, caseName, algs?})
 var recap = false;
+// trainer.html?lsll: last slot + last layer, every case generated (scripts/lsll.js)
+var lsllMode = /[?&]lsll\b/.test(location.search) && !!window.LSLL;
+if (lsllMode) selectedCasesRaw = [{ set: "LSLL", subset: "all", caseName: "all" }];
 var toTrain = [];
 var currentlyDisplayedCase = null; // Track what is actually on the results screen
 var displayedScramble = ""; // Scramble of the case on the results screen (for AUF-adjusted algs)
@@ -21,7 +24,7 @@ function caseSetData(set) {
 }
 
 if (selectedCasesRaw && selectedCasesRaw.length) {
-    recap = JSON.parse(sessionStorage.getItem("recapMode")) || false;
+    recap = !lsllMode && (JSON.parse(sessionStorage.getItem("recapMode")) || false);
 
     selectedCasesRaw.forEach((item) => {
         var c = {
@@ -31,6 +34,7 @@ if (selectedCasesRaw && selectedCasesRaw.length) {
             // getSetup: use casemap zbll scrambles if available, choose random entry
             getSetup: function () {
                 var reg = caseSetData(this.set);
+                if (reg && reg.dynamic) return window.LSLL.generateSetup();
                 if (reg) {
                     var list = (reg.scrambles[this.subset] || {})[this.caseName] || [];
                     if (list.length) return list[Math.floor(Math.random() * list.length)];
@@ -77,6 +81,12 @@ if (selectedCasesRaw && selectedCasesRaw.length) {
             },
             getImg: function () {
                 var reg = caseSetData(this.set);
+                // LSLL: the ZBLS case of the case on the results screen
+                if (reg && reg.dynamic) {
+                    var z = displayedSetup && window.virtualCube
+                        ? LSLL.zblsCaseOf(virtualCube.makeCube(displayedSetup)) : null;
+                    return z ? z.img : "";
+                }
                 if (reg) return reg.img(this.subset, this.caseName);
                 return (
                     item.img ||
@@ -225,6 +235,10 @@ function trainerSetup() {
     if (recap) {
         displayCaseCount(toRecap, "numRecap", "to recap");
         displayCaseCount(toTrain, "numSelected", "selected");
+    } else if (lsllMode) {
+        document.getElementById("numSelected").textContent = "Any ZBLS + any last layer";
+        var algsLabel = document.getElementById("case-algs-label");
+        if (algsLabel) algsLabel.textContent = "Cases and algs you used";
     } else {
         displayCaseCount(toTrain, "numSelected", "selected");
     }
@@ -444,14 +458,15 @@ function renderCaseAttempts(caseObj) {
 // screen, otherwise the moves so far (e.g. a solve stopped with Esc).
 var lastRecordedSolve = null;
 
-function getRecordedSolve() {
+// peek: look without marking the solve as recorded (logAttempt records it)
+function getRecordedSolve(peek) {
     if (!window.virtualCube || !window.AlgDetect || !virtualCube.getLastSolve) return null;
     var setup = normSetup(displayedSetup);
     var solve = virtualCube.getLastSolve();
     var moves = null;
     if (solve && solve !== lastRecordedSolve && normSetup(solve.setup) === setup) {
         moves = solve.moves;
-        lastRecordedSolve = solve;
+        if (!peek) lastRecordedSolve = solve;
     } else if (normSetup(virtualCube.getSetup()) === setup) {
         moves = virtualCube.getMoveLog();
     }
@@ -603,6 +618,7 @@ function logAttempt(caseObj, timeStr, result) {
     if (recorded) {
         entry.setup = recorded.setup;
         entry.moves = recorded.moves;
+        if (lsllMode) entry.lsll = lsllAttemptInfo(recorded.setup, recorded.moves);
     }
 
     virtualSolvedByCube = false;
@@ -2054,10 +2070,115 @@ function getDisplayedAlgText(idx, fallback) {
     return a && a.ok && window.AlgAuf ? AlgAuf.toText(a) : fallback;
 }
 
+// ── LSLL breakdown: which ZBLS and ZBLL case came up, and the algs you used ──
+var lsllAnalysis = null; // { key, result } for the solve on the results screen
+
+function getLsllAnalysis() {
+    if (!window.LSLL || !displayedSetup) return null;
+    var key = normSetup(displayedSetup) + "|" + count;
+    if (!lsllAnalysis || lsllAnalysis.key !== key) {
+        // The moves are read once, when the result is first shown: by the
+        // time you add an alg the virtual cube already has the next case
+        var rec = getRecordedSolve(true);
+        lsllAnalysis = {
+            key: key,
+            moves: rec ? rec.moves : null,
+            zbls: LSLL.zblsCaseOf(virtualCube.makeCube(displayedSetup)),
+            added: {},
+        };
+    }
+    // Analysed every time: adding an alg changes what matches
+    lsllAnalysis.result = lsllAnalysis.moves ? LSLL.analyze(displayedSetup, lsllAnalysis.moves) : null;
+    return lsllAnalysis;
+}
+
+function lsllStep(label, c, used, time, kind) {
+    if (!c) {
+        return '<section class="lsll-step"><div class="lsll-step-body">' +
+            '<p class="lsll-step-label">' + label + "</p>" +
+            '<p class="lsll-step-case">Not recognised</p></div></section>';
+    }
+    var img = c.img
+        ? '<img class="lsll-step-img" src="' + encodeURI(c.img) + '" alt="' + escapeHtml(c.name) + '">'
+        : '<span class="lsll-step-img lsll-step-noimg" aria-hidden="true"></span>';
+    var alg = "";
+    if (used) {
+        if (used.index >= 0) {
+            alg = '<p class="lsll-alg-note">Your alg ' + (used.index + 1) + " of " + c.algs.length + "</p>" +
+                '<div class="alg-text">' + escapeHtml(used.alg) + "</div>";
+        } else if (used.cleaned) {
+            var added = lsllAnalysis && lsllAnalysis.added[kind];
+            alg = '<p class="lsll-alg-note">' + (added ? "Added to your algs" : "Not in your algs") + "</p>" +
+                '<div class="alg-text">' + escapeHtml(used.cleaned) + "</div>" +
+                (added ? "" : '<div class="alg-detect-actions"><button type="button" class="btn btn-secondary" onclick="addLsllAlg(\'' + kind + '\')">Add to ' + escapeHtml(c.name) + "</button></div>");
+        }
+    } else if (c.algs && c.algs.length) {
+        alg = '<p class="lsll-alg-note">Alg</p><div class="alg-text">' + escapeHtml(c.algs[0]) + "</div>";
+    }
+    return (
+        '<section class="lsll-step">' + img +
+        '<div class="lsll-step-body">' +
+        '<p class="lsll-step-label">' + label +
+        (time != null ? ' <span class="lsll-step-time">' + time.toFixed(2) + "s</span>" : "") + "</p>" +
+        '<p class="lsll-step-case">' + escapeHtml(c.name) + "</p>" + alg +
+        "</div></section>"
+    );
+}
+
+function getLsllBreakdown() {
+    var a = getLsllAnalysis();
+    if (!a) return "<p class='no-algs'>No case info.</p>";
+    var r = a.result;
+    if (!r) {
+        return lsllStep("ZBLS", a.zbls, null, null, "zbls") +
+            '<p class="lsll-hint">Solve on the virtual cube or a smart cube to see which ZBLL came up and which algs you used.</p>';
+    }
+    var html = lsllStep("ZBLS", r.zbls, r.zblsUsed, r.times.zbls, "zbls");
+    if (r.split < 0) {
+        html += '<p class="lsll-hint">The cube never reached F2L solved with the last-layer edges oriented, so there is no ZBLL to show.</p>';
+    } else if (r.zbll && r.zbll.skip) {
+        html += '<section class="lsll-step"><div class="lsll-step-body"><p class="lsll-step-label">ZBLL</p><p class="lsll-step-case">LL skip</p></div></section>';
+    } else {
+        html += lsllStep("ZBLL", r.zbll, r.zbll && !r.zbll.other ? r.zbllUsed : null, r.times.zbll, "zbll");
+    }
+    html += '<p class="lsll-hint">Recognition ' + r.times.recog.toFixed(2) + "s before your first turn.</p>";
+    return '<div class="lsll-breakdown">' + html + "</div>";
+}
+
+// Save the alg you used for one step to that case's list (same storage as editing an alg)
+function addLsllAlg(kind) {
+    var a = lsllAnalysis;
+    var r = a && a.result;
+    var c = r && r[kind];
+    var used = r && (kind === "zbls" ? r.zblsUsed : r.zbllUsed);
+    if (!c || !c.key || !used || !used.cleaned) return;
+    var savedAlgs = JSON.parse(localStorage.getItem("customAlgs") || "{}");
+    if (!savedAlgs[c.key]) savedAlgs[c.key] = c.algs.slice();
+    savedAlgs[c.key].push(used.cleaned);
+    localStorage.setItem("customAlgs", JSON.stringify(savedAlgs));
+    a.added[kind] = true;
+    document.querySelector("#case-algs").innerHTML = getAlgList();
+}
+
+// What gets saved with an LSLL attempt
+function lsllAttemptInfo(setup, moves) {
+    var r = window.LSLL && moves ? LSLL.analyze(setup, moves) : null;
+    if (!r) return null;
+    return {
+        zbls: r.zbls ? r.zbls.name : null,
+        zbll: r.zbll ? r.zbll.name : null,
+        zblsAlg: r.zblsUsed ? r.zblsUsed.index : -1,
+        zbllAlg: r.zbllUsed ? r.zbllUsed.index : -1,
+        zblsTime: r.split >= 0 ? +r.times.zbls.toFixed(2) : null,
+        zbllTime: r.split >= 0 ? +r.times.zbll.toFixed(2) : null,
+    };
+}
+
 function getAlgList() {
     adjustedAlgs = {};
     if (!currentlyDisplayedCase)
         return "<p class='no-algs'>No algorithms found.</p>";
+    if (lsllMode) return getLsllBreakdown();
 
     var algs = currentlyDisplayedCase.getAlgsArray();
     if (!algs || algs.length === 0) {

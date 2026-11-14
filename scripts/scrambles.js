@@ -9250,7 +9250,6 @@ var zbllScrambles = {
                 "B' U R B R L2 D F2 D' R' L2 B' R' U' B",
                 "F' L2 B' D2 F2 U F R2 F' U' F2 D2 B L2 F",
             ],
-            OsA: [],
             OsC: [
                 "F B2 D2 F2 L2 B' U2 F' B2 D2 F2 R2 B",
                 "B2 L' D2 R2 L' F2 D2 F2 R' F2 R' L2 B2",

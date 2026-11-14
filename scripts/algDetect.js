@@ -73,8 +73,9 @@
     }
 
     // tokens (standard notation) → [{ f: fixed face, a: 1..3 }]
-    function toFixedFrame(tokens) {
-        var frame = { U: "U", D: "D", R: "R", L: "L", F: "F", B: "B" };
+    // frame: the cube's rotation before these moves (default: none)
+    function toFixedFrame(tokens, frame) {
+        frame = frame || { U: "U", D: "D", R: "R", L: "L", F: "F", B: "B" };
         var out = [];
         tokens.forEach(function (tok) {
             var m = /^([URFDLBMESxyzurfdlb])(2|')?$/.exec(tok);
@@ -89,6 +90,22 @@
             }
         });
         return out;
+    }
+
+    // The cube's rotation after some moves (rotations, wide and slice moves)
+    function frameAfter(tokens) {
+        var frame = { U: "U", D: "D", R: "R", L: "L", F: "F", B: "B" };
+        tokens.forEach(function (tok) {
+            var m = /^([URFDLBMESxyzurfdlb])(2|')?$/.exec(tok);
+            if (!m) return;
+            var amount = m[2] === "2" ? 2 : m[2] === "'" ? 3 : 1;
+            var parts = EXPANSIONS[m[1]] || [];
+            for (var n = 0; n < amount; n++) {
+                parts.forEach(function (p) { if (ROTATION_CYCLE[p[0]]) frame = rotate(frame, p[0], p[1]); });
+            }
+            if (ROTATION_CYCLE[m[1]]) frame = rotate(frame, m[1], amount);
+        });
+        return frame;
     }
 
     // ── 2. Cancel messups ───────────────────────────────────────────────
@@ -162,8 +179,8 @@
         }).join(" ");
     }
 
-    function canonical(tokens) {
-        return normalizeRuns(stripAuf(simplify(toFixedFrame(tokens))));
+    function canonical(tokens, frame) {
+        return normalizeRuns(stripAuf(simplify(toFixedFrame(tokens, frame))));
     }
 
     // All four angles of a saved alg
@@ -184,8 +201,12 @@
     //   preferIndex: when several saved algs are the same moves (e.g. an R
     //   version and its y2 L version), prefer this one (your main alg)
     function detect(methods, algs, preferIndex) {
-        var notation = methodsToNotation(methods);
-        var recorded = canonical(notation);
+        return detectTokens(methodsToNotation(methods), algs, preferIndex);
+    }
+
+    // frame: the cube's rotation before these moves (from frameAfter)
+    function detectTokens(notation, algs, preferIndex, frame) {
+        var recorded = canonical(notation, frame);
         var recordedKey = key(recorded);
         // Matching entries are the same moves; prefer your main alg among them
         var index = -1;
@@ -193,7 +214,7 @@
             if (algKeys(algs[i]).indexOf(recordedKey) === -1) continue;
             if (index === -1 || i === preferIndex) index = i;
         }
-        var fixed = toFixedFrame(notation);
+        var fixed = toFixedFrame(notation, frame);
         var cancelled = fixed.length - simplify(fixed).length;
         var cleanedTokens = cleanNotation(notation);
         // A solve is "messy" if cancelling removed a lot of moves, or the
@@ -288,18 +309,10 @@
 
     window.AlgDetect = {
         trace: trace,
-        // Same as detect(), but for moves already in notation
-        detectNotation: function (tokens, algs, preferIndex) {
-            var inv = {};
-            Object.keys(METHOD_NOTATION).forEach(function (m) { inv[METHOD_NOTATION[m]] = m; });
-            var methods = [];
-            tokens.forEach(function (t) {
-                var base = t.replace(/2$/, "");
-                if (!inv[base]) return;
-                methods.push(inv[base]);
-                if (/2$/.test(t)) methods.push(inv[base]);
-            });
-            return detect(methods, algs, preferIndex);
+        // Same as detect(), but for moves already in notation. before: moves
+        // done earlier in the same solve, whose rotations still apply.
+        detectNotation: function (tokens, algs, preferIndex, before) {
+            return detectTokens(tokens, algs, preferIndex, before ? frameAfter(before) : null);
         },
         detect: detect,
         canonicalKey: function (alg) { return algKeys(alg)[0] || ""; },
