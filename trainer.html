@@ -65,6 +65,14 @@
                                         <span class="toggle-text">Continuous training</span>
                                         <input id="continuousCheckbox" type="checkbox" class="switch" />
                                     </label>
+                                    <div class="field-row" title="Weighted: slower cases come up more often (chance proportional to your recent average on each case). Strong: even more. Recap mode always goes through every case once.">
+                                        <label for="caseOrderSelect">Case order</label>
+                                        <select id="caseOrderSelect" class="input">
+                                            <option value="random">Random</option>
+                                            <option value="weighted">Weighted</option>
+                                            <option value="strong">Weighted (strong)</option>
+                                        </select>
+                                    </div>
                                     <label class="toggle-row">
                                         <span class="toggle-text">Full colour neutrality</span>
                                         <input id="fullCN" type="checkbox" class="switch">
@@ -317,6 +325,8 @@
 
     <script src="scripts/scrambles.js"></script>
     <script src="scripts/algorithms.js"></script>
+    <script src="scripts/zblsData.js"></script>
+    <script src="scripts/cubeGoals.js"></script>
     <script src="scripts/cube.js"></script>
     <script src="scripts/cube3x3.js"></script>
     <script src="scripts/cubeViews.js"></script>

@@ -53,6 +53,9 @@ function hideSlowCasesPanel() {
 }
 
 function getImgPath(c) {
+    // Sets registered by a data file (e.g. ZBLS) know their own image paths
+    var reg = window.CASE_SETS && window.CASE_SETS[c.set];
+    if (reg && c.subset && c.caseId) return reg.img(c.subset, c.caseId);
     // Build the SVG path from set/subset/caseId
     if (c.set && c.subset && c.caseId) {
         return 'svg/top/' + c.set + '-' + c.subset + '-' + c.caseId + '.svg';

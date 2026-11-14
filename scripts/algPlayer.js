@@ -256,7 +256,8 @@
             spans[i].classList.toggle("is-done", i < state.step - 1);
             spans[i].classList.toggle("is-current", i === state.step - 1);
         }
-        var solved = state.step === state.steps.length && cube.isSolved();
+        var solved = state.step === state.steps.length &&
+            (window.CubeGoals ? CubeGoals.isGoal(cube) : cube.isSolved());
         els.counter.textContent = solved
             ? "Solved"
             : state.step + " / " + state.steps.length;

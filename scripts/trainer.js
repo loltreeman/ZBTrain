@@ -14,6 +14,12 @@ var currentExecTime = null; // seconds (string) of execution time
 var recallPendingConfirm = false; // waiting for spacebar after unmask
 var recallWasSolved = false; // was the cube actually solved when unmasked
 
+// Case sets other than ZBLL (e.g. ZBLS) register their data in
+// window.CASE_SETS (see zblsData.js); ZBLL uses zbllAlgs / zbllScrambles.
+function caseSetData(set) {
+    return (window.CASE_SETS && window.CASE_SETS[set]) || null;
+}
+
 if (selectedCasesRaw && selectedCasesRaw.length) {
     recap = JSON.parse(sessionStorage.getItem("recapMode")) || false;
 
@@ -24,6 +30,11 @@ if (selectedCasesRaw && selectedCasesRaw.length) {
             caseName: item.caseName,
             // getSetup: use casemap zbll scrambles if available, choose random entry
             getSetup: function () {
+                var reg = caseSetData(this.set);
+                if (reg) {
+                    var list = (reg.scrambles[this.subset] || {})[this.caseName] || [];
+                    if (list.length) return list[Math.floor(Math.random() * list.length)];
+                }
                 try {
                     if (
                         typeof zbllScrambles !== "undefined" &&
@@ -43,6 +54,8 @@ if (selectedCasesRaw && selectedCasesRaw.length) {
                 );
             },
             getAlgsArray: function () {
+                var reg = caseSetData(this.set);
+                if (reg) return ((reg.algs[this.subset] || {})[this.caseName] || []).slice();
                 if (typeof zbllAlgs === "undefined") return [];
 
                 const setObj = zbllAlgs[this.set];
@@ -55,12 +68,16 @@ if (selectedCasesRaw && selectedCasesRaw.length) {
             },
 
             getName: function () {
+                var reg = caseSetData(this.set);
+                if (reg) return reg.name(this.subset, this.caseName);
                 return (
                     item.name ||
                     this.set + "-" + this.subset + "-" + this.caseName
                 );
             },
             getImg: function () {
+                var reg = caseSetData(this.set);
+                if (reg) return reg.img(this.subset, this.caseName);
                 return (
                     item.img ||
                     `svg/top/${this.set}-${this.subset}-${this.caseName}.svg`
@@ -759,6 +776,73 @@ function hideStatsPanel() {
  * generates a scramble for a random ZBLL Case that is selected
  * @returns {zbllCase} - the case that was generated
  */
+// ── Case order: random or weighted by how slow you are on each case ──────
+// Weighted (like solved.no's Weighted Mode): each case's chance is
+// proportional to its performance, a weighted mean of its last 12 times
+// where recent solves count more (DNFs count double). "Strong" squares it, so
+// slow cases come up even more. Cases you haven't done yet count as your
+// slowest case, so new cases still come up often.
+var CASE_ORDER_KEY = "caseOrder";
+var PERF_RECENT = 12;     // attempts per case that count
+var PERF_DECAY = 0.85;    // each older attempt counts this much less
+
+function getCaseOrder() {
+    var sel = document.getElementById("caseOrderSelect");
+    return sel ? sel.value : "random";
+}
+
+function casePerformance() {
+    var byCase = {};
+    for (var i = attempts.length - 1; i >= 0; i--) {
+        var a = attempts[i];
+        var list = byCase[a.caseName] || (byCase[a.caseName] = []);
+        if (list.length >= PERF_RECENT || !(a.time > 0)) continue;
+        list.push(a.result === "DNF" ? a.time * 2 : a.time);
+    }
+    var perf = {};
+    Object.keys(byCase).forEach(function (name) {
+        var sum = 0, wsum = 0;
+        byCase[name].forEach(function (t, age) {
+            var w = Math.pow(PERF_DECAY, age);
+            sum += t * w;
+            wsum += w;
+        });
+        if (wsum) perf[name] = sum / wsum;
+    });
+    return perf;
+}
+
+function pickWeightedCase(arr) {
+    var perf = casePerformance();
+    var known = arr.map(function (c) { return perf[c.getName()]; }).filter(function (p) { return p > 0; });
+    var slowest = known.length ? Math.max.apply(null, known) : 1;
+    var power = getCaseOrder() === "strong" ? 2 : 1;
+    var weights = arr.map(function (c) {
+        if (c === prevCase && arr.length > 1) return 0;
+        var p = perf[c.getName()] || slowest;
+        return Math.pow(p, power);
+    });
+    var total = weights.reduce(function (s, w) { return s + w; }, 0);
+    if (!(total > 0)) return null;
+    var r = Math.random() * total;
+    for (var i = 0; i < arr.length; i++) {
+        r -= weights[i];
+        if (r < 0) return arr[i];
+    }
+    return arr[arr.length - 1];
+}
+
+(function initCaseOrder() {
+    var sel = document.getElementById("caseOrderSelect");
+    if (!sel) return;
+    var saved = localStorage.getItem(CASE_ORDER_KEY);
+    if (saved && sel.querySelector('option[value="' + saved + '"]')) sel.value = saved;
+    sel.addEventListener("change", function () {
+        localStorage.setItem(CASE_ORDER_KEY, sel.value);
+        sel.blur();
+    });
+})();
+
 function generateScramble() {
     resetRecallState();
     var banner = document.getElementById("recallBanner");
@@ -767,13 +851,14 @@ function generateScramble() {
     var arr = recap ? toRecap : toTrain;
     if (!arr || arr.length === 0) return prevCase; // safety guard
 
-    var c;
-    var attempts = 0;
-    do {
+    var c = !recap && getCaseOrder() !== "random" ? pickWeightedCase(arr) : null;
+    var tries = 0;
+    while (!c) {
         var rNum = Math.floor(Math.random() * arr.length);
         c = arr[rNum];
-        attempts++;
-    } while (c === prevCase && arr.length > 1 && attempts < 10);
+        tries++;
+        if (c === prevCase && arr.length > 1 && tries < 10) c = null;
+    }
 
     c._orientation = c._orientation || 0;
 
@@ -1584,8 +1669,15 @@ function updateContinuousHint() {
     updateContinuousHint();
 })();
 
+// The set being trained decides the goal (what "solved" means), the page
+// title and where "Select cases" goes back to.
+var trainingSet = toTrain.length ? toTrain[0].set : null;
+var trainingSetInfo = caseSetData(trainingSet);
+if (window.CubeGoals) CubeGoals.active = trainingSetInfo ? trainingSetInfo.goal : "zbll";
+if (trainingSetInfo) document.title = trainingSetInfo.label + " Trainer";
+
 function goBack() {
-    window.location.href = "index.html";
+    window.location.href = trainingSetInfo ? trainingSetInfo.selectPage : "index.html";
 }
 
 function toggleVirtualCube() {
