@@ -598,3 +598,12 @@
     object-fit: contain;
     background: var(--surface);
 }
+
+.zbls-family .zbll-card.main-card {
+    justify-content: center;
+}
+
+.preset-empty {
+    color: var(--text-3);
+    font-size: var(--fs-xs);
+}

@@ -776,6 +776,73 @@ function hideStatsPanel() {
  * generates a scramble for a random ZBLL Case that is selected
  * @returns {zbllCase} - the case that was generated
  */
+// ── Case order: random or weighted by how slow you are on each case ──────
+// Weighted (like solved.no's Weighted Mode): each case's chance is
+// proportional to its performance, a weighted mean of its last 12 times
+// where recent solves count more (DNFs count double). "Strong" squares it, so
+// slow cases come up even more. Cases you haven't done yet count as your
+// slowest case, so new cases still come up often.
+var CASE_ORDER_KEY = "caseOrder";
+var PERF_RECENT = 12;     // attempts per case that count
+var PERF_DECAY = 0.85;    // each older attempt counts this much less
+
+function getCaseOrder() {
+    var sel = document.getElementById("caseOrderSelect");
+    return sel ? sel.value : "random";
+}
+
+function casePerformance() {
+    var byCase = {};
+    for (var i = attempts.length - 1; i >= 0; i--) {
+        var a = attempts[i];
+        var list = byCase[a.caseName] || (byCase[a.caseName] = []);
+        if (list.length >= PERF_RECENT || !(a.time > 0)) continue;
+        list.push(a.result === "DNF" ? a.time * 2 : a.time);
+    }
+    var perf = {};
+    Object.keys(byCase).forEach(function (name) {
+        var sum = 0, wsum = 0;
+        byCase[name].forEach(function (t, age) {
+            var w = Math.pow(PERF_DECAY, age);
+            sum += t * w;
+            wsum += w;
+        });
+        if (wsum) perf[name] = sum / wsum;
+    });
+    return perf;
+}
+
+function pickWeightedCase(arr) {
+    var perf = casePerformance();
+    var known = arr.map(function (c) { return perf[c.getName()]; }).filter(function (p) { return p > 0; });
+    var slowest = known.length ? Math.max.apply(null, known) : 1;
+    var power = getCaseOrder() === "strong" ? 2 : 1;
+    var weights = arr.map(function (c) {
+        if (c === prevCase && arr.length > 1) return 0;
+        var p = perf[c.getName()] || slowest;
+        return Math.pow(p, power);
+    });
+    var total = weights.reduce(function (s, w) { return s + w; }, 0);
+    if (!(total > 0)) return null;
+    var r = Math.random() * total;
+    for (var i = 0; i < arr.length; i++) {
+        r -= weights[i];
+        if (r < 0) return arr[i];
+    }
+    return arr[arr.length - 1];
+}
+
+(function initCaseOrder() {
+    var sel = document.getElementById("caseOrderSelect");
+    if (!sel) return;
+    var saved = localStorage.getItem(CASE_ORDER_KEY);
+    if (saved && sel.querySelector('option[value="' + saved + '"]')) sel.value = saved;
+    sel.addEventListener("change", function () {
+        localStorage.setItem(CASE_ORDER_KEY, sel.value);
+        sel.blur();
+    });
+})();
+
 function generateScramble() {
     resetRecallState();
     var banner = document.getElementById("recallBanner");
@@ -784,13 +851,14 @@ function generateScramble() {
     var arr = recap ? toRecap : toTrain;
     if (!arr || arr.length === 0) return prevCase; // safety guard
 
-    var c;
-    var attempts = 0;
-    do {
+    var c = !recap && getCaseOrder() !== "random" ? pickWeightedCase(arr) : null;
+    var tries = 0;
+    while (!c) {
         var rNum = Math.floor(Math.random() * arr.length);
         c = arr[rNum];
-        attempts++;
-    } while (c === prevCase && arr.length > 1 && attempts < 10);
+        tries++;
+        if (c === prevCase && arr.length > 1 && tries < 10) c = null;
+    }
 
     c._orientation = c._orientation || 0;
 

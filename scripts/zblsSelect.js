@@ -67,9 +67,6 @@
             refresh();
         });
         main.appendChild(preview);
-        main.appendChild(el("div", "other-orientations",
-            '<p class="orientation-label">' + cases.length + " edge-orientation variants</p>" +
-            '<p class="zbls-family-hint">Expand to pick individual cases.</p>'));
         content.appendChild(main);
 
         var grid = el("div", "subsets-wrapper zbls-grid");
@@ -150,6 +147,76 @@
         sessionStorage.setItem("recapMode", JSON.stringify(!!isRecap));
         location.href = location.pathname.replace(/zbls\.html$/, "") + "trainer.html";
     }
+
+    // ── Presets: named selections, kept in localStorage ───────────────
+
+    var PRESET_KEY = "zblsPresets";
+    var presetList = document.getElementById("zblsPresetList");
+    var presetName = document.getElementById("zblsPresetName");
+
+    function loadPresets() {
+        try { return JSON.parse(localStorage.getItem(PRESET_KEY)) || {}; } catch (e) { return {}; }
+    }
+
+    function savePresets(p) {
+        try { localStorage.setItem(PRESET_KEY, JSON.stringify(p)); } catch (e) {}
+    }
+
+    function renderPresets(selectName) {
+        var presets = loadPresets();
+        var names = Object.keys(presets).sort(function (a, b) { return a.localeCompare(b); });
+        presetList.innerHTML = "";
+        names.forEach(function (name) {
+            var opt = document.createElement("option");
+            opt.value = name;
+            opt.textContent = name + " (" + presets[name].length + ")";
+            presetList.appendChild(opt);
+        });
+        if (selectName) presetList.value = selectName;
+        presetList.hidden = !names.length;
+        document.getElementById("zblsPresetEmpty").hidden = !!names.length;
+    }
+
+    document.getElementById("zblsPresetSave").addEventListener("click", function () {
+        var name = presetName.value.trim() || presetList.value;
+        var keys = Object.keys(selected);
+        if (!name || !keys.length) {
+            presetName.focus();
+            return;
+        }
+        var presets = loadPresets();
+        if (presets[name] && !confirm('Replace the preset "' + name + '"?')) return;
+        presets[name] = keys;
+        savePresets(presets);
+        presetName.value = "";
+        renderPresets(name);
+    });
+
+    function loadSelectedPreset() {
+        var keys = loadPresets()[presetList.value];
+        if (!keys) return;
+        selected = {};
+        keys.forEach(function (k) { selected[k] = true; });
+        refresh();
+    }
+
+    document.getElementById("zblsPresetLoad").addEventListener("click", loadSelectedPreset);
+    presetList.addEventListener("dblclick", loadSelectedPreset);
+
+    document.getElementById("zblsPresetDelete").addEventListener("click", function () {
+        var name = presetList.value;
+        if (!name || !confirm('Delete the preset "' + name + '"?')) return;
+        var presets = loadPresets();
+        delete presets[name];
+        savePresets(presets);
+        renderPresets();
+    });
+
+    presetName.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") document.getElementById("zblsPresetSave").click();
+    });
+
+    renderPresets();
 
     document.getElementById("selectAll").addEventListener("click", function () { selectAll(true); });
     document.getElementById("deselectAll").addEventListener("click", function () { selectAll(false); });
