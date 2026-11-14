@@ -86,7 +86,7 @@
 
     function solves(scramble, moves) {
         var cube = window.virtualCube.makeCube(scramble + " " + moves);
-        return cube.isSolved();
+        return window.CubeGoals ? CubeGoals.isGoal(cube) : cube.isSolved();
     }
 
     // Returns { pre, core, post, ok } for one algorithm and scramble.

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZBLS Trainer</title>
+
+  <link rel="icon" type="image/png" href="images/logo.png" sizes="72x72">
+  <link rel="stylesheet" href="styles/tokens.css">
+  <link rel="stylesheet" href="styles/base.css">
+  <link rel="stylesheet" href="styles/homepage.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="brand-container">
+      <img src="images/logo.png" alt="" class="logoimg">
+      <span class="brand-text">ZBTrain</span>
+      <nav class="set-switch" aria-label="Algorithm set">
+        <a href="index.html">ZBLL</a>
+        <a href="zbls.html" aria-current="page">ZBLS</a>
+      </nav>
+    </div>
+    <button type="button" id="darkModeToggle" class="btn btn-ghost btn-icon dark-mode-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode"></button>
+  </header>
+
+  <div class="layout">
+    <!-- Filled in by scripts/zblsSelect.js: one card per F2L case (1-41) -->
+    <main class="left-column" id="zblsFamilies" aria-label="ZBLS cases"></main>
+
+    <aside class="right-column">
+      <div class="side-card sticky-controls">
+        <p id="selected">0 cases selected</p>
+        <div class="btn-pair">
+          <button type="button" class="btn btn-primary train" id="start" disabled>Start</button>
+          <button type="button" class="btn btn-secondary train" id="recap" disabled>Recap</button>
+        </div>
+
+        <div class="control-group">
+          <span class="group-label">Selection</span>
+          <div class="btn-pair">
+            <button type="button" class="btn btn-secondary" id="selectAll">Select all</button>
+            <button type="button" class="btn btn-secondary" id="deselectAll">Clear</button>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <span class="group-label">View</span>
+          <div class="btn-pair">
+            <button type="button" class="btn btn-secondary" id="expandAll">Expand all</button>
+            <button type="button" class="btn btn-secondary" id="collapseAll">Collapse all</button>
+          </div>
+        </div>
+
+        <p class="side-hint">Click a case to select it. Click the large image to select or clear the whole F2L case.</p>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-row">
+      <span>Made by <a href="https://www.worldcubeassociation.org/persons/2016NAGU02" target="_blank" rel="noopener" class="footer-link">Christian Naguio</a></span>
+      <span class="footer-separator" aria-hidden="true">·</span>
+      <a href="https://github.com/loltreeman/ZBTrain" target="_blank" rel="noopener" class="footer-link">GitHub</a>
+      <span class="footer-separator" aria-hidden="true">·</span>
+      <span>ZBLS algs and images from <a href="https://github.com/morganyeh06/zbls-trainer" target="_blank" rel="noopener" class="footer-link">Morgan Yeh's ZBLS trainer</a></span>
+    </div>
+  </footer>
+
+  <script src="scripts/zblsData.js"></script>
+  <script src="scripts/zblsSelect.js"></script>
+  <script src="scripts/darkmode.js"></script>
+</body>
+</html>

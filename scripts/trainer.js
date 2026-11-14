@@ -14,6 +14,12 @@ var currentExecTime = null; // seconds (string) of execution time
 var recallPendingConfirm = false; // waiting for spacebar after unmask
 var recallWasSolved = false; // was the cube actually solved when unmasked
 
+// Case sets other than ZBLL (e.g. ZBLS) register their data in
+// window.CASE_SETS (see zblsData.js); ZBLL uses zbllAlgs / zbllScrambles.
+function caseSetData(set) {
+    return (window.CASE_SETS && window.CASE_SETS[set]) || null;
+}
+
 if (selectedCasesRaw && selectedCasesRaw.length) {
     recap = JSON.parse(sessionStorage.getItem("recapMode")) || false;
 
@@ -24,6 +30,11 @@ if (selectedCasesRaw && selectedCasesRaw.length) {
             caseName: item.caseName,
             // getSetup: use casemap zbll scrambles if available, choose random entry
             getSetup: function () {
+                var reg = caseSetData(this.set);
+                if (reg) {
+                    var list = (reg.scrambles[this.subset] || {})[this.caseName] || [];
+                    if (list.length) return list[Math.floor(Math.random() * list.length)];
+                }
                 try {
                     if (
                         typeof zbllScrambles !== "undefined" &&
@@ -43,6 +54,8 @@ if (selectedCasesRaw && selectedCasesRaw.length) {
                 );
             },
             getAlgsArray: function () {
+                var reg = caseSetData(this.set);
+                if (reg) return ((reg.algs[this.subset] || {})[this.caseName] || []).slice();
                 if (typeof zbllAlgs === "undefined") return [];
 
                 const setObj = zbllAlgs[this.set];
@@ -55,12 +68,16 @@ if (selectedCasesRaw && selectedCasesRaw.length) {
             },
 
             getName: function () {
+                var reg = caseSetData(this.set);
+                if (reg) return reg.name(this.subset, this.caseName);
                 return (
                     item.name ||
                     this.set + "-" + this.subset + "-" + this.caseName
                 );
             },
             getImg: function () {
+                var reg = caseSetData(this.set);
+                if (reg) return reg.img(this.subset, this.caseName);
                 return (
                     item.img ||
                     `svg/top/${this.set}-${this.subset}-${this.caseName}.svg`
@@ -1584,8 +1601,15 @@ function updateContinuousHint() {
     updateContinuousHint();
 })();
 
+// The set being trained decides the goal (what "solved" means), the page
+// title and where "Select cases" goes back to.
+var trainingSet = toTrain.length ? toTrain[0].set : null;
+var trainingSetInfo = caseSetData(trainingSet);
+if (window.CubeGoals) CubeGoals.active = trainingSetInfo ? trainingSetInfo.goal : "zbll";
+if (trainingSetInfo) document.title = trainingSetInfo.label + " Trainer";
+
 function goBack() {
-    window.location.href = "index.html";
+    window.location.href = trainingSetInfo ? trainingSetInfo.selectPage : "index.html";
 }
 
 function toggleVirtualCube() {

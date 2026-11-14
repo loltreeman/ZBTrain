@@ -226,7 +226,7 @@
         var inRecallMode = recallCheckbox && recallCheckbox.checked;
         if (inRecallMode && !window._firstMoveFired) return;
 
-        var now = cube3.isSolved();
+        var now = window.CubeGoals ? CubeGoals.isGoal(cube3) : cube3.isSolved();
 
         if (!prevSolved && now) {
             // Keep this solve's moves so the trainer can work out which alg was used
@@ -380,7 +380,7 @@
     window.virtualCube = {
         applyScramble:  applyScrambleString,
         onSolve:        function (cb) { solveCallback = cb; },
-        isSolved:       function () { return cube3.isSolved(); },
+        isSolved:       function () { return window.CubeGoals ? CubeGoals.isGoal(cube3) : cube3.isSolved(); },
         draw:           draw,
         enableMoves:    function () { allowMoves = true; },
         disableMoves:   function () { allowMoves = false; },

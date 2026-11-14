@@ -433,6 +433,8 @@ function syncStorageToLogic() {
     Object.keys(modalSelections).forEach((key) => delete modalSelections[key]);
 
     saved.forEach((item) => {
+        // Only ZBLL cases belong here (the last session may have been ZBLS)
+        if (!zbllMap[item.set] || !zbllMap[item.set][item.subset]) return;
         const key = `${item.set}-${item.subset}`;
         if (!modalSelections[key]) {
             modalSelections[key] = {};
