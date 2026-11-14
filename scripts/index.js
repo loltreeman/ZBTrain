@@ -370,6 +370,27 @@ function toggleAll(select) {
     });
 }
 
+// ZBLL selection is remembered across visits (localStorage), not just
+// for this tab. Saving waits until the saved selection has been restored,
+// so the page's first empty render can't wipe it.
+const ZBLL_SELECTION_KEY = "zbllSelection";
+let selectionRestored = false;
+
+function saveZbllSelection() {
+    if (!selectionRestored) return;
+    const list = [];
+    Object.entries(modalSelections).forEach(([key, cases]) => {
+        const [set, subset] = key.split("-");
+        if (!zbllMap[set] || !zbllMap[set][subset]) return;
+        Object.entries(cases).forEach(([caseName, val]) => {
+            if (val) list.push({ set, subset, caseName });
+        });
+    });
+    try {
+        localStorage.setItem(ZBLL_SELECTION_KEY, JSON.stringify(list));
+    } catch (e) {}
+}
+
 function updateTrainerButtons() {
     const selected = [];
     Object.entries(modalSelections).forEach(([key, cases]) => {
@@ -377,6 +398,7 @@ function updateTrainerButtons() {
             if (val) selected.push({ key, c });
         });
     });
+    saveZbllSelection();
     const count = selected.length;
     document.getElementById("selected").textContent = `${count} case${
         count === 1 ? "" : "s"
@@ -424,9 +446,23 @@ document.addEventListener("DOMContentLoaded", () => {
     syncStorageToLogic();
 });
 
+function readZbllList(storage, key) {
+    try {
+        const list = JSON.parse(storage.getItem(key)) || [];
+        return list.filter((item) => zbllMap[item.set] && zbllMap[item.set][item.subset]);
+    } catch (e) {
+        return [];
+    }
+}
+
 function syncStorageToLogic() {
-    const saved = JSON.parse(sessionStorage.getItem("selectedCases")) || [];
-    if (saved.length === 0) return;
+    // This tab's last training session first, otherwise the saved selection
+    let saved = readZbllList(sessionStorage, "selectedCases");
+    if (saved.length === 0) saved = readZbllList(localStorage, ZBLL_SELECTION_KEY);
+    if (saved.length === 0) {
+        selectionRestored = true;
+        return;
+    }
 
     // reset local tracker
     // we clear it first to ensure we don't have "ghost" selections
@@ -449,6 +485,7 @@ function syncStorageToLogic() {
     });
 
     // Refresh the UI for every set defined in your map
+    selectionRestored = true;
     Object.keys(zbllMap).forEach((set) => {
         updateSetCount(set);
     });
