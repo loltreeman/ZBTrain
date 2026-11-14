@@ -97,6 +97,9 @@
         }
         // Strip the alg's own U turns at either end; we work them out ourselves
         while (tokens.length && isAuf(tokens[0])) tokens.shift();
+        // After an x or z rotation a final "U" is a side turn, not an AUF, so
+        // the alg with its ending kept is tried too (see the end)
+        var withEnding = tokens.slice();
         while (tokens.length && isAuf(tokens[tokens.length - 1])) tokens.pop();
 
         // Prefer the alg without a leading y rotation (and any U turns around
@@ -112,6 +115,7 @@
         }
         if (droppedRotation) candidates.push(noRotation);
         candidates.push(tokens);
+        if (withEnding.length !== tokens.length) candidates.push(withEnding);
 
         for (var k = 0; k < candidates.length; k++) {
             var found = search(scramble, candidates[k]);

@@ -1835,6 +1835,68 @@ body:has(#slowModeBanner[style*="flex"]) .app-shell {
     font-size: var(--fs-xs);
 }
 
+/* ── LSLL breakdown (ZBLS step, then ZBLL step) ─────────────────────────── */
+
+.lsll-breakdown {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.lsll-step {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.lsll-step-img {
+    flex: none;
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+}
+
+.lsll-step-noimg {
+    display: block;
+}
+
+.lsll-step-body {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+    flex: 1;
+}
+
+.lsll-step-label {
+    margin: 0;
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.lsll-step-time {
+    margin-left: 6px;
+    font-variant-numeric: tabular-nums;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--text);
+}
+
+.lsll-step-case {
+    margin: 0;
+    font-weight: 600;
+}
+
+.lsll-alg-note,
+.lsll-hint {
+    margin: 0;
+    font-size: var(--fs-xs);
+    color: var(--text-muted);
+}
+
 /* ── Smart cube ─────────────────────────────────────────────────────────── */
 
 .smart-status {

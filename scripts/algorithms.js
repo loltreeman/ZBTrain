@@ -2369,6 +2369,12 @@ var zbllAlgs = {
                 "y' R U R' U R U2 R' U' R U L' R' U2 R U R' U2 L",
                 "y' R U R' U R U2 R' L' U2 R U' R' U2 L R U' R'",
                 "z U R2 U' R' U R' F R y' R' U R' U' R2 B' R' U'",
+                "z U L' U R2 U' R U R' U' R U2 R U R' U2 L U'",
+                "R' F' R U R' U' R' F D' R U2 R' D R U R U' R' U' R",
+                "F R U R' U' R U R' U' F' B' R' U' R U B",
+                "R' U' R U' F U' R' U' R U F' U R' U2 R U R' U R",
+                "L U2 R' U L' U L U2 R U R' U L' U2 R",
+                "R U2 L' U R' U R U2 L U L' U R' U2 L",
             ],
             CsO: [
                 "x' U' R U' R' U R' F2 R U' R U R' U x",
