@@ -1,0 +1,260 @@
+/* ── Learn page (learn.html) ───────────────────────────────────────────── */
+
+.learn {
+    max-width: 760px;
+    margin: var(--sp-7) auto 0;
+    padding: 0 32px;
+}
+
+.learn-intro {
+    margin-bottom: var(--sp-5);
+}
+
+.learn-intro h1 {
+    font-size: clamp(24px, 3vw, 32px);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+}
+
+.learn-intro p {
+    max-width: 600px;
+    margin-top: var(--sp-2);
+    color: var(--text-2);
+    font-size: var(--fs-md);
+    line-height: 1.55;
+    text-wrap: pretty;
+}
+
+.learn-intro .learn-streak {
+    margin-top: var(--sp-3);
+    color: var(--text);
+    font-size: var(--fs-sm);
+    font-weight: 500;
+}
+
+.deck-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-4);
+}
+
+.deck-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-4);
+    padding: var(--sp-5);
+    border-radius: var(--r-md);
+    background: var(--surface);
+}
+
+.deck-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sp-3) var(--sp-4);
+}
+
+.deck-title {
+    font-size: var(--fs-xl);
+    font-weight: 600;
+}
+
+.deck-counts {
+    display: flex;
+    flex: 1;
+    flex-wrap: wrap;
+    gap: var(--sp-3);
+    color: var(--text-2);
+    font-size: var(--fs-sm);
+}
+
+.count b {
+    font-variant-numeric: tabular-nums;
+}
+
+.count-new b { color: var(--accent-text); }
+.count-learning b { color: var(--bad); }
+.count-review b { color: var(--good); }
+
+.deck-study {
+    height: 36px;
+    padding: 0 18px;
+    text-decoration: none;
+}
+
+.deck-study.is-done {
+    background: var(--surface-2);
+    color: var(--text-2);
+    cursor: default;
+}
+
+/* Progress bars */
+
+.progress-bar {
+    display: flex;
+    height: 8px;
+    overflow: hidden;
+    border-radius: var(--r-pill);
+    background: var(--surface-2);
+}
+
+.progress-bar .seg {
+    height: 100%;
+}
+
+.seg-known { background: var(--good); }
+.seg-learned { background: color-mix(in srgb, var(--good) 45%, transparent); }
+.seg-learning { background: color-mix(in srgb, var(--bad) 55%, transparent); }
+
+.progress-text {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--sp-1) var(--sp-4);
+    margin-top: var(--sp-2);
+    font-size: var(--fs-sm);
+}
+
+.legend {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-3);
+    font-size: var(--fs-xs);
+}
+
+.legend .dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    margin-left: 6px;
+    border-radius: 50%;
+}
+
+.legend .dot:first-child {
+    margin-left: 0;
+}
+
+/* Goal */
+
+.deck-goal {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-2);
+}
+
+.goal-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: var(--fs-sm);
+    font-weight: 500;
+}
+
+.goal-text {
+    color: var(--text-2);
+    font-size: var(--fs-sm);
+}
+
+/* Settings */
+
+.deck-settings summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 0;
+    color: var(--text-2);
+    font-size: var(--fs-sm);
+    font-weight: 500;
+    list-style: none;
+    cursor: pointer;
+}
+
+.deck-settings summary::-webkit-details-marker {
+    display: none;
+}
+
+.deck-settings .chevron {
+    color: var(--text-3);
+    transition: transform var(--dur) var(--ease);
+}
+
+.deck-settings[open] .chevron {
+    transform: rotate(180deg);
+}
+
+.setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-3);
+    margin-top: var(--sp-3);
+    font-size: var(--fs-sm);
+}
+
+.setting-hint {
+    margin: var(--sp-3) 0;
+    color: var(--text-3);
+    font-size: var(--fs-xs);
+    line-height: 1.5;
+}
+
+.group-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    max-height: 360px;
+    margin: 0;
+    padding: 0;
+    overflow-y: auto;
+    list-style: none;
+}
+
+.group-row {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    padding: 4px 6px;
+    border-radius: var(--r-sm);
+    font-size: var(--fs-sm);
+}
+
+.group-row:hover {
+    background: var(--surface-2);
+}
+
+.group-row input {
+    accent-color: var(--accent);
+}
+
+.group-name {
+    flex: 1;
+    cursor: pointer;
+}
+
+.group-count {
+    color: var(--text-3);
+    font: 500 var(--fs-xs) var(--font-mono);
+}
+
+.btn-sm {
+    height: 26px;
+    padding: 0 8px;
+    font-size: var(--fs-xs);
+}
+
+@media (max-width: 640px) {
+    .learn {
+        margin-top: var(--sp-5);
+        padding: 0 var(--sp-4);
+    }
+
+    .deck-card {
+        padding: var(--sp-4);
+    }
+
+    .deck-study {
+        width: 100%;
+    }
+}

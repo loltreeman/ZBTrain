@@ -3,6 +3,14 @@ var recap = false;
 // trainer.html?lsll: last slot + last layer, every case generated (scripts/lsll.js)
 var lsllMode = /[?&]lsll\b/.test(location.search) && !!window.LSLL;
 if (lsllMode) selectedCasesRaw = [{ set: "LSLL", subset: "all", caseName: "all" }];
+// trainer.html?learn=ZBLL / ?learn=ZBLS: spaced repetition (scripts/srs.js)
+var learnDeck = (/[?&]learn=(ZBLL|ZBLS)\b/.exec(location.search) || [])[1] || null;
+var learnMode = !!learnDeck && !!window.Srs && !lsllMode;
+if (learnMode) {
+    selectedCasesRaw = Srs.deckCases(learnDeck).map(function (c) {
+        return { set: c.set, subset: c.subset, caseName: c.caseName };
+    });
+}
 var toTrain = [];
 var currentlyDisplayedCase = null; // Track what is actually on the results screen
 var displayedScramble = ""; // Scramble of the case on the results screen (for AUF-adjusted algs)
@@ -24,7 +32,7 @@ function caseSetData(set) {
 }
 
 if (selectedCasesRaw && selectedCasesRaw.length) {
-    recap = !lsllMode && (JSON.parse(sessionStorage.getItem("recapMode")) || false);
+    recap = !lsllMode && !learnMode && (JSON.parse(sessionStorage.getItem("recapMode")) || false);
 
     selectedCasesRaw.forEach((item) => {
         var c = {
@@ -235,6 +243,10 @@ function trainerSetup() {
     if (recap) {
         displayCaseCount(toRecap, "numRecap", "to recap");
         displayCaseCount(toTrain, "numSelected", "selected");
+    } else if (learnMode) {
+        var back = document.getElementById("back");
+        if (back) back.lastChild.textContent = " Learn";
+        renderLearnCounts();
     } else if (lsllMode) {
         document.getElementById("numSelected").textContent = "Any ZBLS + any last layer";
         var algsLabel = document.getElementById("case-algs-label");
@@ -620,6 +632,9 @@ function logAttempt(caseObj, timeStr, result) {
         entry.moves = recorded.moves;
         if (lsllMode) entry.lsll = lsllAttemptInfo(recorded.setup, recorded.moves);
     }
+    if (learnMode) {
+        try { onLearnAttempt(caseObj, entry); } catch (e) { console.error(e); }
+    }
 
     virtualSolvedByCube = false;
 
@@ -867,6 +882,17 @@ function generateScramble() {
     var arr = recap ? toRecap : toTrain;
     if (!arr || arr.length === 0) return prevCase; // safety guard
 
+    if (learnMode) {
+        var learned = pickLearnCase();
+        if (!learned) return prevCase; // nothing due: renderLearnCard says so
+        learned._orientation = learned._orientation || 0;
+        var learnScramble = learned.getSetup();
+        scrambleRef.innerHTML = `<span class="label">Scramble</span><span id="current-scramble">${learnScramble}</span>`;
+        prevScramble = learnScramble;
+        renderLearnCard(learned);
+        return learned;
+    }
+
     var c = !recap && getCaseOrder() !== "random" ? pickWeightedCase(arr) : null;
     var tries = 0;
     while (!c) {
@@ -1004,7 +1030,8 @@ var originalGetAlgsArray = toTrain.length > 0 ? toTrain[0].getAlgsArray : null;
 if (originalGetAlgsArray) {
     toTrain.forEach((c) => {
         var origFunc = c.getAlgsArray;
-        c.getAlgsArray = function () {
+        // Your algs: the built-in list, or your edited version of it
+        c.getOwnAlgs = function () {
             var caseKey = this.set + "-" + this.subset + "-" + this.caseName;
             var savedAlgs = JSON.parse(
                 localStorage.getItem("customAlgs") || "{}"
@@ -1015,6 +1042,14 @@ if (originalGetAlgsArray) {
             }
 
             return origFunc.call(this);
+        };
+        // Your algs, then any extra ones from alg sheets you've turned on
+        // (sheets.html). Only your own list is ever saved, so removing a
+        // sheet removes its algs.
+        c.getAlgsArray = function () {
+            var own = this.getOwnAlgs();
+            var caseKey = this.set + "-" + this.subset + "-" + this.caseName;
+            return window.AlgSheets ? own.concat(AlgSheets.extraAlgs(caseKey, own)) : own;
         };
     });
 }
@@ -1574,6 +1609,11 @@ function handleKeyUp(event) {
 // Show the next case on the virtual cube and start the timer.
 // Used by the Space key and by continuous training.
 function beginSolve(isVirtualOn) {
+    // Learning mode with nothing due: check again (a learning case may be due by now)
+    if (learnMode && !learnUpcoming) {
+        prevCase = generateScramble();
+        if (!learnUpcoming) return;
+    }
     if (isVirtualOn && window.virtualCube) {
         try {
             window.virtualCube.reset();
@@ -1637,6 +1677,11 @@ function isContinuousOn() {
 
 function scheduleContinuousNext() {
     if (!isContinuousOn() || continuousPaused) return;
+    // Learning mode: wait for you before a new case (read its alg first) or when nothing is due
+    if (learnMode && (!learnUpcoming || learnUpcoming.kind === "new")) {
+        updateContinuousHint();
+        return;
+    }
     if (continuousTimeout) clearTimeout(continuousTimeout);
     continuousTimeout = setTimeout(function () {
         continuousTimeout = null;
@@ -1657,7 +1702,9 @@ function pauseContinuous() {
 function updateContinuousHint() {
     var hint = document.querySelector(".timer-hint");
     if (!hint) return;
-    if (!isContinuousOn()) {
+    if (learnMode && learnUpcoming && learnUpcoming.kind === "new") {
+        hint.innerHTML = "New case: read the alg, then hold <kbd>Space</kbd>";
+    } else if (!isContinuousOn()) {
         hint.innerHTML = "Hold <kbd>Space</kbd> to start";
     } else if (continuousPaused) {
         hint.innerHTML = "Continuous training paused · <kbd>Space</kbd> to resume";
@@ -1692,7 +1739,10 @@ var trainingSetInfo = caseSetData(trainingSet);
 if (window.CubeGoals) CubeGoals.active = trainingSetInfo ? trainingSetInfo.goal : "zbll";
 if (trainingSetInfo) document.title = trainingSetInfo.label + " Trainer";
 
+if (learnMode) document.title = "Learn " + learnDeck + " | ZBTrain";
+
 function goBack() {
+    if (learnMode) { window.location.href = "learn.html"; return; }
     window.location.href = trainingSetInfo ? trainingSetInfo.selectPage : "zbll.html";
 }
 
@@ -2009,7 +2059,7 @@ function handleAddDetectedAlg(asMain) {
     if (!currentlyDisplayedCase || !detectedAlg || !detectedAlg.result) return;
     var alg = detectedAlg.result.cleaned;
     if (!alg) return;
-    var algs = currentlyDisplayedCase.getAlgsArray() || [];
+    var algs = (currentlyDisplayedCase.getOwnAlgs || currentlyDisplayedCase.getAlgsArray).call(currentlyDisplayedCase) || [];
     var caseKey =
         currentlyDisplayedCase.set + "-" +
         currentlyDisplayedCase.subset + "-" +
@@ -2069,6 +2119,219 @@ function getDisplayedAlgText(idx, fallback) {
     var a = adjustedAlgs[idx];
     return a && a.ok && window.AlgAuf ? AlgAuf.toText(a) : fallback;
 }
+
+// ── Learning mode (trainer.html?learn=ZBLL / ZBLS, scheduling in srs.js) ──
+// The queue decides the next case. After each solve the trainer suggests a
+// rating (Again / Hard / Good / Easy) and saves it; click another to change it.
+//
+// No initial values here: trainerSetup() can run before this part of the
+// file, and "var x = null" would then wipe what it set.
+var learnUpcoming;  // { key, kind, card, caseObj } for the case about to be solved
+var learnPeeked;    // you opened "Show alg" for the upcoming case
+var learnPending;   // { key, caseObj, before, suggestion, rating, saved } for the case just solved
+var learnCaseMap;   // case key → case object in toTrain
+
+function learnKeyOf(c) {
+    return c.set === "ZBLS" ? "ZBLS-" + c.subset + "-" + c.caseName : c.set + "-" + c.subset + "-" + c.caseName;
+}
+
+function pickLearnCase() {
+    if (!learnCaseMap) {
+        learnCaseMap = {};
+        toTrain.forEach(function (c) { learnCaseMap[learnKeyOf(c)] = c; });
+    }
+    // Not the case you just solved again straight away, unless it's all that's left
+    var exclude = learnPending ? learnPending.key : null;
+    var q = Srs.queue(learnDeck, Date.now(), exclude);
+    if (!q.next && exclude) q = Srs.queue(learnDeck, Date.now());
+    learnPeeked = false;
+    if (!q.next || !learnCaseMap[q.next.key]) {
+        learnUpcoming = null;
+        renderLearnCard(null, q);
+        return null;
+    }
+    learnUpcoming = {
+        key: q.next.key,
+        kind: q.kind,
+        card: Srs.getCard(q.next.key),
+        caseObj: learnCaseMap[q.next.key],
+    };
+    return learnUpcoming.caseObj;
+}
+
+function renderLearnCounts() {
+    var node = document.getElementById("numSelected");
+    if (!node || !learnMode) return;
+    var q = Srs.queue(learnDeck, Date.now());
+    var s = Srs.streak();
+    node.innerHTML =
+        '<span class="learn-count count-new" title="New cases left today">' + q.counts.new + " new</span> · " +
+        '<span class="learn-count count-learning" title="Cases you are still learning">' + q.counts.learning + " learning</span> · " +
+        '<span class="learn-count count-review" title="Reviews due today">' + q.counts.review + " review</span>" +
+        (s.days ? ' · <span title="Days in a row you studied">🔥 ' + s.days + "</span>" : "");
+}
+
+// The upcoming case: what kind it is, and its alg if it's new (or you ask)
+function renderLearnCard(caseObj, q) {
+    var box = document.getElementById("learnCard");
+    if (!box || !learnMode) return;
+    box.hidden = false;
+    renderLearnCounts();
+
+    if (!caseObj) {
+        var waiting = q && q.waitingUntil;
+        var at = waiting ? new Date(waiting) : null;
+        box.className = "learn-card is-done";
+        box.innerHTML =
+            '<p class="learn-card-title">' + (waiting ? "Nothing due right now" : "All done for today 🎉") + "</p>" +
+            '<p class="learn-card-text">' + (waiting
+                ? "Your next learning case is due at " + at.getHours() + ":" + String(at.getMinutes()).padStart(2, "0") + ". Hold Space to check again."
+                : "Come back tomorrow for your next cases. You can change how many new cases you get each day on the Learn page.") +
+            '</p><a class="btn btn-secondary" href="learn.html">Back to Learn</a>';
+        scrambleRef.innerHTML = '<span class="label">Scramble</span><span id="current-scramble">—</span>';
+        return;
+    }
+
+    var kind = learnUpcoming.kind;
+    var labels = { new: "New case", learning: "Learning", review: "Review" };
+    var showAlg = kind === "new" || learnPeeked;
+    var algHtml = "";
+    if (showAlg) {
+        var algs = caseObj.getAlgsArray() || [];
+        var main = algs[getMainAlgIndex(caseObj)] || algs[0];
+        if (main) {
+            var a = window.AlgAuf ? AlgAuf.adjust(prevScramble, main) : { ok: false };
+            algHtml = '<div class="alg-text learn-alg">' + (a.ok
+                ? (a.pre ? '<span class="auf auf-pre">' + a.pre + "</span> " : "") +
+                  '<span class="alg-core">' + escapeHtml(a.core) + "</span>" +
+                  (a.post ? ' <span class="auf auf-post">' + a.post + "</span>" : "")
+                : escapeHtml(main)) + "</div>";
+        } else {
+            algHtml = '<p class="learn-card-text">No alg saved for this case yet.</p>';
+        }
+    }
+    box.className = "learn-card is-" + kind;
+    box.innerHTML =
+        '<div class="learn-card-head">' +
+        '<span class="learn-badge">' + labels[kind] + "</span>" +
+        (kind === "new" ? '<span class="learn-card-name">' + escapeHtml(caseObj.getName()) + "</span>" : "") +
+        (!showAlg ? '<button type="button" class="btn btn-ghost btn-sm" onclick="learnShowAlg()">Show alg</button>' : "") +
+        "</div>" +
+        (kind === "new"
+            ? '<div class="learn-new"><img class="learn-new-img" src="' + encodeURI(caseObj.getImg()) + '" alt="">' +
+              "<div>" + algHtml + '<p class="learn-card-text">Read the alg, then hold Space to solve it.</p></div></div>'
+            : algHtml);
+    rotateLearnImage(caseObj);
+    updateContinuousHint();
+}
+
+function rotateLearnImage(caseObj) {
+    var img = document.querySelector("#learnCard .learn-new-img");
+    if (!img) return;
+    // caseOrientation may not be set up yet on the first case (see above)
+    var ori = {};
+    try { ori = JSON.parse(sessionStorage.getItem("caseOrientation") || "{}") || {}; } catch (e) {}
+    var angle = parseInt(ori[caseObj.set], 10) || 0;
+    img.style.transform = angle ? "rotate(" + angle + "deg)" : "";
+}
+
+// "Show alg" on a case you're reviewing: counts as a peek (rated Hard at best)
+function learnShowAlg() {
+    if (!learnUpcoming) return;
+    learnPeeked = true;
+    renderLearnCard(learnUpcoming.caseObj);
+}
+
+// After a solve: suggest a rating for the case and save it
+function onLearnAttempt(caseObj, entry) {
+    var key = learnKeyOf(caseObj);
+    var before = Srs.getCard(key);
+    var algs = caseObj.getAlgsArray() || [];
+    var mainIdx = getMainAlgIndex(caseObj);
+    var stats = window.SolveStats ? SolveStats.analyze(entry) : null;
+    var detect = null;
+    if (entry.moves && entry.moves.length && window.AlgDetect && algs.length) {
+        detect = AlgDetect.detectNotation(entry.moves.map(function (m) { return m[0]; }), algs, mainIdx);
+    }
+    var solved = entry.result !== "DNF";
+    // Stopped early on the virtual cube (Esc): not solved
+    if (solved && entry.moves && isVirtualCubeOn() && window.virtualCube && !virtualCube.isSolved()) solved = false;
+    var settings = Srs.getSettings(learnDeck);
+    var suggestion = Srs.suggest({
+        solved: solved,
+        time: entry.time,
+        recog: entry.recogTime,
+        stats: stats,
+        detect: detect,
+        peeked: !!learnPeeked && before.state !== "new",
+        wasNew: before.state === "new",
+        goal: settings.goal,
+    });
+    learnPending = {
+        key: key,
+        caseObj: caseObj,
+        before: before,
+        suggestion: suggestion,
+        rating: null,
+        saved: false,
+    };
+    entry.learn = { state: before.state, suggested: suggestion.rating };
+    saveLearnPending();
+    renderLearnRating();
+    renderLearnCounts();
+}
+
+// Save the rating (the suggestion, or the one you picked)
+function saveLearnPending() {
+    if (!learnPending || learnPending.saved) return;
+    var r = learnPending.rating || learnPending.suggestion.rating;
+    learnPending.after = Srs.rate(learnPending.key, r);
+    learnPending.rating = r;
+    learnPending.saved = true;
+}
+
+// You clicked a rating: save it now (or change the one you saved)
+function chooseLearnRating(r) {
+    var p = learnPending;
+    if (!p) return;
+    if (p.saved) Srs.unrate(p.key, p.before, p.rating);
+    p.rating = r;
+    p.saved = false;
+    p.picked = true;
+    saveLearnPending();
+    renderLearnRating();
+    renderLearnCounts();
+    // Nothing was due before: this rating may have changed that
+    if (!learnUpcoming) prevCase = generateScramble();
+}
+
+function renderLearnRating() {
+    var box = document.getElementById("learnRating");
+    var p = learnPending;
+    if (!box || !p) return;
+    box.hidden = false;
+    var now = Date.now();
+    var suggested = p.suggestion.rating;
+    var buttons = [1, 2, 3, 4].map(function (r) {
+        var preview = Srs.schedule(p.before, r, now);
+        var cls = "rate-btn rate-" + r +
+            (r === suggested ? " is-suggested" : "") +
+            (r === p.rating ? " is-picked" : "");
+        return '<button type="button" class="' + cls + '" onclick="chooseLearnRating(' + r + ')"' +
+            ' aria-pressed="' + (r === p.rating) + '">' +
+            '<span class="rate-name">' + Srs.RATINGS[r] + "</span>" +
+            '<span class="rate-when">' + Srs.describeDue(preview, now) + "</span></button>";
+    }).join("");
+    var note = (p.picked ? "You picked <b>" + Srs.RATINGS[p.rating] + "</b>. Suggested: " : "Suggested: <b>" + Srs.RATINGS[suggested] + "</b> · ") +
+        (p.picked ? Srs.RATINGS[suggested] + " · " : "") +
+        p.suggestion.reasons.map(escapeHtml).join(" · ") +
+        '<span class="rate-hint">' + (p.picked ? "Click another to change it." : "Saved. Click another rating to change it.") + "</span>";
+    box.innerHTML =
+        '<label>How well did you know it?</label>' +
+        '<div class="rate-row">' + buttons + "</div>" +
+        '<p class="rate-note">' + note + "</p>";
+}
+
 
 // ── LSLL breakdown: which ZBLS and ZBLL case came up, and the algs you used ──
 var lsllAnalysis = null; // { key, result } for the solve on the results screen
@@ -2153,7 +2416,7 @@ function addLsllAlg(kind) {
     var used = r && (kind === "zbls" ? r.zblsUsed : r.zbllUsed);
     if (!c || !c.key || !used || !used.cleaned) return;
     var savedAlgs = JSON.parse(localStorage.getItem("customAlgs") || "{}");
-    if (!savedAlgs[c.key]) savedAlgs[c.key] = c.algs.slice();
+    if (!savedAlgs[c.key]) savedAlgs[c.key] = (c.ownAlgs || c.algs).slice();
     savedAlgs[c.key].push(used.cleaned);
     localStorage.setItem("customAlgs", JSON.stringify(savedAlgs));
     a.added[kind] = true;
@@ -2320,9 +2583,12 @@ function handleEditAlg(index) {
         currentlyDisplayedCase.subset +
         "-" +
         currentlyDisplayedCase.caseName;
+    var own = (currentlyDisplayedCase.getOwnAlgs || currentlyDisplayedCase.getAlgsArray).call(currentlyDisplayedCase) || [];
     var savedAlgs = JSON.parse(localStorage.getItem("customAlgs") || "{}");
-    if (!savedAlgs[caseKey]) savedAlgs[caseKey] = [...algs];
-    savedAlgs[caseKey][index] = newAlg;
+    if (!savedAlgs[caseKey]) savedAlgs[caseKey] = own.slice();
+    // An alg from a sheet: your edited version goes in your own list
+    if (index < own.length) savedAlgs[caseKey][index] = newAlg;
+    else savedAlgs[caseKey].push(newAlg);
     localStorage.setItem("customAlgs", JSON.stringify(savedAlgs));
 
     document.querySelector("#case-algs").innerHTML = getAlgList();

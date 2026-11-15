@@ -2055,3 +2055,169 @@ body:has(#slowModeBanner[style*="flex"]) .app-shell {
     font-variant-numeric: tabular-nums;
     text-align: right;
 }
+
+/* ── Learning mode (trainer.html?learn=…) ──────────────────────────────── */
+
+/* The upcoming case, above the cube */
+.learn-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-2);
+    width: min(520px, 100%);
+    margin-bottom: var(--sp-3);
+    padding: var(--sp-3) var(--sp-4);
+    border-radius: var(--r-md);
+    background: var(--surface);
+    user-select: text;
+    -webkit-user-select: text;
+}
+
+.learn-card[hidden] {
+    display: none;
+}
+
+.learn-card-head {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+}
+
+.learn-card-head .btn {
+    margin-left: auto;
+}
+
+.learn-badge {
+    padding: 2px 8px;
+    border-radius: var(--r-pill);
+    font-size: var(--fs-xs);
+    font-weight: 600;
+}
+
+.learn-card.is-new .learn-badge { background: var(--accent-soft); color: var(--accent-text); }
+.learn-card.is-learning .learn-badge { background: var(--bad-soft); color: var(--bad); }
+.learn-card.is-review .learn-badge { background: var(--good-soft); color: var(--good); }
+
+.learn-card-name {
+    font-weight: 600;
+}
+
+.learn-card-title {
+    font-weight: 600;
+}
+
+.learn-card-text {
+    color: var(--text-2);
+    font-size: var(--fs-sm);
+    line-height: 1.5;
+}
+
+.learn-card.is-done {
+    align-items: flex-start;
+}
+
+.learn-new {
+    display: flex;
+    gap: var(--sp-3);
+    align-items: center;
+}
+
+.learn-new-img {
+    flex: none;
+    width: 72px;
+    height: 72px;
+    object-fit: contain;
+}
+
+.learn-alg {
+    font-size: var(--fs-md);
+}
+
+.btn-sm {
+    height: 26px;
+    padding: 0 8px;
+    font-size: var(--fs-xs);
+}
+
+/* Today's counts in the header */
+.learn-count.count-new { color: var(--accent-text); }
+.learn-count.count-learning { color: var(--bad); }
+.learn-count.count-review { color: var(--good); }
+
+/* Rating after a solve */
+.learn-rating {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-2);
+}
+
+.learn-rating[hidden] {
+    display: none;
+}
+
+.learn-rating > label {
+    color: var(--text-3);
+    font-size: var(--fs-xs);
+    font-weight: 600;
+}
+
+.rate-row {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+}
+
+.rate-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 6px 4px;
+    border: 1px solid transparent;
+    border-radius: var(--r-sm);
+    background: var(--surface-2);
+    color: var(--text);
+    font: 500 var(--fs-sm) / 1.2 var(--font-sans);
+    cursor: pointer;
+    transition: background-color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+
+.rate-btn:hover {
+    background: var(--surface-3);
+}
+
+.rate-btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+.rate-when {
+    color: var(--text-3);
+    font: 500 var(--fs-xs) var(--font-mono);
+}
+
+.rate-1 .rate-name { color: var(--bad); }
+.rate-2 .rate-name { color: var(--warn); }
+.rate-3 .rate-name { color: var(--good); }
+.rate-4 .rate-name { color: var(--accent-text); }
+
+.rate-btn.is-suggested {
+    border-color: var(--line-strong);
+    border-style: dashed;
+}
+
+.rate-btn.is-picked {
+    border-color: var(--accent);
+    border-style: solid;
+    background: var(--accent-soft);
+}
+
+.rate-note {
+    color: var(--text-2);
+    font-size: var(--fs-xs);
+    line-height: 1.5;
+}
+
+.rate-hint {
+    display: block;
+    color: var(--text-3);
+}
