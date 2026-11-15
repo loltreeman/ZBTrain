@@ -73,8 +73,21 @@
             '<span class="count count-review" title="Reviews due today"><b>' + q.counts.review + "</b> review</span>"));
         var study = el("a", "btn btn-primary deck-study");
         study.href = "trainer.html?learn=" + deck;
+        // New cases you've picked and not started yet
+        var picked = Object.keys(settings.include).filter(function (k) {
+            return Srs.getCard(k).state === "new";
+        }).length;
         if (q.next) study.textContent = "Study now";
-        else {
+        else if (!q.waitingUntil && !picked) {
+            // Nothing to study and nothing picked: send you to the case list
+            study = el("button", "btn btn-primary deck-study", "Choose cases to learn");
+            study.type = "button";
+            study.addEventListener("click", function () {
+                var d = card.querySelector(".deck-settings");
+                d.open = true;
+                d.scrollIntoView({ behavior: "smooth", block: "start" });
+            });
+        } else {
             study.textContent = q.waitingUntil ? "Next case at " + timeText(q.waitingUntil) : "Done for today";
             study.classList.add("is-done");
             study.setAttribute("aria-disabled", "true");
@@ -171,15 +184,14 @@
             var n = Math.max(0, Math.min(50, parseInt(num.value, 10) || 0));
             num.value = n;
             Srs.setSettings(deck, { newPerDay: n });
-            refresh();
+            refresh(true);
         });
         perDay.appendChild(num);
         details.appendChild(perDay);
 
         details.appendChild(el("p", "setting-hint",
-            "New cases are taught in this order. Untick a group to skip it for now, or mark it as known if you already know those algs: they go straight to review, so you get checked on them over the next week."));
+            "Tick the groups you want to learn; new cases come only from those, in this order. Click a group's name to pick single cases instead, or to mark the ones you already know: they go straight to review, so you get checked on them over the next week."));
 
-        // Group rows
         var groups = [];
         var byGroup = {};
         cases.forEach(function (c) {
@@ -187,55 +199,172 @@
             byGroup[c.group].push(c);
         });
         var list = el("ul", "group-list");
-        groups.forEach(function (g) {
-            var items = byGroup[g];
-            var started = items.filter(function (c) { return Srs.getCard(c.key).state !== "new"; }).length;
-            var li = el("li", "group-row");
-            var check = el("input");
-            check.type = "checkbox";
-            check.checked = !settings.skip[g];
-            check.id = "grp-" + deck + "-" + g.replace(/\W/g, "_");
-            check.addEventListener("change", function () {
-                var skip = Srs.getSettings(deck).skip;
-                if (check.checked) delete skip[g]; else skip[g] = true;
-                Srs.setSettings(deck, { skip: skip });
-                refresh(true);
-            });
-            var label = el("label", "group-name", esc(g));
-            label.htmlFor = check.id;
-            li.appendChild(check);
-            li.appendChild(label);
-            li.appendChild(el("span", "group-count", started + " / " + items.length));
-            var known = el("button", "btn btn-ghost btn-sm", "I know these");
-            known.type = "button";
-            known.disabled = started === items.length;
-            known.addEventListener("click", function () {
-                Srs.markKnown(items.map(function (c) { return c.key; }));
-                refresh(true);
-            });
-            var reset = el("button", "btn btn-ghost btn-sm", "Reset");
-            reset.type = "button";
-            reset.disabled = started === 0;
-            reset.addEventListener("click", function () {
-                if (!confirm("Reset your progress on " + g + "? Those cases go back to new.")) return;
-                Srs.resetCards(items.map(function (c) { return c.key; }));
-                refresh(true);
-            });
-            li.appendChild(known);
-            li.appendChild(reset);
-            list.appendChild(li);
-        });
+        list.dataset.deck = deck;
+        groups.forEach(function (g) { list.appendChild(renderGroup(deck, g, byGroup[g], settings)); });
         details.appendChild(list);
         return details;
+    }
+
+    // ── One group (e.g. "T 2GLL"), with its cases when opened ───────────
+
+    var openGroups = {};   // "ZBLL|T 2GLL" → true
+    var selected = {};     // case key → true (cases picked in an open group)
+
+    function isPicked(settings, c) {
+        return !!settings.include[c.key];
+    }
+
+    // off (not picked) / queued (picked, not started) / learning / learned / known
+    function caseStatus(settings, c) {
+        var card = Srs.getCard(c.key);
+        if (card.state === "new") return isPicked(settings, c) ? "queued" : "off";
+        if (card.state === "review") return card.interval >= Srs.CONFIG.knownInterval ? "known" : "learned";
+        return "learning";
+    }
+
+    var STATUS_TEXT = { off: "Not added", queued: "To learn", learning: "Learning", learned: "Learned", known: "Known" };
+
+    // Add cases to the ones you're learning, or take them out
+    function setPicked(deck, items, on) {
+        var include = Srs.getSettings(deck).include;
+        items.forEach(function (c) {
+            if (on) include[c.key] = true;
+            else delete include[c.key];
+        });
+        Srs.setSettings(deck, { include: include });
+    }
+
+    function renderGroup(deck, g, items, settings) {
+        var id = deck + "|" + g;
+        var open = !!openGroups[id];
+        var started = items.filter(function (c) { return Srs.getCard(c.key).state !== "new"; }).length;
+        var freshItems = items.filter(function (c) { return Srs.getCard(c.key).state === "new"; });
+        var included = freshItems.filter(function (c) { return isPicked(settings, c); }).length;
+
+        var li = el("li", "group-row" + (open ? " is-open" : ""));
+        var head = el("div", "group-head");
+        var check = el("input");
+        check.type = "checkbox";
+        check.checked = freshItems.length ? included === freshItems.length : true;
+        check.indeterminate = included > 0 && included < freshItems.length;
+        check.disabled = !freshItems.length;
+        check.setAttribute("aria-label", "Learn " + g);
+        check.title = !freshItems.length ? "You've started every case in " + g
+            : check.indeterminate ? included + " of " + freshItems.length + " new cases added" : "";
+        check.addEventListener("change", function () {
+            setPicked(deck, items, check.checked);
+            refresh(true);
+        });
+        var name = el("button", "group-name",
+            '<svg class="icon group-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>' + esc(g));
+        name.type = "button";
+        name.setAttribute("aria-expanded", String(open));
+        name.addEventListener("click", function () {
+            openGroups[id] = !open;
+            if (open) items.forEach(function (c) { delete selected[c.key]; });
+            refresh(true);
+        });
+        head.appendChild(check);
+        head.appendChild(name);
+        head.appendChild(el("span", "group-count", started + " / " + items.length));
+        li.appendChild(head);
+        if (open) li.appendChild(renderCaseGrid(deck, items, settings));
+        return li;
+    }
+
+    function renderCaseGrid(deck, items, settings) {
+        var panel = el("div", "case-panel");
+        var grid = el("div", "case-grid");
+        items.forEach(function (c) {
+            var status = caseStatus(settings, c);
+            var tile = el("button", "case-tile is-" + status + (selected[c.key] ? " is-selected" : ""));
+            tile.type = "button";
+            tile.setAttribute("aria-pressed", String(!!selected[c.key]));
+            tile.title = c.name + " · " + STATUS_TEXT[status];
+            var label = c.set === "ZBLS" ? c.subset + "-" + c.caseName : c.caseName;
+            tile.innerHTML =
+                '<img src="' + esc(encodeURI(c.img)) + '" alt="" loading="lazy">' +
+                '<span class="case-tile-name">' + esc(label) + "</span>" +
+                '<span class="case-tile-status">' + STATUS_TEXT[status] + "</span>";
+            tile.addEventListener("click", function () {
+                if (selected[c.key]) delete selected[c.key]; else selected[c.key] = true;
+                tile.classList.toggle("is-selected", !!selected[c.key]);
+                tile.setAttribute("aria-pressed", String(!!selected[c.key]));
+                updateBar();
+            });
+            grid.appendChild(tile);
+        });
+        panel.appendChild(grid);
+
+        // Actions for the picked cases
+        var bar = el("div", "case-actions");
+        var count = el("span", "case-count");
+        function btn(text, cls, fn) {
+            var b = el("button", "btn btn-sm " + cls, text);
+            b.type = "button";
+            b.addEventListener("click", fn);
+            bar.appendChild(b);
+            return b;
+        }
+        function picked() { return items.filter(function (c) { return selected[c.key]; }); }
+        function done() {
+            items.forEach(function (c) { delete selected[c.key]; });
+            refresh(true);
+        }
+        btn("All", "btn-ghost", function () {
+            items.forEach(function (c) { selected[c.key] = true; });
+            refresh(true);
+        });
+        btn("None", "btn-ghost", function () {
+            items.forEach(function (c) { delete selected[c.key]; });
+            refresh(true);
+        });
+        bar.appendChild(count);
+        var learn = btn("Learn these", "btn-primary", function () {
+            setPicked(deck, picked(), true);
+            done();
+        });
+        var known = btn("I know these", "btn-secondary", function () {
+            Srs.markKnown(picked().map(function (c) { return c.key; }));
+            done();
+        });
+        var skip = btn("Don't learn", "btn-secondary", function () {
+            setPicked(deck, picked(), false);
+            done();
+        });
+        var reset = btn("Reset", "btn-ghost btn-danger-hover", function () {
+            var p = picked();
+            if (!confirm("Reset your progress on " + p.length + " case" + (p.length === 1 ? "" : "s") + "? They go back to new.")) return;
+            Srs.resetCards(p.map(function (c) { return c.key; }));
+            done();
+        });
+        function updateBar() {
+            var p = picked();
+            var n = p.length;
+            count.textContent = n ? n + " selected" : "Click cases to pick them";
+            var anyNew = p.some(function (c) { return Srs.getCard(c.key).state === "new"; });
+            var anyStarted = p.some(function (c) { return Srs.getCard(c.key).state !== "new"; });
+            var s = Srs.getSettings(deck);
+            known.disabled = !anyNew;
+            learn.disabled = !p.some(function (c) { return Srs.getCard(c.key).state === "new" && !isPicked(s, c); });
+            skip.disabled = !p.some(function (c) { return Srs.getCard(c.key).state === "new" && isPicked(s, c); });
+            reset.disabled = !anyStarted;
+        }
+        updateBar();
+        panel.appendChild(bar);
+        return panel;
     }
 
     // ── Render ──────────────────────────────────────────────────────────
 
     var openSettings = {};
     function refresh(keepOpen) {
+        var scroll = {};
         root.querySelectorAll(".deck-card").forEach(function (c) {
             var d = c.querySelector(".deck-settings");
             openSettings[c.dataset.deck] = keepOpen && d && d.open;
+            var l = c.querySelector(".group-list");
+            if (l) scroll[c.dataset.deck] = l.scrollTop;
         });
         root.innerHTML = "";
         Object.keys(Srs.decks).forEach(function (deck) {
@@ -243,6 +372,8 @@
             if (!card) return;
             if (openSettings[deck]) card.querySelector(".deck-settings").open = true;
             root.appendChild(card);
+            var l = card.querySelector(".group-list");
+            if (l && scroll[deck]) l.scrollTop = scroll[deck];
         });
         renderStreak();
     }

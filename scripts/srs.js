@@ -16,7 +16,9 @@
 // Everything is kept in localStorage:
 //   srsCards     { caseKey: card }
 //   srsLog       { "YYYY-MM-DD": { deck: { new, reviews, again, done } } }
-//   srsSettings  { deck: { newPerDay, goal, skip: { group: true } } }
+//   srsSettings  { deck: { newPerDay, goal, include: { caseKey: true } } }
+//                New cases only come from the cases in "include", which you
+//                pick on the Learn page (nothing is picked at first).
 
 (function (window) {
     var CARDS_KEY = "srsCards";
@@ -142,7 +144,7 @@
         return {
             newPerDay: s.newPerDay != null ? s.newPerDay : (DECKS[deck] ? DECKS[deck].defaultNew : 5),
             goal: s.goal || null,      // target time in seconds, or null
-            skip: s.skip || {},        // groups left out of new cases
+            include: s.include || {},  // cases you chose to learn (new cases only come from these)
         };
     }
 
@@ -321,7 +323,7 @@
             var card = cards[c.key] || { state: "new" };
             if (c.key === exclude) return;
             if (card.state === "new") {
-                if (!settings.skip[c.group]) fresh.push(c);
+                if (settings.include[c.key]) fresh.push(c);
             } else if (card.state === "learning" || card.state === "relearning") {
                 if (card.due <= now) learning.push({ c: c, due: card.due });
                 else if (card.due <= now + CONFIG.learnAheadMinutes * MINUTE) aheadLearning.push({ c: c, due: card.due });
