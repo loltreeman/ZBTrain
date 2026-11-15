@@ -229,6 +229,9 @@
 
                 <section class="main-training-area">
                     <div class="timer-wrapper">
+                        <!-- Learning mode: the upcoming case (scripts/trainer.js, renderLearnCard) -->
+                        <div id="learnCard" class="learn-card" hidden></div>
+
                         <div id="virtualCubeContainer">
                             <canvas id="canvas" width="500" height="400"></canvas>
                         </div>
@@ -258,6 +261,9 @@
                             </div>
 
                             <div class="panel-body case-card-footer">
+                                <!-- Learning mode: rate the case you just solved (renderLearnRating) -->
+                                <div id="learnRating" class="learn-rating" hidden></div>
+
                                 <div class="info-block">
                                     <label>Scramble</label>
                                     <p id="case-scram">—</p>
@@ -327,6 +333,8 @@
     <script src="scripts/algorithms.js"></script>
     <script src="scripts/zblsData.js"></script>
     <script src="scripts/lsll.js"></script>
+    <script src="scripts/srs.js"></script>
+    <script src="scripts/algSheets.js"></script>
     <script src="scripts/cubeGoals.js"></script>
     <script src="scripts/cube.js"></script>
     <script src="scripts/cube3x3.js"></script>

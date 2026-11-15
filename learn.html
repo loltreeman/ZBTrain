@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Learn | ZBTrain</title>
+  <meta name="description" content="Learn ZBLL and ZBLS a few cases a day, with spaced repetition.">
+
+  <link rel="icon" type="image/png" href="images/logo.png" sizes="72x72">
+  <link rel="stylesheet" href="styles/tokens.css">
+  <link rel="stylesheet" href="styles/base.css">
+  <link rel="stylesheet" href="styles/homepage.css">
+  <link rel="stylesheet" href="styles/learn.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="brand-container">
+      <a href="index.html" class="brand-link" title="ZBTrain home"><img src="images/logo.png" alt="" class="logoimg"><span class="brand-text">ZBTrain</span></a>
+      <nav class="set-switch" aria-label="Algorithm set">
+        <a href="learn.html" aria-current="page">Learn</a>
+        <a href="zbll.html">ZBLL</a>
+        <a href="zbls.html">ZBLS</a>
+        <a href="sheets.html">Sheets</a>
+      </nav>
+    </div>
+    <button type="button" id="darkModeToggle" class="btn btn-ghost btn-icon dark-mode-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode"></button>
+  </header>
+
+  <main class="learn">
+    <div class="learn-intro">
+      <h1>Learn a few cases a day</h1>
+      <p>Each day you get some new cases and the ones that are due for review. After each solve the trainer suggests how well you knew it, and you can change that. Cases you know well come back less often.</p>
+      <p class="learn-streak" id="learnStreak"></p>
+    </div>
+
+    <!-- Filled in by scripts/learn.js: one card per deck (ZBLL, ZBLS) -->
+    <div class="deck-list" id="deckList"></div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-row">
+      <span>Scheduling works like Anki's classic scheduler</span>
+      <span class="footer-separator" aria-hidden="true">·</span>
+      <a href="index.html" class="footer-link">Home</a>
+    </div>
+  </footer>
+
+  <script src="scripts/algorithms.js"></script>
+  <script src="scripts/zblsData.js"></script>
+  <script src="scripts/srs.js"></script>
+  <script src="scripts/learn.js"></script>
+  <script src="scripts/darkmode.js"></script>
+</body>
+</html>

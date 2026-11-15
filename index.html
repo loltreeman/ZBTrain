@@ -27,6 +27,14 @@
       <p>Drill your last slot and last layer algs with a virtual cube or a smart cube. Pick a set to choose your cases.</p>
     </div>
 
+    <a class="learn-strip" href="learn.html">
+      <span class="learn-strip-body">
+        <span class="learn-strip-title">New to ZB? Learn a few cases a day</span>
+        <span class="learn-strip-text" id="learnStripText">Spaced repetition for ZBLL and ZBLS: new cases each day, and reviews when you're about to forget them.</span>
+      </span>
+      <span class="set-card-cta" aria-hidden="true">Start learning →</span>
+    </a>
+
     <div class="set-cards">
       <a class="set-card" href="zbls.html">
         <img class="set-card-img" src="images/ZBLS/F2L 1-1.png" alt="">
@@ -70,6 +78,18 @@
     </div>
   </footer>
 
+  <script src="scripts/srs.js"></script>
+  <script>
+    // Once you've started learning, show your streak on the Learn link
+    (function () {
+      var s = window.Srs && Srs.streak();
+      var text = document.getElementById("learnStripText");
+      if (!s || !s.days || !text) return;
+      text.textContent = "🔥 " + s.days + " day" + (s.days === 1 ? "" : "s") + " in a row" +
+        (s.today ? ". Nice, you've studied today." : ". Study today to keep it going.");
+      document.querySelector(".learn-strip .set-card-cta").textContent = "Continue →";
+    })();
+  </script>
   <script src="scripts/darkmode.js"></script>
 </body>
 </html>

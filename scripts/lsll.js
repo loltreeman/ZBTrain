@@ -176,6 +176,7 @@
             key: key,
             set: "ZBLS", subset: hit.family, caseName: hit.caseName,
             img: window.CASE_SETS.ZBLS.img(hit.family, hit.caseName),
+            ownAlgs: ownAlgsFor(key, (zblsAlgs[hit.family] || {})[hit.caseName]),
             algs: algsFor(key, (zblsAlgs[hit.family] || {})[hit.caseName]),
         };
     }
@@ -198,6 +199,7 @@
             key: key,
             set: hit.set, subset: hit.subset, caseName: hit.caseName,
             img: "svg/top/" + key + ".svg",
+            ownAlgs: ownAlgsFor(key, ((zbllAlgs[hit.set] || {})[hit.subset] || {})[hit.caseName]),
             algs: algsFor(key, ((zbllAlgs[hit.set] || {})[hit.subset] || {})[hit.caseName]),
         };
     }
@@ -236,13 +238,19 @@
         return cancel(tokens).join(" ");
     }
 
-    // A case's algs, with your own edits from the trainer (customAlgs)
-    function algsFor(key, fallback) {
+    // A case's own algs, with your edits from the trainer (customAlgs)
+    function ownAlgsFor(key, fallback) {
         try {
             var saved = JSON.parse(localStorage.getItem("customAlgs") || "{}");
             if (saved[key]) return saved[key];
         } catch (e) {}
         return fallback || [];
+    }
+
+    // Your algs plus algs from the sheets you have turned on (algSheets.js)
+    function algsFor(key, fallback) {
+        var own = ownAlgsFor(key, fallback);
+        return window.AlgSheets ? own.concat(AlgSheets.extraAlgs(key, own)) : own;
     }
 
     // ── Analysing a solve ───────────────────────────────────────────────
@@ -284,7 +292,42 @@
         };
     }
 
+    // ── Helpers for the alg checker (algSheets.js) ──────────────────────
+
+    // Every first-two-layers piece solved except the front-right pair
+    var F2L_KEYS = ["F_D", "B_D", "_RD", "_LD", "FLD", "BRD", "BLD", "__D",
+        "FL_", "BR_", "BL_", "F__", "B__", "_R_", "_L_"];
+
+    function f2lExceptPair(cube) {
+        var fm = faceOfColour(cube);
+        return F2L_KEYS.every(function (k) {
+            var col = cube.cubies[k].colors;
+            for (var s = 0; s < 6; s++) {
+                if (fm[col[s]] && fm[col[s]] !== LETTER[s]) return false;
+            }
+            return true;
+        });
+    }
+
+    // The 24 ways to hold the cube. The alg checker tries the position as it
+    // comes first, then the others: an alg with an x or z in it can leave
+    // the case on its side.
+    var ROTATIONS = ["", "y", "y2", "y'", "x", "x y", "x y2", "x y'", "x2", "x2 y", "x2 y2", "x2 y'",
+        "x'", "x' y", "x' y2", "x' y'", "z", "z y", "z y2", "z y'", "z'", "z' y", "z' y2", "z' y'"];
+
+    // Calls test(cube) for each way of holding the position made by `moves`
+    // and returns the first result that isn't null
+    function eachHolding(moves, test) {
+        for (var i = 0; i < ROTATIONS.length; i++) {
+            var r = test(makeCube((moves + " " + ROTATIONS[i]).trim()));
+            if (r != null) return r;
+        }
+        return null;
+    }
+
     window.LSLL = {
+        f2lExceptPair: f2lExceptPair,
+        eachHolding: eachHolding,
         generateSetup: generateSetup,
         analyze: analyze,
         zblsCaseOf: zblsCaseOf,

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alg sheets | ZBTrain</title>
+  <meta name="description" content="Import ZBLL and ZBLS algs from a spreadsheet or a list, check them, and export your algs.">
+
+  <link rel="icon" type="image/png" href="images/logo.png" sizes="72x72">
+  <link rel="stylesheet" href="styles/tokens.css">
+  <link rel="stylesheet" href="styles/base.css">
+  <link rel="stylesheet" href="styles/homepage.css">
+  <link rel="stylesheet" href="styles/learn.css">
+  <link rel="stylesheet" href="styles/sheets.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="brand-container">
+      <a href="index.html" class="brand-link" title="ZBTrain home"><img src="images/logo.png" alt="" class="logoimg"><span class="brand-text">ZBTrain</span></a>
+      <nav class="set-switch" aria-label="Algorithm set">
+        <a href="learn.html">Learn</a>
+        <a href="zbll.html">ZBLL</a>
+        <a href="zbls.html">ZBLS</a>
+        <a href="sheets.html" aria-current="page">Sheets</a>
+      </nav>
+    </div>
+    <button type="button" id="darkModeToggle" class="btn btn-ghost btn-icon dark-mode-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode"></button>
+  </header>
+
+  <main class="learn sheets">
+    <div class="learn-intro">
+      <h1>Alg sheets</h1>
+      <p>Add algs from a spreadsheet or a list. Each alg is checked to see which ZBLL or ZBLS case it solves, so your sheet doesn't need our case names. Turn a sheet on and its algs show up in the trainer after your own.</p>
+    </div>
+
+    <!-- Your sheets (scripts/sheetsPage.js) -->
+    <section class="deck-card" aria-labelledby="yourSheetsTitle">
+      <h2 class="section-title" id="yourSheetsTitle">Your sheets</h2>
+      <div id="sheetList"></div>
+    </section>
+
+    <!-- Add a sheet / check algs -->
+    <section class="deck-card" aria-labelledby="addTitle">
+      <h2 class="section-title" id="addTitle">Add a sheet or check algs</h2>
+
+      <div class="source-tabs" role="tablist" aria-label="Where the algs come from">
+        <button type="button" role="tab" class="source-tab" data-source="url" aria-selected="true">Google Sheets link</button>
+        <button type="button" role="tab" class="source-tab" data-source="file" aria-selected="false">File</button>
+        <button type="button" role="tab" class="source-tab" data-source="paste" aria-selected="false">Paste</button>
+      </div>
+
+      <div class="source-panel" data-panel="url">
+        <label class="field">
+          <span>Link to the sheet</span>
+          <input type="url" id="sheetUrl" class="input" placeholder="https://docs.google.com/spreadsheets/d/…">
+        </label>
+        <p class="setting-hint">Share the sheet so anyone with the link can view it. Every tab is read, including algs kept in cell notes.</p>
+      </div>
+
+      <div class="source-panel" data-panel="file" hidden>
+        <label class="field">
+          <span>Spreadsheet or text file</span>
+          <input type="file" id="sheetFile" accept=".csv,.tsv,.txt,.xlsx,.xls,.ods">
+        </label>
+        <p class="setting-hint">Excel (.xlsx, .xls), OpenDocument (.ods), CSV or a text file. Every tab of a spreadsheet is read.</p>
+      </div>
+
+      <div class="source-panel" data-panel="paste" hidden>
+        <label class="field">
+          <span>Algs</span>
+          <textarea id="sheetText" class="input textarea" rows="8" placeholder="One alg per line, or paste cells straight from a spreadsheet.&#10;&#10;R U R' U R U2 R'&#10;T-2GLL-CsA: R U2 R' U' R U' R2 U2 R U R' U R"></textarea>
+        </label>
+      </div>
+
+      <div class="add-actions">
+        <button type="button" class="btn btn-primary" id="checkBtn">Check algs</button>
+        <span class="add-status" id="addStatus" role="status"></span>
+      </div>
+
+      <!-- Checker report -->
+      <div id="report" hidden>
+        <div class="report-summary" id="reportSummary"></div>
+        <div class="report-filter" role="group" aria-label="Show">
+          <button type="button" class="chip" data-filter="problems" aria-pressed="true">Problems</button>
+          <button type="button" class="chip" data-filter="all" aria-pressed="false">All</button>
+        </div>
+        <div class="report-table-wrap">
+          <table class="report-table">
+            <thead><tr><th>Row</th><th>Alg</th><th>Solves</th><th>Note</th></tr></thead>
+            <tbody id="reportRows"></tbody>
+          </table>
+        </div>
+        <div class="save-row">
+          <label class="field field-inline">
+            <span>Sheet name</span>
+            <input type="text" id="sheetName" class="input" maxlength="60">
+          </label>
+          <button type="button" class="btn btn-primary" id="saveBtn">Save sheet</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Export -->
+    <section class="deck-card" aria-labelledby="exportTitle">
+      <h2 class="section-title" id="exportTitle">Export your algs</h2>
+      <div class="export-options">
+        <label class="field field-inline">
+          <span>Set</span>
+          <select id="exportDeck" class="input">
+            <option value="ZBLL">ZBLL</option>
+            <option value="ZBLS">ZBLS</option>
+          </select>
+        </label>
+        <label class="field field-inline">
+          <span>Algs</span>
+          <select id="exportWhich" class="input">
+            <option value="main">Main alg only</option>
+            <option value="all">All algs</option>
+          </select>
+        </label>
+        <label class="check-inline">
+          <input type="checkbox" id="exportSheets"> Include algs from sheets that are on
+        </label>
+      </div>
+      <div class="add-actions">
+        <button type="button" class="btn btn-secondary" id="exportXlsx">Excel</button>
+        <button type="button" class="btn btn-secondary" id="exportCsv">CSV</button>
+        <button type="button" class="btn btn-secondary" id="exportPdf">PDF</button>
+        <span class="add-status" id="exportStatus" role="status"></span>
+      </div>
+      <p class="setting-hint">PDF opens a printable page: choose "Save as PDF" in the print dialog. Main algs are the ones you set as main in the trainer.</p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-row">
+      <a href="index.html" class="footer-link">Home</a>
+      <span class="footer-separator" aria-hidden="true">·</span>
+      <span>Excel files are read and written with SheetJS</span>
+    </div>
+  </footer>
+
+  <script src="scripts/scrambles.js"></script>
+  <script src="scripts/algorithms.js"></script>
+  <script src="scripts/zblsData.js"></script>
+  <script src="scripts/cubeGoals.js"></script>
+  <script src="scripts/cube.js"></script>
+  <script src="scripts/cube3x3.js"></script>
+  <script src="scripts/algAuf.js"></script>
+  <script src="scripts/algDetect.js"></script>
+  <script src="scripts/virtualCubeEmbed.js"></script>
+  <script src="scripts/lsll.js"></script>
+  <script src="scripts/srs.js"></script>
+  <script src="scripts/algSheets.js"></script>
+  <script src="scripts/sheetsPage.js"></script>
+  <script src="scripts/darkmode.js"></script>
+</body>
+</html>
