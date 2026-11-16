@@ -11,6 +11,8 @@
   <link rel="stylesheet" href="../styles/base.css">
   <link rel="stylesheet" href="../styles/homepage.css">
   <link rel="stylesheet" href="../styles/guide.css">
+  <!-- Cube animations: cubing.js (https://js.cubing.net/cubing/) -->
+  <script src="https://cdn.cubing.net/v0/js/cubing/twisty" type="module"></script>
 </head>
 <body>
 
@@ -74,6 +76,42 @@
           <li>Prefer algs that flow: fewer regrips and rotations usually beat a slightly lower move count.</li>
         </ul>
 
+        <h2 id="making-algs-stick">Making algs stick</h2>
+        <p>Memorising an alg as a string of letters doesn't last. These habits help you learn algs faster and keep them, even after a break.</p>
+
+        <h3 id="triggers">Learn in triggers</h3>
+        <p>A <strong>trigger</strong> is a short move sequence your fingers already know, like <code>R U R' U'</code>. Most algs are a few triggers chained together, so learn them as chunks: "Sune, U2, back Sune" is far easier to remember than 15 separate letters. Triggers also tend to flow without regrips, so they're fast.</p>
+        <div class="docs-table-wrap">
+          <table>
+            <tr><th>Trigger</th><th>Moves</th><th>Where you'll see it</th></tr>
+            <tr><td><strong>Sexy move</strong></td><td><code>R U R' U'</code></td><td>Everywhere: F2L, OLL, and many ZBLLs (often repeated, as in <code>F (R U R' U') F'</code>)</td></tr>
+            <tr><td><strong>Reverse sexy</strong></td><td><code>U R U' R'</code></td><td>The undo of the sexy move</td></tr>
+            <tr><td><strong>Sledgehammer</strong></td><td><code>R' F R F'</code></td><td>Pairs and closing moves</td></tr>
+            <tr><td><strong>Hedgeslammer</strong></td><td><code>F R' F' R</code></td><td>The undo of the sledgehammer</td></tr>
+            <tr><td><strong>Sune</strong></td><td><code>R U R' U R U2 R'</code></td><td>A huge share of 2GLL and Sune/Antisune cases</td></tr>
+            <tr><td><strong>Antisune</strong></td><td><code>R U2 R' U' R U' R'</code></td><td>The undo of the Sune</td></tr>
+            <tr><td><strong>Back Sune</strong></td><td><code>R' U' R U' R' U2 R</code></td><td>The Sune done with R' first, common in H and 2GLL</td></tr>
+          </table>
+        </div>
+        <div class="docs-figures">
+          <figure class="docs-figure">
+            <twisty-player class="docs-player" alg="R U R' U R U2 R' U2 R' U' R U' R' U2 R" experimental-setup-anchor="end" experimental-stickering="ZBLL" background="none"></twisty-player>
+            <figcaption class="is-wide"><code>T-2GLL-CsC</code> is just three chunks:<br><b>1. Sune</b> <code>R U R' U R U2 R'</code><br><b>2.</b> <code>U2</code><br><b>3. Back Sune</b> <code>R' U' R U' R' U2 R</code></figcaption>
+          </figure>
+        </div>
+        <p>When you learn a new alg, write it with its triggers marked, for example <code>(R U R' U R U2 R') U2 (R' U' R U' R' U2 R)</code>. Many sheets already use brackets like this.</p>
+
+        <h3 id="track-f2l">Track the F2L pair</h3>
+        <p>Most ZBLL algs break the F2L for a moment: they take a pair out of its slot, move the last layer around, then pair it up again and put it back. Instead of memorising the moves, <strong>follow that pair with your eyes</strong>: where it leaves, where it travels, and how it gets rebuilt and inserted.</p>
+        <p>Once you see an alg as "pair out, do something, pair back in", the moves almost explain themselves, and the alg is much harder to forget. One cuber put it this way: they learned most of 2GLL by tracking the pairs, went on holiday for a month, and could still do most of them from memory when they came back.</p>
+        <div class="callout is-tip">
+          <span class="callout-icon" aria-hidden="true">💡</span>
+          <p>Use the <strong>Play</strong> button in ZBTrain's case window (or step through with ← →) to watch an alg slowly and follow one pair the whole way through.</p>
+        </div>
+
+        <h3 id="watch-while-turning">Watch while you execute</h3>
+        <p>When you're focused on something else, like a timer or the next case, it's easy to run algs on autopilot, and pure muscle memory fades faster than you'd think. Every so often, do your algs slowly and <strong>watch what the pieces do</strong>. Seeing the alg as well as feeling it gives you a second way to remember it, so a slip in muscle memory doesn't lose the alg completely.</p>
+
         <h2 id="keep-a-sheet">Keep your own sheet</h2>
         <p>Keep a list of the algs you chose, so you never have to search for them again when you review. A simple way:</p>
         <ol class="docs-steps">
@@ -91,6 +129,8 @@
             <li><a href="https://www.speedsolving.com/wiki/index.php/ZBLL" target="_blank" rel="noopener">ZBLL</a> on the Speedsolving.com wiki</li>
             <li><a href="https://pepkin88.me/zbll-explorer/" target="_blank" rel="noopener">ZBLL Explorer</a> by pepkin88: algs from many sources for every case</li>
             <li><a href="https://docs.google.com/spreadsheets/d/1-uwmZHf4vwJxFgeB3-TiF8MQ0RFSS30d5CUK96PoIwk/edit" target="_blank" rel="noopener">An example ZBLL sheet</a> (the one the ZZ guide suggests copying)</li>
+            <li>The tips on tracking F2L pairs and watching while you execute come from discussions in the ZB community.</li>
+            <li><a href="https://js.cubing.net/cubing/" target="_blank" rel="noopener">cubing.js</a> for the cube animation</li>
           </ul>
         </section>
       </article>
@@ -106,6 +146,8 @@
       <a href="../index.html" class="footer-link">Home</a>
       <span class="footer-separator" aria-hidden="true">·</span>
       <a href="../learn.html" class="footer-link">Learn</a>
+      <span class="footer-separator" aria-hidden="true">·</span>
+      <span>Cube animations by <a href="https://js.cubing.net/cubing/" class="footer-link" target="_blank" rel="noopener">cubing.js</a></span>
     </div>
   </footer>
 
