@@ -68,6 +68,13 @@ function getImgPath(c) {
     return '';
 }
 
+// The case's key for the case info window: "T-2GLL-CsA" or "ZBLS-12-3"
+function slowCaseKey(c) {
+    if (c.set && c.subset && c.caseId) return c.set + '-' + c.subset + '-' + c.caseId;
+    var parts = String(c.caseName || '').split('-');
+    return parts.length >= 3 ? c.caseName : null;
+}
+
 // Same angle as chosen for the set on the case selection page
 function slowCaseAngleStyle(c) {
     var set = c.set || String(c.caseName || "").split("-")[0];
@@ -136,14 +143,14 @@ function refreshSlowCasesList() {
                 '<input type="checkbox" ' + (isChecked ? 'checked' : '') + ' onchange="toggleSlowCase(\'' + c.caseName + '\', this.checked)">' +
             '</label>' +
 
-            // Case image
+            // Case image (click: case info window)
             (imgPath ?
-                '<img class="slow-case-img" src="' + imgPath + '" alt="' + c.caseName + '"' + slowCaseAngleStyle(c) + ' onerror="this.style.display=\'none\'">'
+                '<img class="slow-case-img slow-case-open" src="' + imgPath + '" alt="' + c.caseName + '" title="Setup and algs"' + slowCaseAngleStyle(c) + ' onerror="this.style.display=\'none\'">'
                 : '') +
 
             // Case info
             '<div class="slow-case-info">' +
-                '<span class="slow-case-name">' + c.caseName + '</span>' +
+                '<button type="button" class="slow-case-name slow-case-open" title="Setup and algs">' + c.caseName + '</button>' +
                 '<div class="slow-case-stats">' +
                     '<span class="slow-avg">' + avg + 's avg</span>' +
                     '<span class="slow-best">best: ' + best + 's</span>' +
@@ -151,8 +158,14 @@ function refreshSlowCasesList() {
                 '</div>' +
             '</div>';
 
-        // Click entire row to toggle (except clicking the checkbox itself)
+        // Click the picture or name for the case's setup and algs; anywhere
+        // else on the row ticks it (the checkbox handles itself)
         row.addEventListener('click', function(e) {
+            if (e.target.closest('.slow-case-open')) {
+                var key = slowCaseKey(c);
+                if (key && window.CaseInfo) CaseInfo.open(key);
+                return;
+            }
             if (e.target.tagName === 'INPUT') return;
             var cb = row.querySelector('input[type="checkbox"]');
             cb.checked = !cb.checked;

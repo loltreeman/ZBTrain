@@ -83,7 +83,18 @@
                 setCase(family, c, !selected[key(family, c)]);
                 refresh();
             });
-            grid.appendChild(item);
+            // ⓘ next to the tile (a button can't go inside another button)
+            var wrap = el("div", "zbls-case-wrap");
+            wrap.appendChild(item);
+            if (window.CaseInfo) {
+                var info = el("button", "case-info-btn", "i");
+                info.type = "button";
+                info.title = "Setup and algs";
+                info.setAttribute("aria-label", "Setup and algs for " + data.name(family, c));
+                info.addEventListener("click", function () { CaseInfo.open("ZBLS-" + family + "-" + c); });
+                wrap.appendChild(info);
+            }
+            grid.appendChild(wrap);
         });
         content.appendChild(grid);
         card.appendChild(content);

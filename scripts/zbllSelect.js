@@ -301,6 +301,21 @@ function displayZW(set, coll, angle = 0) {
         img.style.transform = `rotate(${angle}deg)`;
         div.appendChild(img);
 
+        // ⓘ: setup, algs and your stats for this case (scripts/caseInfo.js)
+        if (window.CaseInfo) {
+            const info = document.createElement("button");
+            info.type = "button";
+            info.className = "case-info-btn";
+            info.textContent = "i";
+            info.title = "Setup and algs";
+            info.setAttribute("aria-label", `Setup and algs for ${set}-${coll}-${caseName}`);
+            info.addEventListener("click", (e) => {
+                e.stopPropagation();
+                CaseInfo.open(`${set}-${coll}-${caseName}`);
+            });
+            div.appendChild(info);
+        }
+
         div.addEventListener("click", () => {
             modalSelections[key][caseName] = !modalSelections[key][caseName];
             div.classList.toggle("selected");

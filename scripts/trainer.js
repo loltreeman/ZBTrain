@@ -683,116 +683,136 @@ function exportAttemptsCsv() {
     URL.revokeObjectURL(url);
 }
 
-function showStatsPanel() {
+// ── Statistics panel ──────────────────────────────────────────────────
+// Cases grouped by set (T, U, L, … ZBLS, LSLL). Tick the sets you want to
+// see; the choice is remembered. Click a case for its setup and algs.
+var STATS_SETS_KEY = "statsHiddenSets";
+var STATS_SET_ORDER = ["T", "U", "L", "H", "Pi", "Sune", "Antisune", "ZBLS", "LSLL"];
+
+function statsSetOf(a) {
+    if (a.set) return a.set;
+    var first = String(a.caseName || "").split("-")[0];
+    return /^F2L /.test(a.caseName || "") ? "ZBLS" : first || "Other";
+}
+
+function statsHiddenSets() {
+    try { return JSON.parse(localStorage.getItem(STATS_SETS_KEY)) || {}; } catch (e) { return {}; }
+}
+
+function setStatsSetShown(set, shown) {
+    var hidden = statsHiddenSets();
+    if (shown) delete hidden[set]; else hidden[set] = true;
+    try { localStorage.setItem(STATS_SETS_KEY, JSON.stringify(hidden)); } catch (e) {}
+    showStatsPanel(true);
+}
+
+function setAllStatsSets(shown) {
+    var hidden = {};
+    if (!shown) attempts.forEach(function (a) { hidden[statsSetOf(a)] = true; });
+    try { localStorage.setItem(STATS_SETS_KEY, JSON.stringify(hidden)); } catch (e) {}
+    showStatsPanel(true);
+}
+
+// The key the case info window uses, or null (LSLL has no single case)
+function statsCaseKey(a) {
+    if (a.set === "LSLL") return null;
+    if (a.set && a.subset && a.caseId) return a.set + "-" + a.subset + "-" + a.caseId;
+    return null;
+}
+
+function showStatsPanel(keepScroll) {
     var panel = document.getElementById("statsPanel");
     var content = document.getElementById("statsContent");
     panel.style.display = "block";
-    setTimeout(function () {
-        panel.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 100);
+    if (!keepScroll) {
+        setTimeout(function () {
+            panel.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 100);
+    }
 
-    // Per-case stats
-    var byCase = {};
+    if (!attempts.length) {
+        content.innerHTML = '<p class="stats-empty">No solves yet.</p>';
+        return;
+    }
+
+    // Group attempts: set → case → attempts
+    var sets = {};
     attempts.forEach(function (a) {
-        var key = a.caseName || a.set + "-" + a.subset + "-" + a.caseId;
-        if (!byCase[key])
-            byCase[key] = {
-                count: 0,
-                total: 0,
-                min: Infinity,
-                max: 0,
-                recogTotal: 0,
-                execTotal: 0,
-                splitCount: 0,
-            };
-        byCase[key].count++;
-        byCase[key].total += a.time;
-        byCase[key].min = Math.min(byCase[key].min, a.time);
-        byCase[key].max = Math.max(byCase[key].max, a.time);
-        if (a.recogTime != null) {
-            byCase[key].recogTotal += a.recogTime;
-            byCase[key].execTotal += a.execTime;
-            byCase[key].splitCount++;
-        }
+        var set = statsSetOf(a);
+        var name = a.caseName || a.set + "-" + a.subset + "-" + a.caseId;
+        sets[set] = sets[set] || { cases: {}, list: [] };
+        sets[set].list.push(a);
+        (sets[set].cases[name] = sets[set].cases[name] || []).push(a);
     });
-
-    var html = "<h4>Per-case stats</h4>";
-    html +=
-        "<table><tr><th>Case</th><th>Count</th><th>Avg</th><th>Best</th><th>Worst</th><th>Avg Recog</th><th>Avg Exec</th>" +
-        '<th title="Face turns per solve, mistakes included">Turns</th>' +
-        '<th title="Turns per second while executing">TPS</th>' +
-        '<th title="Share of execution time spent turning rather than pausing">Fluidity</th></tr>';
-    Object.keys(byCase)
-        .sort()
-        .forEach(function (k) {
-            var s = byCase[k];
-            var avg = s.count ? (s.total / s.count).toFixed(2) : "-";
-            var avgRecog = s.splitCount
-                ? (s.recogTotal / s.splitCount).toFixed(2)
-                : "-";
-            var avgExec = s.splitCount
-                ? (s.execTotal / s.splitCount).toFixed(2)
-                : "-";
-            var moveSum = window.SolveStats
-                ? SolveStats.summarize(attempts.filter(function (a) {
-                      return (a.caseName || a.set + "-" + a.subset + "-" + a.caseId) === k;
-                  }))
-                : null;
-            html +=
-                "<tr>" +
-                "<td>" +
-                k +
-                "</td>" +
-                "<td>" +
-                s.count +
-                "</td>" +
-                "<td>" +
-                avg +
-                "</td>" +
-                "<td>" +
-                (s.min === Infinity ? "-" : s.min.toFixed(2)) +
-                "</td>" +
-                "<td>" +
-                s.max.toFixed(2) +
-                "</td>" +
-                '<td class="recog-col">' +
-                avgRecog +
-                "</td>" +
-                '<td class="exec-col">' +
-                avgExec +
-                "</td>" +
-                "<td>" + (moveSum ? moveSum.turns.toFixed(1) : "-") + "</td>" +
-                "<td>" + (moveSum ? moveSum.tps.toFixed(1) : "-") + "</td>" +
-                "<td>" + (moveSum ? Math.round(moveSum.fluidity * 100) + "%" : "-") + "</td>" +
-                "</tr>";
-        });
-    html += "</table>";
-
-    // Per-subset stats
-    var bySubset = {};
-    attempts.forEach(function (a) {
-        var key = (a.set || "") + "-" + (a.subset || "");
-        if (!bySubset[key]) bySubset[key] = { count: 0, total: 0 };
-        bySubset[key].count++;
-        bySubset[key].total += a.time;
+    var setNames = Object.keys(sets).sort(function (a, b) {
+        var ia = STATS_SET_ORDER.indexOf(a), ib = STATS_SET_ORDER.indexOf(b);
+        return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib) || a.localeCompare(b);
     });
-    html += "<h4>Per-subset stats</h4>";
-    html += "<table><tr><th>Subset</th><th>Count</th><th>Avg</th></tr>";
-    Object.keys(bySubset)
-        .sort()
-        .forEach(function (k) {
-            var s = bySubset[k];
-            var avg = s.count ? (s.total / s.count).toFixed(2) : "-";
-            html +=
-                "<tr><td>" +
-                k +
-                "</td><td>" +
-                s.count +
-                "</td><td>" +
-                avg +
-                "</td></tr>";
-        });
-    html += "</table>";
+    var hidden = statsHiddenSets();
+
+    function summary(list) {
+        var times = list.map(function (a) { return a.time; }).filter(function (t) { return t > 0; });
+        var splits = list.filter(function (a) { return a.recogTime != null; });
+        return {
+            count: list.length,
+            avg: times.length ? times.reduce(function (s, t) { return s + t; }, 0) / times.length : null,
+            best: times.length ? Math.min.apply(null, times) : null,
+            worst: times.length ? Math.max.apply(null, times) : null,
+            recog: splits.length ? splits.reduce(function (s, a) { return s + a.recogTime; }, 0) / splits.length : null,
+            exec: splits.length ? splits.reduce(function (s, a) { return s + (a.execTime || 0); }, 0) / splits.length : null,
+            moves: window.SolveStats ? SolveStats.summarize(list) : null,
+        };
+    }
+    function f(n) { return n == null ? "-" : n.toFixed(2); }
+
+    // Which sets to show
+    var html = '<div class="stats-filter" role="group" aria-label="Sets to show">' +
+        '<span class="stats-filter-label">Show</span>' +
+        setNames.map(function (s) {
+            return '<label class="stats-set-check"><input type="checkbox"' + (hidden[s] ? "" : " checked") +
+                ' onchange="setStatsSetShown(\'' + escapeHtml(s) + '\', this.checked)"> ' + escapeHtml(s) +
+                ' <span class="stats-set-n">' + sets[s].list.length + "</span></label>";
+        }).join("") +
+        '<button type="button" class="btn btn-ghost btn-sm" onclick="setAllStatsSets(true)">All</button>' +
+        '<button type="button" class="btn btn-ghost btn-sm" onclick="setAllStatsSets(false)">None</button>' +
+        "</div>";
+
+    var shown = setNames.filter(function (s) { return !hidden[s]; });
+    if (!shown.length) {
+        content.innerHTML = html + '<p class="stats-empty">Tick a set to see its cases.</p>';
+        return;
+    }
+
+    // One table per set, cases slowest first
+    shown.forEach(function (set) {
+        var s = summary(sets[set].list);
+        var names = Object.keys(sets[set].cases);
+        var rows = names.map(function (name) {
+            return { name: name, list: sets[set].cases[name], sum: summary(sets[set].cases[name]) };
+        }).sort(function (a, b) { return (b.sum.avg || 0) - (a.sum.avg || 0); });
+        html += '<details class="stats-set" open><summary>' +
+            '<span class="stats-set-name">' + escapeHtml(set) + "</span>" +
+            '<span class="stats-set-sum">' + names.length + " case" + (names.length === 1 ? "" : "s") +
+            " · " + s.count + " solve" + (s.count === 1 ? "" : "s") + " · avg " + f(s.avg) + "s · best " + f(s.best) + "s</span>" +
+            "</summary>" +
+            '<div class="stats-table-wrap"><table><tr><th>Case</th><th>Count</th><th>Avg</th><th>Best</th><th>Worst</th>' +
+            '<th>Avg Recog</th><th>Avg Exec</th>' +
+            '<th title="Face turns per solve, mistakes included">Turns</th>' +
+            '<th title="Turns per second while executing">TPS</th>' +
+            '<th title="Share of execution time spent turning rather than pausing">Fluidity</th></tr>' +
+            rows.map(function (r) {
+                var key = statsCaseKey(r.list[0]);
+                var nameCell = key
+                    ? '<button type="button" class="stats-case-link" title="Setup and algs" onclick="CaseInfo.open(\'' + escapeHtml(key) + '\')">' + escapeHtml(r.name) + "</button>"
+                    : escapeHtml(r.name);
+                var m = r.sum.moves;
+                return "<tr><td>" + nameCell + "</td><td>" + r.sum.count + "</td><td>" + f(r.sum.avg) + "</td><td>" +
+                    f(r.sum.best) + "</td><td>" + f(r.sum.worst) + '</td><td class="recog-col">' + f(r.sum.recog) +
+                    '</td><td class="exec-col">' + f(r.sum.exec) + "</td><td>" + (m ? m.turns.toFixed(1) : "-") +
+                    "</td><td>" + (m ? m.tps.toFixed(1) : "-") + "</td><td>" + (m ? Math.round(m.fluidity * 100) + "%" : "-") + "</td></tr>";
+            }).join("") +
+            "</table></div></details>";
+    });
 
     content.innerHTML = html;
 }
@@ -2119,6 +2139,33 @@ function getDisplayedAlgText(idx, fallback) {
     var a = adjustedAlgs[idx];
     return a && a.ok && window.AlgAuf ? AlgAuf.toText(a) : fallback;
 }
+
+// ── Case info window (scripts/caseInfo.js) ──────────────────────────────
+// Click the case picture on the results panel for its setup and algs.
+function displayedCaseKey() {
+    var c = currentlyDisplayedCase;
+    if (!c || c.set === "LSLL") return null;
+    return c.set + "-" + c.subset + "-" + c.caseName;
+}
+
+(function initCaseInfoLinks() {
+    var img = document.getElementById("case-img");
+    var canvas = document.getElementById("case-canvas");
+    [img, canvas].forEach(function (node) {
+        if (!node) return;
+        node.classList.add("case-info-link");
+        node.title = "Setup and algs";
+        node.addEventListener("click", function () {
+            var key = displayedCaseKey();
+            if (key && window.CaseInfo) CaseInfo.open(key);
+        });
+    });
+})();
+
+// Making an alg your main one in the window: show it first here too
+window.onCaseInfoChange = function (key) {
+    if (key === displayedCaseKey()) document.querySelector("#case-algs").innerHTML = getAlgList();
+};
 
 // ── Learning mode (trainer.html?learn=ZBLL / ZBLS, scheduling in srs.js) ──
 // The queue decides the next case. After each solve the trainer suggests a

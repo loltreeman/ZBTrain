@@ -593,6 +593,17 @@
     grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
 }
 
+/* A case tile with its ⓘ button (case info window) */
+.zbls-case-wrap {
+    position: relative;
+    display: flex;
+}
+
+.zbls-case-wrap .zbls-case {
+    flex: 1;
+    min-width: 0;
+}
+
 .zbls-preview,
 .zbls-case .subset-orientation {
     object-fit: contain;
