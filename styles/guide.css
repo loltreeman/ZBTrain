@@ -1,0 +1,725 @@
+/* ZB guide (guide/*.html): docs layout with a page list on the left, the
+   article in the middle and "On this page" on the right. Built by
+   scripts/guide.js. */
+
+.docs-layout {
+    display: grid;
+    grid-template-columns: 240px minmax(0, 1fr) 200px;
+    gap: var(--sp-6);
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: var(--sp-5) 32px 0;
+}
+
+/* ── Left: pages ─────────────────────────────────────────────────────── */
+
+.docs-sidebar {
+    position: sticky;
+    top: var(--sp-4);
+    align-self: start;
+    max-height: calc(100vh - 32px);
+    overflow-y: auto;
+    padding-bottom: var(--sp-5);
+}
+
+.docs-nav-section + .docs-nav-section {
+    margin-top: var(--sp-4);
+}
+
+.docs-nav-title {
+    margin-bottom: 4px;
+    padding: 0 10px;
+    color: var(--text-3);
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+.docs-nav-link {
+    display: block;
+    padding: 6px 10px;
+    border-radius: var(--r-sm);
+    color: var(--text-2);
+    font-size: var(--fs-sm);
+    text-decoration: none;
+    transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+
+.docs-nav-link:hover {
+    background: var(--surface-2);
+    color: var(--text);
+}
+
+.docs-nav-link[aria-current="page"] {
+    background: var(--accent-soft);
+    color: var(--accent-text);
+    font-weight: 600;
+}
+
+.docs-nav-cta {
+    display: block;
+    margin-top: var(--sp-5);
+    padding: var(--sp-3);
+    border-radius: var(--r-md);
+    background: var(--surface);
+    color: var(--text-2);
+    font-size: var(--fs-xs);
+    line-height: 1.5;
+}
+
+.docs-nav-cta .btn {
+    width: 100%;
+    margin-top: var(--sp-2);
+    text-decoration: none;
+}
+
+/* ── Middle: the article ─────────────────────────────────────────────── */
+
+.docs-main {
+    min-width: 0;
+    padding-bottom: var(--sp-7);
+}
+
+.docs-breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: var(--sp-3);
+    color: var(--text-3);
+    font-size: var(--fs-sm);
+}
+
+.docs-breadcrumb a {
+    color: var(--text-3);
+    text-decoration: none;
+}
+
+.docs-breadcrumb a:hover {
+    color: var(--text);
+}
+
+.docs-breadcrumb span[aria-current] {
+    color: var(--text);
+    font-weight: 500;
+}
+
+.docs-article {
+    font-size: var(--fs-md);
+    line-height: 1.7;
+}
+
+.docs-article h1 {
+    font-size: clamp(28px, 3.4vw, 36px);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+}
+
+.docs-lead {
+    margin-top: var(--sp-3);
+    color: var(--text-2);
+    font-size: var(--fs-lg);
+    line-height: 1.6;
+    text-wrap: pretty;
+}
+
+.docs-article h2 {
+    margin-top: var(--sp-6);
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--line);
+    font-size: var(--fs-xl);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    scroll-margin-top: var(--sp-4);
+}
+
+.docs-article h3 {
+    margin-top: var(--sp-5);
+    font-size: var(--fs-lg);
+    font-weight: 600;
+    scroll-margin-top: var(--sp-4);
+}
+
+.docs-article p,
+.docs-article ul,
+.docs-article ol,
+.docs-article table,
+.docs-article figure {
+    margin-top: var(--sp-3);
+}
+
+.docs-article ul,
+.docs-article ol {
+    padding-left: 1.4em;
+}
+
+.docs-article li + li {
+    margin-top: 6px;
+}
+
+.docs-article li::marker {
+    color: var(--text-3);
+}
+
+.docs-article a:not(.btn) {
+    color: var(--accent-text);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--accent-text) 35%, transparent);
+    text-underline-offset: 3px;
+}
+
+.docs-article a:not(.btn):hover {
+    text-decoration-color: currentColor;
+}
+
+.docs-article code {
+    padding: 1px 6px;
+    border-radius: 5px;
+    background: var(--surface-2);
+    font: 500 0.88em var(--font-mono);
+}
+
+.docs-article strong {
+    font-weight: 600;
+}
+
+/* Call-outs */
+.callout {
+    display: flex;
+    gap: var(--sp-3);
+    margin-top: var(--sp-4);
+    padding: var(--sp-3) var(--sp-4);
+    border-radius: var(--r-md);
+    background: var(--surface);
+    box-shadow: inset 3px 0 0 var(--accent);
+    font-size: var(--fs-sm);
+    line-height: 1.6;
+}
+
+/* Same line height as the text, so the icon lines up with the first line */
+.callout-icon {
+    flex: none;
+    font-size: 15px;
+    line-height: calc(var(--fs-sm) * 1.6);
+}
+
+.callout.is-tip { box-shadow: inset 3px 0 0 var(--good); }
+.callout.is-warn { box-shadow: inset 3px 0 0 var(--warn); }
+
+/* The icon comes first, so the text is never :first-child */
+.docs-article .callout > p,
+.docs-article .callout > ul {
+    margin-top: 0;
+}
+
+/* Tables */
+.docs-table-wrap {
+    margin-top: var(--sp-3);
+    overflow-x: auto;
+}
+
+.docs-article table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--fs-sm);
+    line-height: 1.5;
+}
+
+.docs-table-wrap table {
+    margin-top: 0;
+}
+
+.docs-article th,
+.docs-article td {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--line);
+    text-align: left;
+    vertical-align: top;
+}
+
+.docs-article th {
+    color: var(--text-2);
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* Cards (two columns) */
+.docs-cards {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--sp-3);
+    margin-top: var(--sp-3);
+}
+
+.docs-card {
+    padding: var(--sp-4);
+    border-radius: var(--r-md);
+    background: var(--surface);
+    font-size: var(--fs-sm);
+    line-height: 1.6;
+}
+
+.docs-card h3,
+.docs-card h4 {
+    margin-top: 0;
+    font-size: var(--fs-md);
+    font-weight: 600;
+}
+
+/* Numbered steps */
+.docs-steps {
+    counter-reset: step;
+    padding-left: 0 !important;
+    list-style: none;
+}
+
+.docs-steps > li {
+    position: relative;
+    padding-left: 40px;
+    counter-increment: step;
+}
+
+.docs-steps > li + li {
+    margin-top: var(--sp-3);
+}
+
+.docs-steps > li::before {
+    content: counter(step);
+    position: absolute;
+    top: 1px;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--accent-soft);
+    color: var(--accent-text);
+    font-size: var(--fs-sm);
+    font-weight: 700;
+}
+
+/* Cube animations (cubing.js) and case pictures */
+.docs-figures {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-4);
+    margin-top: var(--sp-3);
+}
+
+.docs-figure {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+}
+
+.docs-figure figcaption {
+    max-width: 260px;
+    color: var(--text-2);
+    font-size: var(--fs-xs);
+    line-height: 1.5;
+    text-align: center;
+}
+
+.docs-figure code {
+    font-size: 0.95em;
+}
+
+.docs-player {
+    width: 260px;
+    height: 220px;
+    border-radius: var(--r-md);
+    background: var(--surface);
+}
+
+.docs-player.is-small {
+    width: 180px;
+    height: 160px;
+}
+
+.docs-img {
+    width: 110px;
+    height: 110px;
+    object-fit: contain;
+}
+
+.docs-img.is-small {
+    width: 72px;
+    height: 72px;
+}
+
+/* Case name parts */
+.name-parts {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-2);
+    margin-top: var(--sp-3);
+}
+
+.name-part {
+    display: flex;
+    gap: var(--sp-3);
+    align-items: flex-start;
+    padding: var(--sp-3);
+    border-radius: var(--r-md);
+    background: var(--surface);
+    font-size: var(--fs-sm);
+    line-height: 1.6;
+}
+
+.name-token {
+    flex: none;
+    min-width: 56px;
+    padding: 4px 8px;
+    border-radius: var(--r-sm);
+    background: var(--accent-soft);
+    color: var(--accent-text);
+    font: 700 var(--fs-md) var(--font-mono);
+    text-align: center;
+}
+
+.ocll-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-3);
+    margin-top: var(--sp-3);
+}
+
+.ocll-row .docs-figure figcaption {
+    color: var(--text);
+    font-weight: 600;
+}
+
+/* Bottom of the article */
+.docs-sources {
+    margin-top: var(--sp-6);
+    padding-top: var(--sp-4);
+    border-top: 1px solid var(--line);
+    color: var(--text-2);
+    font-size: var(--fs-sm);
+}
+
+.docs-article .docs-sources h2 {
+    margin-top: 0;
+    padding: 0;
+    border: 0;
+    font-size: var(--fs-md);
+}
+
+.docs-cta-box {
+    margin-top: var(--sp-6);
+    padding: var(--sp-5);
+    border-radius: var(--r-md);
+    background: var(--accent-soft);
+}
+
+.docs-article .docs-cta-box h2 {
+    margin-top: 0;
+    padding: 0;
+    border: 0;
+}
+
+.docs-cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+    margin-top: var(--sp-4);
+}
+
+.docs-cta .btn {
+    height: 38px;
+    padding: 0 16px;
+    text-decoration: none;
+}
+
+/* Previous / next */
+.docs-pager {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--sp-3);
+    margin-top: var(--sp-6);
+}
+
+.docs-pager a {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: var(--sp-3) var(--sp-4);
+    border-radius: var(--r-md);
+    box-shadow: 0 0 0 1px var(--line-strong);
+    color: var(--text);
+    text-decoration: none;
+    transition: box-shadow var(--dur) var(--ease);
+}
+
+.docs-pager a:hover {
+    box-shadow: 0 0 0 1px var(--accent);
+}
+
+.docs-pager a.is-next {
+    grid-column: 2;
+    align-items: flex-end;
+    text-align: right;
+}
+
+.docs-pager span {
+    color: var(--text-3);
+    font-size: var(--fs-xs);
+}
+
+.docs-pager b {
+    color: var(--accent-text);
+    font-weight: 600;
+}
+
+.docs-updated {
+    margin-top: var(--sp-4);
+    color: var(--text-3);
+    font-size: var(--fs-xs);
+}
+
+/* ── Right: on this page ─────────────────────────────────────────────── */
+
+.docs-toc {
+    position: sticky;
+    top: var(--sp-4);
+    align-self: start;
+    font-size: var(--fs-sm);
+}
+
+.docs-toc-title {
+    margin-bottom: var(--sp-2);
+    font-size: var(--fs-xs);
+    font-weight: 600;
+}
+
+.docs-toc a {
+    display: block;
+    padding: 4px 0 4px 10px;
+    border-left: 2px solid var(--line);
+    color: var(--text-3);
+    text-decoration: none;
+    line-height: 1.4;
+}
+
+.docs-toc a:hover {
+    color: var(--text);
+}
+
+.docs-toc a.is-active {
+    border-left-color: var(--accent);
+    color: var(--accent-text);
+}
+
+.docs-toc-top {
+    margin-top: var(--sp-3);
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--text-3);
+    font: inherit;
+    font-size: var(--fs-xs);
+    cursor: pointer;
+}
+
+.docs-toc-top:hover {
+    color: var(--text);
+}
+
+/* Mobile menu button (in the header) */
+.docs-menu-btn {
+    display: none;
+}
+
+@media (max-width: 1100px) {
+    .docs-layout {
+        grid-template-columns: 220px minmax(0, 1fr);
+    }
+
+    .docs-toc {
+        display: none;
+    }
+}
+
+@media (max-width: 800px) {
+    .docs-layout {
+        grid-template-columns: minmax(0, 1fr);
+        padding: var(--sp-4) var(--sp-4) 0;
+    }
+
+    .docs-menu-btn {
+        display: inline-flex;
+    }
+
+    .docs-sidebar {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 500;
+        width: min(300px, 85vw);
+        max-height: none;
+        padding: var(--sp-4);
+        background: var(--bg);
+        box-shadow: var(--shadow-pop);
+        transform: translateX(-105%);
+        transition: transform 180ms var(--ease);
+    }
+
+    body.docs-menu-open .docs-sidebar {
+        transform: none;
+    }
+
+    body.docs-menu-open::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: 400;
+        background: var(--overlay);
+    }
+
+    .docs-cards {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .docs-pager {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .docs-pager a.is-next {
+        grid-column: 1;
+    }
+}
+
+/* Cube pictures drawn by scripts/guideFigures.js */
+.cube-fig {
+    width: 130px;
+    aspect-ratio: 1;
+}
+
+.cube-fig svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.docs-figure figcaption b {
+    color: var(--text);
+    font-weight: 600;
+}
+
+/* Worked example: pictures with arrows between them */
+.fig-steps {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: var(--sp-2);
+    margin-top: var(--sp-3);
+}
+
+.fig-steps .docs-figure {
+    width: 140px;
+}
+
+.fig-steps .cube-fig {
+    width: 120px;
+}
+
+.fig-arrow {
+    align-self: center;
+    margin-top: -40px;
+    color: var(--text-3);
+    font-size: 20px;
+}
+
+/* The 12 BH patterns */
+.bh-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+    gap: var(--sp-3) var(--sp-2);
+    margin-top: var(--sp-3);
+    padding: var(--sp-4);
+    border-radius: var(--r-md);
+    background: var(--surface);
+}
+
+.bh-grid .cube-fig {
+    width: 84px;
+}
+
+/* Embedded video */
+.docs-video {
+    position: relative;
+    max-width: 640px;
+    margin-top: var(--sp-3);
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-radius: var(--r-md);
+    background: var(--surface);
+}
+
+.docs-video iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+@media (max-width: 640px) {
+    .fig-arrow {
+        display: none;
+    }
+
+    .fig-steps .docs-figure {
+        width: calc(50% - var(--sp-2));
+    }
+}
+
+/* H from both angles */
+.h-angle-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: var(--sp-3);
+    margin-top: var(--sp-3);
+}
+
+.h-pair {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: var(--sp-3) var(--sp-2) var(--sp-2);
+    border-radius: var(--r-md);
+    background: var(--surface);
+}
+
+.h-pics {
+    display: flex;
+    gap: var(--sp-2);
+    justify-content: center;
+}
+
+.h-pics .cube-fig {
+    width: 80px;
+}
+
+.h-pair p {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 !important;
+    font-size: var(--fs-xs);
+}
+
+.h-pair span {
+    padding: 1px 7px;
+    border-radius: var(--r-pill);
+    background: var(--good-soft);
+    color: var(--good);
+    font-size: 11px;
+    font-weight: 600;
+}

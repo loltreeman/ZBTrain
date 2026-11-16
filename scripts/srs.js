@@ -145,6 +145,8 @@
             newPerDay: s.newPerDay != null ? s.newPerDay : (DECKS[deck] ? DECKS[deck].defaultNew : 5),
             goal: s.goal || null,      // target time in seconds, or null
             include: s.include || {},  // cases you chose to learn (new cases only come from these)
+            path: !!s.path,            // following the beginner path (see advancePath)
+            pathAdded: s.pathAdded || {}, // groups the path has added so far
         };
     }
 
@@ -309,11 +311,81 @@
         return { days: n, today: studied(dayId(now)) };
     }
 
+    // ── Beginner path ───────────────────────────────────────────────────
+    // One group of 12 cases at a time, in the order most ZB learners use:
+    // T and U first, then L, then H and Pi, and Sune and Antisune last
+    // (the ZZ method's ZBLL guide recommends this order). Within a set, 2GLL
+    // first (only R and U turns, the easiest algs), then the other corner
+    // groups. ZBLS goes F2L 1 to 41. The next group is added once every case
+    // of the last one has been started.
+    var PATH_SETS = ["T", "U", "L", "H", "Pi", "Sune", "Antisune"];
+
+    function pathGroups(deck) {
+        var groups = [], seen = {};
+        var cases = deckCases(deck).slice();
+        if (deck === "ZBLL") {
+            cases.sort(function (a, b) { return PATH_SETS.indexOf(a.set) - PATH_SETS.indexOf(b.set); });
+        }
+        cases.forEach(function (c) {
+            if (!seen[c.group]) { seen[c.group] = true; groups.push(c.group); }
+        });
+        return groups;
+    }
+
+    // Where you are on the path: { current, next, done, total }
+    function pathStatus(deck) {
+        var s = getSettings(deck);
+        var groups = pathGroups(deck);
+        var added = groups.filter(function (g) { return s.pathAdded[g]; });
+        return {
+            on: s.path,
+            current: added.length ? added[added.length - 1] : null,
+            next: groups.filter(function (g) { return !s.pathAdded[g]; })[0] || null,
+            done: added.length,
+            total: groups.length,
+        };
+    }
+
+    // Add the next group once the cases you picked have all been started
+    function advancePath(deck) {
+        var s = getSettings(deck);
+        if (!s.path) return;
+        var cards = allCards();
+        var pickedNew = Object.keys(s.include).some(function (k) {
+            return !cards[k] || cards[k].state === "new";
+        });
+        if (pickedNew) return;
+        var groups = pathGroups(deck);
+        for (var i = 0; i < groups.length; i++) {
+            var g = groups[i];
+            if (s.pathAdded[g]) continue;
+            s.pathAdded[g] = true;
+            var fresh = 0;
+            deckCases(deck).forEach(function (c) {
+                if (c.group !== g) return;
+                var card = cards[c.key];
+                if (!card || card.state === "new") { s.include[c.key] = true; fresh++; }
+            });
+            if (fresh) break; // a group you already know: go on to the next one
+        }
+        setSettings(deck, { include: s.include, pathAdded: s.pathAdded });
+    }
+
+    function startPath(deck) {
+        setSettings(deck, { path: true, pathAdded: {}, newPerDay: 3 });
+        advancePath(deck);
+    }
+
+    function leavePath(deck) {
+        setSettings(deck, { path: false });
+    }
+
     // ── The queue ───────────────────────────────────────────────────────
 
     // Counts and the next case to study for a deck
     function queue(deck, now, exclude) {
         now = now || Date.now();
+        advancePath(deck);
         var cards = allCards();
         var settings = getSettings(deck);
         var log = todayLog(deck, now);
@@ -512,6 +584,10 @@
         getSettings: getSettings,
         setSettings: setSettings,
         markKnown: markKnown,
+        startPath: startPath,
+        leavePath: leavePath,
+        pathStatus: pathStatus,
+        pathGroups: pathGroups,
         resetCards: resetCards,
         suggest: suggest,
         dayId: dayId,

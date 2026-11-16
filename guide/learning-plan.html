@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Learning plan | ZB guide | ZBTrain</title>
+  <meta name="description" content="The order to learn ZBLL in, a weekly routine for each group of 12, choosing algs and keeping a sheet.">
+
+  <link rel="icon" type="image/png" href="../images/logo.png" sizes="72x72">
+  <link rel="stylesheet" href="../styles/tokens.css">
+  <link rel="stylesheet" href="../styles/base.css">
+  <link rel="stylesheet" href="../styles/homepage.css">
+  <link rel="stylesheet" href="../styles/guide.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="brand-container">
+      <button type="button" id="docsMenuBtn" class="btn btn-ghost btn-icon docs-menu-btn" aria-label="Guide pages" aria-expanded="false" aria-controls="docsSidebar">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <a href="../index.html" class="brand-link" title="ZBTrain home"><img src="../images/logo.png" alt="" class="logoimg"><span class="brand-text">ZBTrain</span></a>
+      <nav class="set-switch" aria-label="Algorithm set">
+        <a href="../learn.html">Learn</a>
+        <a href="../zbll.html">ZBLL</a>
+        <a href="../zbls.html">ZBLS</a>
+        <a href="../sheets.html">Sheets</a>
+        <a href="index.html" aria-current="page">Guide</a>
+      </nav>
+    </div>
+    <button type="button" id="darkModeToggle" class="btn btn-ghost btn-icon dark-mode-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode"></button>
+  </header>
+
+  <div class="docs-layout">
+    <!-- Page list, breadcrumbs, "On this page" and previous/next: scripts/guide.js -->
+    <aside class="docs-sidebar" id="docsSidebar"></aside>
+
+    <main class="docs-main">
+      <nav class="docs-breadcrumb" id="docsBreadcrumb" aria-label="Breadcrumb"></nav>
+      <article class="docs-article">
+        <h1>Learning plan</h1>
+        <p class="docs-lead">Learn ZBLL one set at a time, and one group of 12 cases at a time within each set. Here's the order most people use, and a routine for each week.</p>
+
+        <h2 id="order">The order</h2>
+        <ol class="docs-steps">
+          <li><strong>T and U.</strong> Common, fairly easy to recognise, with lots of nice algs. Start each one with its <code>2GLL</code> group: those cases only need R and U turns.</li>
+          <li><strong>L.</strong></li>
+          <li><strong>H and Pi.</strong> H is the smallest set (40 cases).</li>
+          <li><strong>Sune and Antisune</strong> last. Their OCLL algs are already very fast, so a lot of people leave them until the end, and some skip them. You still gain from learning them.</li>
+        </ol>
+        <p>Why groups of 12? Each group shares one corner pattern, so you learn to tell its 12 edge cases apart together. Learning fewer at once weakens the link between each case and its alg, and learning many more at once gets overwhelming.</p>
+
+        <h2 id="weekly-routine">A weekly routine</h2>
+        <p>One group of 12 a week works well. An example week:</p>
+        <div class="docs-table-wrap">
+          <table>
+            <tr><th>Days</th><th>What to do</th></tr>
+            <tr><td>1–3</td><td>Learn the 12 algs, 4 a day. For each one: pick an alg, learn it slowly, drill it, and connect it to its case (see <a href="practice.html">Practicing</a>).</td></tr>
+            <tr><td>4–7</td><td>Practise the whole group mixed in the trainer, so you have to recognise each case first. Start using them in your solves.</td></tr>
+            <tr><td>After that</td><td>Short reviews, more and more spread out. A few minutes is enough.</td></tr>
+          </table>
+        </div>
+        <p>At that pace all 472 cases take about 40 weeks. If 12 a week is too much, take it slower: what matters is coming back every day.</p>
+        <div class="callout is-tip">
+          <span class="callout-icon" aria-hidden="true">💡</span>
+          <p>ZBTrain's <a href="../learn.html?path=ZBLL">beginner path</a> follows this order for you. It gives you 3 new cases a day (12 in about 4 days), adds the next group once you've started every case in the current one, and schedules your reviews.</p>
+        </div>
+
+        <h2 id="choosing-algs">Choosing algs</h2>
+        <ul>
+          <li>Look through a couple of sources: <a href="https://pepkin88.me/zbll-explorer/" target="_blank" rel="noopener">ZBLL Explorer</a> collects algs from many sheets, and ZBTrain shows several algs for every case (click a case or its <strong>ⓘ</strong>).</li>
+          <li>Try 2 or 3 for each case and keep the one that feels best in your hands.</li>
+          <li><strong>Don't overthink it.</strong> Two algs that differ by a tenth of a second aren't worth agonising over. If you can't decide, take the first one. You can always switch later.</li>
+          <li>Prefer algs that flow: fewer regrips and rotations usually beat a slightly lower move count.</li>
+        </ul>
+
+        <h2 id="keep-a-sheet">Keep your own sheet</h2>
+        <p>Keep a list of the algs you chose, so you never have to search for them again when you review. A simple way:</p>
+        <ol class="docs-steps">
+          <li>Open an existing ZBLL sheet in Google Sheets.</li>
+          <li>Make your own copy (File → Make a copy).</li>
+          <li>Replace algs with the ones you chose, and clear the cells for cases you haven't learned yet, so you can see what's left.</li>
+        </ol>
+        <p>Then bring it into ZBTrain on the <a href="../sheets.html">Sheets</a> page: it reads every tab, checks which case each alg solves, and adds your algs to the trainer. You can also export your algs as a printable PDF.</p>
+
+        <section class="docs-sources">
+          <h2>Sources and further reading</h2>
+          <ul>
+            <li><a href="https://www.zzmethod.com/improvement-guide/ll/zbll-guide" target="_blank" rel="noopener">ZBLL Full Guide</a> by Krzysztof Bloch (yoruba), ZZ Method</li>
+            <li><a href="https://www.zzmethod.com/improvement-guide/ll/zbll-practice" target="_blank" rel="noopener">How to Practice ZBLL</a> by Krzysztof Bloch (yoruba), ZZ Method</li>
+            <li><a href="https://www.speedsolving.com/wiki/index.php/ZBLL" target="_blank" rel="noopener">ZBLL</a> on the Speedsolving.com wiki</li>
+            <li><a href="https://pepkin88.me/zbll-explorer/" target="_blank" rel="noopener">ZBLL Explorer</a> by pepkin88: algs from many sources for every case</li>
+            <li><a href="https://docs.google.com/spreadsheets/d/1-uwmZHf4vwJxFgeB3-TiF8MQ0RFSS30d5CUK96PoIwk/edit" target="_blank" rel="noopener">An example ZBLL sheet</a> (the one the ZZ guide suggests copying)</li>
+          </ul>
+        </section>
+      </article>
+      <nav class="docs-pager" id="docsPager" aria-label="Previous and next page"></nav>
+      <p class="docs-updated">Last updated November 2026</p>
+    </main>
+
+    <aside class="docs-toc" id="docsToc" aria-label="On this page"></aside>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-row">
+      <a href="../index.html" class="footer-link">Home</a>
+      <span class="footer-separator" aria-hidden="true">·</span>
+      <a href="../learn.html" class="footer-link">Learn</a>
+    </div>
+  </footer>
+
+  <script src="../scripts/guide.js"></script>
+  <script src="../scripts/darkmode.js"></script>
+</body>
+</html>

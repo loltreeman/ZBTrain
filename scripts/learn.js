@@ -77,16 +77,27 @@
         var picked = Object.keys(settings.include).filter(function (k) {
             return Srs.getCard(k).state === "new";
         }).length;
+        var nothingYet = !q.next && !q.waitingUntil && !picked;
         if (q.next) study.textContent = "Study now";
-        else if (!q.waitingUntil && !picked) {
-            // Nothing to study and nothing picked: send you to the case list
-            study = el("button", "btn btn-primary deck-study", "Choose cases to learn");
-            study.type = "button";
-            study.addEventListener("click", function () {
+        else if (nothingYet) {
+            // Nothing picked yet: the beginner path, or pick cases yourself
+            study = el("div", "deck-start");
+            var pathBtn = el("button", "btn btn-primary deck-study", "Start the beginner path");
+            pathBtn.type = "button";
+            pathBtn.title = "Picks your first cases for you, one group at a time";
+            pathBtn.addEventListener("click", function () {
+                Srs.startPath(deck);
+                refresh(true);
+            });
+            var chooseBtn = el("button", "btn btn-secondary deck-study", "Choose cases myself");
+            chooseBtn.type = "button";
+            chooseBtn.addEventListener("click", function () {
                 var d = card.querySelector(".deck-settings");
                 d.open = true;
                 d.scrollIntoView({ behavior: "smooth", block: "start" });
             });
+            study.appendChild(pathBtn);
+            study.appendChild(chooseBtn);
         } else {
             study.textContent = q.waitingUntil ? "Next case at " + timeText(q.waitingUntil) : "Done for today";
             study.classList.add("is-done");
@@ -95,6 +106,31 @@
         }
         head.appendChild(study);
         card.appendChild(head);
+
+        // Beginner path: where you are
+        var path = Srs.pathStatus(deck);
+        if (path.on) {
+            var strip = el("div", "path-strip");
+            strip.innerHTML =
+                '<span class="path-badge">Beginner path</span>' +
+                '<span class="path-text">' +
+                (path.current ? "Learning <b>" + esc(path.current) + "</b> · group " + path.done + " of " + path.total : "Starting…") +
+                (path.next ? " · next: " + esc(path.next) + ", once you've started every case" : " · last group") +
+                "</span>";
+            var leave = el("button", "btn btn-ghost btn-sm", "Leave path");
+            leave.type = "button";
+            leave.title = "Keep the cases you have, but stop adding new groups";
+            leave.addEventListener("click", function () {
+                Srs.leavePath(deck);
+                refresh(true);
+            });
+            strip.appendChild(leave);
+            card.appendChild(strip);
+        } else if (nothingYet && deck === "ZBLL") {
+            card.appendChild(el("p", "path-hint",
+                'New to ZB? The beginner path picks your first cases for you, 3 a day, in the usual learning order. ' +
+                '<a href="guide/index.html">Read the guide</a> to see why.'));
+        }
 
         // Progress
         var pct = function (n) { return p.total ? (n / p.total) * 100 : 0; };
@@ -376,6 +412,13 @@
             if (l && scroll[deck]) l.scrollTop = scroll[deck];
         });
         renderStreak();
+    }
+
+    // learn.html?path=ZBLL (from the guide): start the beginner path
+    var startDeck = (/[?&]path=(ZBLL|ZBLS)\b/.exec(location.search) || [])[1];
+    if (startDeck) {
+        if (!Srs.pathStatus(startDeck).on) Srs.startPath(startDeck);
+        history.replaceState(null, "", location.pathname);
     }
 
     refresh();

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Before you start | ZB guide | ZBTrain</title>
+  <meta name="description" content="What to know before learning ZBLL: OCLL and PLL, COLL recognition and edge orientation.">
+
+  <link rel="icon" type="image/png" href="../images/logo.png" sizes="72x72">
+  <link rel="stylesheet" href="../styles/tokens.css">
+  <link rel="stylesheet" href="../styles/base.css">
+  <link rel="stylesheet" href="../styles/homepage.css">
+  <link rel="stylesheet" href="../styles/guide.css">
+  <!-- Cube animations: cubing.js (https://js.cubing.net/cubing/) -->
+  <script src="https://cdn.cubing.net/v0/js/cubing/twisty" type="module"></script>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="brand-container">
+      <button type="button" id="docsMenuBtn" class="btn btn-ghost btn-icon docs-menu-btn" aria-label="Guide pages" aria-expanded="false" aria-controls="docsSidebar">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <a href="../index.html" class="brand-link" title="ZBTrain home"><img src="../images/logo.png" alt="" class="logoimg"><span class="brand-text">ZBTrain</span></a>
+      <nav class="set-switch" aria-label="Algorithm set">
+        <a href="../learn.html">Learn</a>
+        <a href="../zbll.html">ZBLL</a>
+        <a href="../zbls.html">ZBLS</a>
+        <a href="../sheets.html">Sheets</a>
+        <a href="index.html" aria-current="page">Guide</a>
+      </nav>
+    </div>
+    <button type="button" id="darkModeToggle" class="btn btn-ghost btn-icon dark-mode-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode"></button>
+  </header>
+
+  <div class="docs-layout">
+    <!-- Page list, breadcrumbs, "On this page" and previous/next: scripts/guide.js -->
+    <aside class="docs-sidebar" id="docsSidebar"></aside>
+
+    <main class="docs-main">
+      <nav class="docs-breadcrumb" id="docsBreadcrumb" aria-label="Breadcrumb"></nav>
+      <article class="docs-article">
+        <h1>Before you start</h1>
+        <p class="docs-lead">ZBLL builds on things most CFOP solvers already half know. Getting these three in place first makes every ZBLL group much easier.</p>
+
+        <h2 id="ocll-pll">OCLL and PLL (28 algs)</h2>
+        <p>When the last-layer edges are already oriented, OLL becomes one of just <strong>7 cases</strong>, called <strong>OCLL</strong> (orient corners of the last layer). Add the 21 PLLs and you have a complete, two-look way to finish any oriented last layer.</p>
+        <p>Know these before you start, for two reasons:</p>
+        <ul>
+          <li>They're your <strong>fallback</strong>. While you're learning, any ZBLL case you don't know yet is solved with OCLL + PLL, so you never get stuck.</li>
+          <li>The 7 OCLL shapes <strong>name the ZBLL sets</strong>. Every ZBLL case belongs to the set of its OCLL shape:</li>
+        </ul>
+        <div class="ocll-row">
+          <figure class="docs-figure"><img class="docs-img is-small" src="../svg/T.svg" alt=""><figcaption>T</figcaption></figure>
+          <figure class="docs-figure"><img class="docs-img is-small" src="../svg/U.svg" alt=""><figcaption>U</figcaption></figure>
+          <figure class="docs-figure"><img class="docs-img is-small" src="../svg/L.svg" alt=""><figcaption>L</figcaption></figure>
+          <figure class="docs-figure"><img class="docs-img is-small" src="../svg/H.svg" alt=""><figcaption>H</figcaption></figure>
+          <figure class="docs-figure"><img class="docs-img is-small" src="../svg/Pi.svg" alt=""><figcaption>Pi</figcaption></figure>
+          <figure class="docs-figure"><img class="docs-img is-small" src="../svg/S.svg" alt=""><figcaption>Sune</figcaption></figure>
+          <figure class="docs-figure"><img class="docs-img is-small" src="../svg/aS.svg" alt=""><figcaption>Antisune</figcaption></figure>
+        </div>
+        <p>The eighth "shape" is when all four corners are already oriented: that's just a PLL, which you already know.</p>
+
+        <h2 id="coll-recognition">COLL recognition</h2>
+        <p>Within each OCLL shape, the corners can be permuted (arranged) in <strong>6 different ways</strong>. Telling those 6 apart is called <strong>COLL recognition</strong>, and it's the first half of recognising any ZBLL case: it narrows 72 cases in a set down to 12.</p>
+        <p>You read it from the colours on the corners' side stickers, for example:</p>
+        <ul>
+          <li><strong>Headlights</strong>: two corner stickers of the same colour on one side.</li>
+          <li><strong>Opposite colours</strong> on a side, which often points to a diagonal swap.</li>
+          <li>Whether the matching pairs are on the left, right, front or back.</li>
+        </ul>
+        <div class="docs-figures">
+          <figure class="docs-figure">
+            <twisty-player class="docs-player" alg="R U R' U R U2 R'" experimental-setup-anchor="end" experimental-stickering="OCLL" background="none"></twisty-player>
+            <figcaption>OCLL only orients the corners (Sune). With COLL recognition you also know where they belong.</figcaption>
+          </figure>
+          <figure class="docs-figure">
+            <twisty-player class="docs-player" alg="R U R' U R U2 R'" experimental-setup-anchor="end" experimental-stickering="COLL" background="none"></twisty-player>
+            <figcaption>The same alg with only the corners coloured. In ZBLL you read both the shape and the corner colours.</figcaption>
+          </figure>
+        </div>
+        <p>You <strong>don't</strong> need to learn the COLL algs (one alg per corner pattern that also solves the corners). Most of them come up anyway as you learn ZBLL. What matters is the recognition. A good place to learn it is the <a href="https://www.youtube.com/playlist?list=PLI24ciRbl8BVMcz6pykWw040A40JntUrn" target="_blank" rel="noopener">COLL recognition playlist</a> that the ZZ method's guide recommends.</p>
+
+        <h2 id="edge-orientation">Edge orientation</h2>
+        <p>ZBLL only works when all four last-layer edges are <strong>oriented</strong>: their top-colour sticker (yellow, if you solve with yellow on top) already faces up, so you see a cross of that colour on top.</p>
+        <ul>
+          <li>In plain CFOP that only happens by luck, about <strong>1 solve in 8</strong>.</li>
+          <li><a href="zbls.html">ZBLS</a> orients the edges while you insert the last pair, so you get a ZBLL case every solve.</li>
+          <li>Other methods, like ZZ (EOCross) or Petrus, orient the edges earlier in the solve.</li>
+        </ul>
+        <div class="callout">
+          <span class="callout-icon" aria-hidden="true">ℹ️</span>
+          <p>You can start learning ZBLL before ZBLS. In ZBTrain the trainer always gives you a ZBLL case, so you can practise the algs now and add ZBLS later. In real solves, use ZBLL whenever the edges happen to be oriented.</p>
+        </div>
+
+        <h2 id="checklist">Checklist</h2>
+        <ul>
+          <li>☐ I know the 7 OCLL algs and the 21 PLLs.</li>
+          <li>☐ I can tell the 6 corner patterns apart for at least one OCLL shape (start with T or U).</li>
+          <li>☐ I know how I'll get oriented edges in solves (ZBLS, or another method), or I'm happy to just drill for now.</li>
+        </ul>
+
+        <section class="docs-sources">
+          <h2>Sources and further reading</h2>
+          <ul>
+            <li><a href="https://www.zzmethod.com/improvement-guide/ll/zbll-guide" target="_blank" rel="noopener">ZBLL Full Guide</a> by Krzysztof Bloch (yoruba), ZZ Method</li>
+            <li><a href="https://www.speedsolving.com/wiki/index.php/ZBLL" target="_blank" rel="noopener">ZBLL</a> on the Speedsolving.com wiki</li>
+            <li><a href="https://www.youtube.com/playlist?list=PLI24ciRbl8BVMcz6pykWw040A40JntUrn" target="_blank" rel="noopener">COLL recognition video playlist</a> (recommended in the ZZ guide)</li>
+            <li><a href="https://js.cubing.net/cubing/" target="_blank" rel="noopener">cubing.js</a> for the cube animations</li>
+          </ul>
+        </section>
+      </article>
+      <nav class="docs-pager" id="docsPager" aria-label="Previous and next page"></nav>
+      <p class="docs-updated">Last updated November 2026</p>
+    </main>
+
+    <aside class="docs-toc" id="docsToc" aria-label="On this page"></aside>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-row">
+      <a href="../index.html" class="footer-link">Home</a>
+      <span class="footer-separator" aria-hidden="true">·</span>
+      <a href="../learn.html" class="footer-link">Learn</a>
+      <span class="footer-separator" aria-hidden="true">·</span>
+      <span>Cube animations by <a href="https://js.cubing.net/cubing/" class="footer-link" target="_blank" rel="noopener">cubing.js</a></span>
+    </div>
+  </footer>
+
+  <script src="../scripts/guide.js"></script>
+  <script src="../scripts/darkmode.js"></script>
+</body>
+</html>

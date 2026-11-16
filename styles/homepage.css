@@ -789,3 +789,17 @@
         padding: var(--sp-4);
     }
 }
+
+.learn-strip-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2) var(--sp-4);
+}
+
+.learn-strip-links a {
+    text-decoration: none;
+}
+
+.learn-strip-links a:hover {
+    text-decoration: underline;
+}
