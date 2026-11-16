@@ -1035,15 +1035,79 @@ function removeElement(c) {
 
     displayCaseCount(toRecap, "numRecap", "to recap");
 
-    if (toRecap.length === 0) {
+    // "recap" check: some paths call this twice for the same solve
+    if (toRecap.length === 0 && recap) {
         recap = false;
         // Save the fact that recap is over
         sessionStorage.setItem("recapMode", JSON.stringify(false));
-
-        setTimeout(() => {
-            alert("Recap complete!");
-        }, 200);
+        showRecapDone();
     }
+}
+
+// ── Recap complete ──────────────────────────────────────────────────────
+// Everything stops (continuous training too) and you choose what's next:
+// recap the same cases again, keep training them, or pick new cases.
+var recapDoneOpen = false;
+
+function showRecapDone() {
+    recapDoneOpen = true;
+    if (continuousTimeout) { clearTimeout(continuousTimeout); continuousTimeout = null; }
+    var n = toTrain.length;
+    var overlay = document.getElementById("recapDone");
+    if (!overlay) {
+        overlay = document.createElement("div");
+        overlay.id = "recapDone";
+        overlay.className = "case-info-overlay";
+        document.body.appendChild(overlay);
+        overlay.addEventListener("click", function (e) {
+            var btn = e.target.closest("[data-act]");
+            if (btn) closeRecapDone(btn.dataset.act);
+        });
+        // While it's open, keys don't start the timer or turn the cube
+        window.addEventListener("keydown", function (e) {
+            if (!recapDoneOpen) return;
+            if (e.key === "Escape") { e.preventDefault(); closeRecapDone("train"); }
+            if (e.key !== "Tab" && e.key !== "Enter") e.stopPropagation();
+            if (e.key === " " && e.target.tagName !== "BUTTON") e.preventDefault();
+        }, true);
+        window.addEventListener("keyup", function (e) {
+            if (recapDoneOpen) e.stopPropagation();
+        }, true);
+    }
+    overlay.innerHTML =
+        '<div class="case-info-card recap-done-card" role="dialog" aria-modal="true" aria-labelledby="recapDoneTitle">' +
+        '<div class="case-info-header"><h3 id="recapDoneTitle">Recap complete 🎉</h3></div>' +
+        '<div class="case-info-body">' +
+        "<p>You've solved all " + n + " case" + (n === 1 ? "" : "s") + " once. What next?" +
+        (isContinuousOn() ? " Continuous training is paused until you choose." : "") + "</p>" +
+        '<div class="recap-done-actions">' +
+        '<button type="button" class="btn btn-primary" data-act="again">Recap again</button>' +
+        '<button type="button" class="btn btn-secondary" data-act="train">Keep training</button>' +
+        '<button type="button" class="btn btn-ghost" data-act="back">Choose new cases</button>' +
+        "</div></div></div>";
+    overlay.hidden = false;
+    overlay.querySelector('[data-act="again"]').focus();
+    updateContinuousHint();
+}
+
+function closeRecapDone(choice) {
+    if (choice === "back") { goBack(); return; }
+    var overlay = document.getElementById("recapDone");
+    if (overlay) overlay.hidden = true;
+    recapDoneOpen = false;
+    if (choice === "again") {
+        recap = true;
+        sessionStorage.setItem("recapMode", JSON.stringify(true));
+        toRecap = copyArray(toTrain);
+        displayCaseCount(toRecap, "numRecap", "to recap");
+    } else {
+        var numRecap = document.getElementById("numRecap");
+        if (numRecap) numRecap.textContent = "";
+    }
+    if (timerRef && timerRef.focus) timerRef.focus();
+    updateContinuousHint();
+    // Pick up continuous training where it left off
+    if (isContinuousOn() && !continuousPaused && timerStatus === "Stop") scheduleContinuousNext();
 }
 
 var originalGetAlgsArray = toTrain.length > 0 ? toTrain[0].getAlgsArray : null;
@@ -1629,6 +1693,8 @@ function handleKeyUp(event) {
 // Show the next case on the virtual cube and start the timer.
 // Used by the Space key and by continuous training.
 function beginSolve(isVirtualOn) {
+    // Recap finished: wait until you choose what's next
+    if (recapDoneOpen) return;
     // Learning mode with nothing due: check again (a learning case may be due by now)
     if (learnMode && !learnUpcoming) {
         prevCase = generateScramble();
@@ -1696,7 +1762,7 @@ function isContinuousOn() {
 }
 
 function scheduleContinuousNext() {
-    if (!isContinuousOn() || continuousPaused) return;
+    if (!isContinuousOn() || continuousPaused || recapDoneOpen) return;
     // Learning mode: wait for you before a new case (read its alg first) or when nothing is due
     if (learnMode && (!learnUpcoming || learnUpcoming.kind === "new")) {
         updateContinuousHint();
@@ -1705,7 +1771,7 @@ function scheduleContinuousNext() {
     if (continuousTimeout) clearTimeout(continuousTimeout);
     continuousTimeout = setTimeout(function () {
         continuousTimeout = null;
-        if (!isContinuousOn() || continuousPaused) return;
+        if (!isContinuousOn() || continuousPaused || recapDoneOpen) return;
         if (timerStatus !== "Stop") return;
         beginSolve(true);
     }, CONTINUOUS_DELAY_MS);
@@ -1722,7 +1788,9 @@ function pauseContinuous() {
 function updateContinuousHint() {
     var hint = document.querySelector(".timer-hint");
     if (!hint) return;
-    if (learnMode && learnUpcoming && learnUpcoming.kind === "new") {
+    if (recapDoneOpen) {
+        hint.textContent = "Recap complete · choose what's next";
+    } else if (learnMode && learnUpcoming && learnUpcoming.kind === "new") {
         hint.innerHTML = "New case: read the alg, then hold <kbd>Space</kbd>";
     } else if (!isContinuousOn()) {
         hint.innerHTML = "Hold <kbd>Space</kbd> to start";
