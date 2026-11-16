@@ -1,0 +1,255 @@
+/* Case info window (scripts/caseInfo.js) */
+
+.case-info-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 8000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--sp-4);
+    background: var(--overlay);
+    animation: case-info-fade 140ms var(--ease);
+}
+
+.case-info-overlay[hidden] {
+    display: none;
+}
+
+@keyframes case-info-fade {
+    from { opacity: 0; }
+}
+
+.case-info-card {
+    display: flex;
+    flex-direction: column;
+    width: min(620px, 100%);
+    max-height: calc(100vh - 32px);
+    overflow: hidden;
+    border-radius: 12px;
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: var(--shadow-pop);
+}
+
+.case-info-header {
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-3);
+    padding: 12px var(--sp-3) 12px 20px;
+    border-bottom: 1px solid var(--line);
+}
+
+.case-info-header h3 {
+    font-size: var(--fs-md);
+    font-weight: 600;
+}
+
+.case-info-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-3);
+    padding: var(--sp-4) 20px 20px;
+    overflow-y: auto;
+}
+
+.case-info-top {
+    display: flex;
+    gap: var(--sp-4);
+    align-items: flex-start;
+}
+
+.case-info-img {
+    flex: none;
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+}
+
+.case-info-setup {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: var(--sp-2);
+    min-width: 0;
+}
+
+.case-info-label {
+    color: var(--text-3);
+    font-size: var(--fs-xs);
+    font-weight: 600;
+}
+
+.case-info-hint {
+    color: var(--text-3);
+    font-size: var(--fs-xs);
+    font-weight: 400;
+    list-style: none;
+}
+
+.case-info-scramble {
+    padding: 8px 10px;
+    border-radius: var(--r-sm);
+    background: var(--surface-2);
+    font: 500 var(--fs-sm) / 1.5 var(--font-mono);
+    word-spacing: 0.1em;
+    user-select: all;
+}
+
+.case-info-setup-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.case-info-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2) var(--sp-4);
+    margin-top: 2px;
+}
+
+.case-info-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.case-info-stat span {
+    color: var(--text-3);
+    font-size: 11px;
+}
+
+.case-info-stat b {
+    font: 600 var(--fs-sm) var(--font-mono);
+}
+
+.case-info-algs {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.case-info-alg {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px 12px;
+    border-radius: var(--r-sm);
+    background: var(--surface-2);
+}
+
+.case-info-alg.is-main {
+    box-shadow: inset 3px 0 0 var(--good);
+}
+
+.case-info-alg-text {
+    font: 500 var(--fs-sm) / 1.5 var(--font-mono);
+    word-spacing: 0.1em;
+    word-break: break-word;
+}
+
+.case-info-alg-text .auf {
+    display: inline-block;
+    padding: 0 5px;
+    border-radius: 4px;
+    background: var(--accent-soft);
+    color: var(--accent-text);
+    font-weight: 600;
+}
+
+.case-info-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.case-info-tag {
+    padding: 1px 7px;
+    border-radius: var(--r-pill);
+    background: var(--surface-3);
+    color: var(--text-2);
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.case-info-tag.is-main {
+    background: var(--good-soft);
+    color: var(--good);
+}
+
+.case-info-tag.is-used {
+    background: var(--accent-soft);
+    color: var(--accent-text);
+}
+
+.case-info-alg-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    margin-left: -8px;
+}
+
+.case-info-overlay .btn-sm {
+    height: 26px;
+    padding: 0 8px;
+    font-size: var(--fs-xs);
+}
+
+.case-info-overlay .btn .icon {
+    width: 14px;
+    height: 14px;
+}
+
+/* ⓘ button on case pictures (ZBLL / ZBLS pages, slow cases) */
+.case-info-btn {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: var(--surface);
+    color: var(--text-2);
+    box-shadow: 0 0 0 1px var(--line-strong);
+    font: 600 12px / 1 var(--font-sans);
+    cursor: pointer;
+    opacity: 0.85;
+}
+
+.case-info-btn:hover {
+    color: var(--accent-text);
+    opacity: 1;
+}
+
+.case-info-btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+@media (max-width: 520px) {
+    .case-info-top {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .case-info-setup {
+        width: 100%;
+    }
+}
+
+/* Trainer: the results panel's case picture opens the window */
+.case-info-link {
+    cursor: pointer;
+}

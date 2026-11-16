@@ -753,6 +753,102 @@ body:has(#slowModeBanner[style*="flex"]) .app-shell {
     background: var(--surface-2);
 }
 
+/* Sets to show, and one section per set */
+.stats-filter {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: var(--sp-4);
+}
+
+.stats-filter-label {
+    margin-right: 4px;
+    color: var(--text-3);
+    font-size: var(--fs-xs);
+    font-weight: 600;
+}
+
+.stats-set-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 28px;
+    padding: 0 10px;
+    border-radius: var(--r-pill);
+    background: var(--surface-2);
+    font-size: var(--fs-sm);
+    cursor: pointer;
+}
+
+.stats-set-check input {
+    accent-color: var(--accent);
+}
+
+.stats-set-n {
+    color: var(--text-3);
+    font: 500 var(--fs-xs) var(--font-mono);
+}
+
+.stats-set + .stats-set {
+    margin-top: var(--sp-4);
+}
+
+.stats-set summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px var(--sp-3);
+    padding: 6px 0;
+    list-style: none;
+    cursor: pointer;
+}
+
+.stats-set summary::-webkit-details-marker {
+    display: none;
+}
+
+.stats-set summary::before {
+    content: "›";
+    display: inline-block;
+    width: 10px;
+    color: var(--text-3);
+    transition: transform var(--dur) var(--ease);
+}
+
+.stats-set[open] summary::before {
+    transform: rotate(90deg);
+}
+
+.stats-set-name {
+    font-weight: 600;
+}
+
+.stats-set-sum {
+    color: var(--text-3);
+    font-size: var(--fs-xs);
+}
+
+.stats-table-wrap {
+    overflow-x: auto;
+}
+
+.stats-case-link {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--accent-text);
+    font: inherit;
+    text-decoration: underline dotted;
+    text-underline-offset: 3px;
+    cursor: pointer;
+}
+
+.stats-empty {
+    color: var(--text-3);
+    font-size: var(--fs-sm);
+}
+
 .threshold-row {
     display: flex;
     align-items: center;
@@ -871,6 +967,32 @@ body:has(#slowModeBanner[style*="flex"]) .app-shell {
     font: 600 var(--fs-sm) var(--font-mono);
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+/* Picture and name open the case info window */
+.slow-case-open {
+    cursor: pointer;
+}
+
+button.slow-case-name {
+    align-self: flex-start;
+    max-width: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    text-align: left;
+    text-decoration: underline dotted var(--text-3);
+    text-underline-offset: 3px;
+}
+
+button.slow-case-name:hover {
+    color: var(--accent-text);
+}
+
+img.slow-case-open:hover {
+    outline: 2px solid var(--accent-soft);
+    border-radius: 6px;
 }
 
 .slow-case-stats {
@@ -1611,7 +1733,7 @@ body:has(#slowModeBanner[style*="flex"]) .app-shell {
     margin-left: 2px;
 }
 
-/* ── Alg player ─────────────────────────────────────────────────────────── */
+/* ── Alg player: see styles/player.css ──────────────────────────────────── */
 
 .alg-play-btn {
     display: inline-flex;
@@ -1643,140 +1765,45 @@ body:has(#slowModeBanner[style*="flex"]) .app-shell {
     margin-left: 0;
 }
 
-.player-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 9000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: var(--sp-4);
-    background: var(--overlay);
-    animation: player-fade 160ms var(--ease);
-}
 
-.player-overlay[hidden] {
-    display: none;
-}
 
-@keyframes player-fade {
-    from { opacity: 0; }
-}
 
-.player-card {
-    display: flex;
-    flex-direction: column;
-    gap: var(--sp-3);
-    width: min(440px, 100%);
-    max-height: calc(100dvh - 32px);
-    overflow-y: auto;
-    padding: var(--sp-4) 20px 20px;
-    border-radius: 12px;
-    background: var(--surface);
-    box-shadow: var(--shadow-pop);
-}
 
-.player-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: var(--sp-3);
-}
 
-.player-sub {
-    color: var(--text-3);
-    font: 500 var(--fs-xs) var(--font-mono);
-}
 
-.player-title {
-    font-size: var(--fs-lg);
-    font-weight: 600;
-}
 
-.player-stage {
-    display: flex;
-    justify-content: center;
-    padding: var(--sp-3) 0;
-    border-radius: var(--r-md);
-    background: var(--surface-2);
-}
 
-.player-moves {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 2px;
-    font-size: var(--fs-sm);
-}
 
-.player-move {
-    padding: 2px 5px;
-    border: 0;
-    border-radius: 4px;
-    background: transparent;
-    color: var(--text);
-    font: 500 var(--fs-sm) var(--font-mono);
-    cursor: pointer;
-    transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease);
-}
 
-.player-move:hover {
-    background: var(--surface-2);
-}
 
-.player-move.is-auf {
-    color: var(--accent-text);
-}
 
-.player-move.is-done {
-    color: var(--text-3);
-}
 
-.player-move.is-current {
-    background: var(--accent);
-    color: var(--text-on-accent);
-}
 
-.player-controls {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    position: relative;
-}
 
-.player-play {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-}
 
-.player-counter {
-    position: absolute;
-    right: 0;
-    color: var(--text-3);
-    font: 500 var(--fs-xs) var(--font-mono);
-    font-variant-numeric: tabular-nums;
-}
 
-.player-counter.is-solved {
-    color: var(--good);
-}
 
-.player-options {
-    display: flex;
-    gap: var(--sp-3);
-    padding-top: var(--sp-3);
-    border-top: 1px solid var(--line);
-}
 
-.player-options label {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    gap: var(--sp-1);
-    color: var(--text-2);
-    font-size: var(--fs-xs);
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* ── Detected alg (last solve) ──────────────────────────────────────────── */
 
@@ -1936,69 +1963,27 @@ body:has(#slowModeBanner[style*="flex"]) .app-shell {
     color: var(--accent-text);
 }
 
-.player-info {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 4px;
-}
 
-.player-info[hidden] {
-    display: none;
-}
 
-.player-stat {
-    display: flex;
-    flex-direction: column;
-    padding: 6px 8px;
-    border-radius: var(--r-sm);
-    background: var(--surface-2);
-}
 
-.player-stat span {
-    color: var(--text-3);
-    font-size: 11px;
-}
 
-.player-stat b {
-    font: 600 var(--fs-sm) var(--font-mono);
-    font-variant-numeric: tabular-nums;
-}
 
-.player-move.is-undone {
-    color: var(--bad);
-    text-decoration: line-through;
-    text-decoration-color: color-mix(in srgb, var(--bad) 50%, transparent);
-}
 
-.player-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--sp-2);
-}
 
-.player-footer[hidden] {
-    display: none;
-}
 
-.player-legend {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    color: var(--text-3);
-    font-size: var(--fs-xs);
-}
 
-.player-legend[hidden] {
-    display: none;
-}
 
-.player-legend-swatch {
-    width: 10px;
-    height: 10px;
-    border-radius: 2px;
-    background: var(--bad);
-}
+
+
+
+
+
+
+
+
+
+
+
 
 .alg-insights {
     grid-column: 1 / -1;
@@ -2033,28 +2018,11 @@ body:has(#slowModeBanner[style*="flex"]) .app-shell {
     line-height: 1.45;
 }
 
-.player-speed {
-    display: flex;
-    align-items: center;
-    gap: var(--sp-2);
-    height: 30px;
-}
 
-.player-speed input[type="range"] {
-    flex: 1;
-    min-width: 0;
-    margin: 0;
-    accent-color: var(--accent);
-    cursor: pointer;
-}
 
-.player-speed output {
-    min-width: 62px;
-    color: var(--text);
-    font: 500 var(--fs-xs) var(--font-mono);
-    font-variant-numeric: tabular-nums;
-    text-align: right;
-}
+
+
+
 
 /* ── Learning mode (trainer.html?learn=…) ──────────────────────────────── */
 
