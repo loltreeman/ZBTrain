@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recognition | ZB guide | ZBTrain</title>
+  <meta name="description" content="How to recognise ZBLL cases: the three steps, the main recognition systems (BH, blocks, NCP, Tran, Twisty PLL) and which one to start with.">
+
+  <link rel="icon" type="image/png" href="../images/logo.png" sizes="72x72">
+  <link rel="stylesheet" href="../styles/tokens.css">
+  <link rel="stylesheet" href="../styles/base.css">
+  <link rel="stylesheet" href="../styles/homepage.css">
+  <link rel="stylesheet" href="../styles/guide.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="brand-container">
+      <button type="button" id="docsMenuBtn" class="btn btn-ghost btn-icon docs-menu-btn" aria-label="Guide pages" aria-expanded="false" aria-controls="docsSidebar">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <a href="../index.html" class="brand-link" title="ZBTrain home"><img src="../images/logo.png" alt="" class="logoimg"><span class="brand-text">ZBTrain</span></a>
+      <nav class="set-switch" aria-label="Algorithm set">
+        <a href="../learn.html">Learn</a>
+        <a href="../zbll.html">ZBLL</a>
+        <a href="../zbls.html">ZBLS</a>
+        <a href="../sheets.html">Sheets</a>
+        <a href="index.html" aria-current="page">Guide</a>
+      </nav>
+    </div>
+    <button type="button" id="darkModeToggle" class="btn btn-ghost btn-icon dark-mode-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode"></button>
+  </header>
+
+  <div class="docs-layout">
+    <!-- Page list, breadcrumbs, "On this page" and previous/next: scripts/guide.js -->
+    <aside class="docs-sidebar" id="docsSidebar"></aside>
+
+    <main class="docs-main">
+      <nav class="docs-breadcrumb" id="docsBreadcrumb" aria-label="Breadcrumb"></nav>
+      <article class="docs-article">
+        <h1>Recognition</h1>
+        <p class="docs-lead">At first some ZBLL cases look almost identical. Can you really tell 472 of them apart in a fraction of a second? Yes, with a consistent system. Here's how recognition works and how to choose a system.</p>
+
+        <h2 id="three-steps">Recognition in three steps</h2>
+        <p>Every system starts the same way, and each step cuts the number of possible cases:</p>
+        <ol class="docs-steps">
+          <li><strong>The OCLL shape</strong> (T, U, L…): 493 possible cases become 72.</li>
+          <li><strong>The corner pattern</strong> (COLL recognition): 72 become 12.</li>
+          <li><strong>The edges</strong>: 12 become 1. This last step is where the systems differ.</li>
+        </ol>
+        <h3 id="worked-example">A worked example</h3>
+        <p>Here's one case, read one step at a time. Each picture shows only what that step looks at.</p>
+        <div class="fig-steps">
+          <figure class="docs-figure">
+            <div class="cube-fig" data-case="U-Diag-AsO"></div>
+            <figcaption><b>The case</b></figcaption>
+          </figure>
+          <span class="fig-arrow" aria-hidden="true">→</span>
+          <figure class="docs-figure">
+            <div class="cube-fig" data-case="U-Diag-AsO" data-show="shape"></div>
+            <figcaption><b>1. Shape</b><br>Two corners show yellow on top, and the other two both have yellow facing the back: a <b>U</b>. 72 cases left.</figcaption>
+          </figure>
+          <span class="fig-arrow" aria-hidden="true">→</span>
+          <figure class="docs-figure">
+            <div class="cube-fig" data-case="U-Diag-AsO" data-show="corners"></div>
+            <figcaption><b>2. Corners</b><br>The corner colours give the corner pattern: <b>Diag</b> (a diagonal swap). 12 left.</figcaption>
+          </figure>
+          <span class="fig-arrow" aria-hidden="true">→</span>
+          <figure class="docs-figure">
+            <div class="cube-fig" data-case="U-Diag-AsO" data-show="bh"></div>
+            <figcaption><b>3. Edges</b><br>The front-right corner and its two edges form one BH pattern, which picks the case: <code>U-Diag-AsO</code>.</figcaption>
+          </figure>
+        </div>
+
+        <h2 id="systems">The main systems</h2>
+        <div class="docs-table-wrap">
+          <table>
+            <tr><th>System</th><th>How it works</th><th>Good</th><th>Watch out</th></tr>
+            <tr>
+              <td><strong>Blocks</strong></td>
+              <td>Spot any distinctive pattern: bars, 2×1 blocks, matching pairs.</td>
+              <td>Very fast when an obvious block is there. What most people do naturally.</td>
+              <td>Not systematic: some cases (especially H and Pi) have nothing obvious, and you may need extra AUFs to see the pattern.</td>
+            </tr>
+            <tr>
+              <td><strong>BH (Baum-Harris)</strong></td>
+              <td>After COLL, look at the pattern made by the front-right corner and the two edges next to it.</td>
+              <td>Fully systematic: you always look at the same 3 pieces, and every case works the same way.</td>
+              <td>Takes effort up front: you need COLL recognition plus the BH patterns.</td>
+            </tr>
+            <tr>
+              <td><strong>NCP</strong> (no CP)</td>
+              <td>Skip the corner pattern: read the BH-style pattern around the front-left corner, then around the front-right corner.</td>
+              <td>Always the same 5 front pieces. Handy for Sune and Antisune, where corner patterns are harder to read.</td>
+              <td>You look at 3 sides instead of 2, and it helps less for H and Pi, whose corner patterns are easy anyway.</td>
+            </tr>
+            <tr>
+              <td><strong>Tran</strong> (V1 and V2)</td>
+              <td>After COLL, find where the edges that <em>belong</em> next to a reference corner currently are. V2 uses a reference sticker on top, so it works from any angle.</td>
+              <td>No patterns to memorise, just CP and the positions of 2 edges.</td>
+              <td>You often need to peek at a third side to see where the edges are.</td>
+            </tr>
+            <tr>
+              <td><strong>Twisty PLL</strong></td>
+              <td>Mentally twist the unoriented corners and read the case like two-sided PLL recognition.</td>
+              <td>Builds on PLL recognition you already have.</td>
+              <td>Mentally twisting corners is slow and inconsistent, especially with several twisted corners.</td>
+            </tr>
+            <tr>
+              <td><strong>Straughan, Polar</strong></td>
+              <td>Newer systems that use as few stickers as possible.</td>
+              <td>Designed for speed and for predicting the case during the last slot.</td>
+              <td>More to learn up front. Better as a later upgrade.</td>
+            </tr>
+          </table>
+        </div>
+
+        <h3 id="what-each-looks-at">What each system looks at</h3>
+        <p>The same case again, with only the stickers each system reads in colour:</p>
+        <div class="docs-figures">
+          <figure class="docs-figure">
+            <div class="cube-fig" data-case="U-Diag-AsO" data-show="bh"></div>
+            <figcaption><b>BH</b>: after COLL, the front-right corner and its two edges.</figcaption>
+          </figure>
+          <figure class="docs-figure">
+            <div class="cube-fig" data-case="U-Diag-AsO" data-show="ncp"></div>
+            <figcaption><b>NCP</b>: the patterns around both front corners, with no corner pattern needed.</figcaption>
+          </figure>
+          <figure class="docs-figure">
+            <div class="cube-fig" data-case="U-Diag-AsO" data-show="twisty"></div>
+            <figcaption><b>Twisty PLL</b>: the front and right sides, read like two-sided PLL.</figcaption>
+          </figure>
+        </div>
+
+        <h3 id="blocks">Blocks: easy cases and hard ones</h3>
+        <div class="docs-figures">
+          <figure class="docs-figure">
+            <div class="cube-fig" data-case="U-2GLL-CsC"></div>
+            <figcaption><b>Easy</b>: matching bars and blocks jump out (<code>U-2GLL-CsC</code>).</figcaption>
+          </figure>
+          <figure class="docs-figure">
+            <div class="cube-fig" data-case="H-3-OsC"></div>
+            <figcaption><b>Hard</b>: nothing obvious, just scattered colours (<code>H-3-OsC</code>). This is where a system helps.</figcaption>
+          </figure>
+        </div>
+
+        <h2 id="which-one">Which one to start with</h2>
+        <p><strong>Start with BH.</strong> It's the usual recommendation for beginners because it's consistent: instead of hunting for a different pattern in every case, you learn a fixed set of patterns that are guaranteed to appear, and you always look at the same pieces after COLL.</p>
+        <p>Blocks are a fine extra: if a case has an obvious block, use it. Just don't rely on blocks alone, since plenty of cases don't have one.</p>
+        <div class="callout">
+          <span class="callout-icon" aria-hidden="true">ℹ️</span>
+          <p>Pick one system and stay with it. Recognition gets faster with practice, not by switching systems. Eventually you'll see a case and just know it without thinking through the steps.</p>
+        </div>
+
+        <h2 id="bh">How BH works</h2>
+        <ol class="docs-steps">
+          <li>Recognise the OCLL shape and turn U (AUF) to the angle you recognise from, if you need to.</li>
+          <li>Recognise the corner pattern (COLL).</li>
+          <li>Look at the <strong>front-right top corner and the two edges beside it</strong> (front and right). The colours of those three pieces form one of <strong>12 base patterns</strong>. With the corner twisted clockwise or anticlockwise there are 36 in total, but they're the same 12 patterns seen on a twisted corner.</li>
+          <li>That pattern, plus the corner pattern you already know, points to exactly one case.</li>
+        </ol>
+        <h3 id="bh-patterns">The 12 BH patterns</h3>
+        <p>These are the 12 base patterns, with the corner showing green on the front and red on the right. What matters is how the edges relate to the corner (same, adjacent or opposite colour), not the colours themselves, so the same 12 patterns appear whatever the colours are.</p>
+        <p>The labels are ZBTrain's edge letters from the <a href="case-names.html#edge-letters">case names</a>: for T, U, L and Sune cases, the last part of a case's name is the BH pattern at the front-right corner of its case picture.</p>
+        <div class="bh-grid">
+          <figure class="docs-figure"><div class="cube-fig" data-bh="CsC"></div><figcaption><code>CsC</code></figcaption></figure>
+          <figure class="docs-figure"><div class="cube-fig" data-bh="CsA"></div><figcaption><code>CsA</code></figcaption></figure>
+          <figure class="docs-figure"><div class="cube-fig" data-bh="CsO"></div><figcaption><code>CsO</code></figcaption></figure>
+          <figure class="docs-figure"><div class="cube-fig" data-bh="AsC"></div><figcaption><code>AsC</code></figcaption></figure>
+          <figure class="docs-figure"><div class="cube-fig" data-bh="AsA"></div><figcaption><code>AsA</code></figcaption></figure>
+          <figure class="docs-figure"><div class="cube-fig" data-bh="AsO"></div><figcaption><code>AsO</code></figcaption></figure>
+          <figure class="docs-figure"><div class="cube-fig" data-bh="OsC"></div><figcaption><code>OsC</code></figcaption></figure>
+          <figure class="docs-figure"><div class="cube-fig" data-bh="OsA"></div><figcaption><code>OsA</code></figcaption></figure>
+          <figure class="docs-figure"><div class="cube-fig" data-bh="OsO"></div><figcaption><code>OsO</code></figcaption></figure>
+          <figure class="docs-figure"><div class="cube-fig" data-bh="CxO"></div><figcaption><code>CxO</code></figcaption></figure>
+          <figure class="docs-figure"><div class="cube-fig" data-bh="OxC"></div><figcaption><code>OxC</code></figcaption></figure>
+          <figure class="docs-figure"><div class="cube-fig" data-bh="OxO"></div><figcaption><code>OxO</code></figcaption></figure>
+        </div>
+        <p>How to read a label: the first letter compares the front edge with the corner's front sticker, the last letter compares the right edge with the corner's right sticker (<b>C</b> same, <b>A</b> adjacent, <b>O</b> opposite). The three <code>x</code> patterns compare them crosswise instead.</p>
+
+        <h3 id="twisted-corners">On a twisted corner</h3>
+        <p>When the front-right corner isn't oriented, yellow sits on one of its sides and the pattern looks different. These are the other 24 patterns: the same 12, seen with the corner twisted one way or the other.</p>
+        <div class="docs-figures">
+          <figure class="docs-figure"><div class="cube-fig" data-bh="CsC"></div><figcaption>Corner oriented</figcaption></figure>
+          <figure class="docs-figure"><div class="cube-fig" data-bh="CsC" data-twist="cw"></div><figcaption>Same pattern, corner twisted one way</figcaption></figure>
+          <figure class="docs-figure"><div class="cube-fig" data-bh="CsC" data-twist="ccw"></div><figcaption>Same pattern, twisted the other way</figcaption></figure>
+        </div>
+        <p>Learn the patterns from one angle first. Later you can learn to recognise from other angles too, which saves AUFs before the alg.</p>
+        <div class="callout is-tip">
+          <span class="callout-icon" aria-hidden="true">💡</span>
+          <p>Don't mentally twist corners to "fix" a pattern: learn to see the twisted versions as patterns of their own. It's faster.</p>
+        </div>
+
+        <h3 id="bh-video">Video: BH recognition</h3>
+        <p>The ZZ method team explains BH step by step in this video:</p>
+        <div class="docs-video">
+          <iframe src="https://www.youtube-nocookie.com/embed/OoUYM9hjsds" title="How to Recognize ZBLL: BH System (zzmethod.com)" loading="lazy" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen></iframe>
+        </div>
+
+        <h2 id="recognising-h">Recognising H</h2>
+        <p>H is the set most people find slowest to recognise, even with BH. Here's why, and what helps.</p>
+
+        <h3 id="why-h">Why H is different</h3>
+        <p>Every corner is twisted in H, with yellow facing two opposite sides, so the shape looks exactly the same after a <code>U2</code>. With T, U or L, the shape tells you which way round the case is. With H it can't: you might be looking at a case from its usual angle, or from the opposite side.</p>
+        <ul>
+          <li><strong>Symmetric cases</strong> look the same from both angles, so one picture is enough. That's 4 of the 8 cases in <code>2GLL</code>, and 4 of the 8 in <code>Diag</code>.</li>
+          <li><strong>Asymmetric cases</strong> look different after a <code>U2</code>, so each has two pictures to know. That's the other 4 in <code>2GLL</code> and in <code>Diag</code>, and <strong>all 24</strong> cases in <code>H 3</code> and <code>H 4</code>.</li>
+        </ul>
+        <p>Blocks are also rarer: with all four corners twisted, there are fewer obvious bars to grab onto.</p>
+
+        <h3 id="h-strategies">Three ways to deal with it</h3>
+        <ol class="docs-steps">
+          <li><strong>Learn both angles</strong> (most common). Recognise from your usual angle, and also learn what each asymmetric case looks like after a <code>U2</code>. A quick check: if the BH pattern and what's around it (say, a 2×1 bar on the left) don't match any case you know from your usual angle, it's one of your cases seen from the other side, so turn <code>U2</code>.</li>
+          <li><strong>Turn U to a fixed angle first.</strong> Simple, but it costs an extra turn every time. It's fine while learning, and many people keep it only for the few cases they find hardest.</li>
+          <li><strong>Read the bars and checkers.</strong> Look at the two sides without yellow, like two-sided PLL recognition. Watch for <em>bars</em> (three matching stickers) and <em>3-sticker checkers</em> (alternating colours, like the checker opposite the headlights in an R perm). Some people name them "up" or "down" depending on where they are, and remember cases that way.</li>
+        </ol>
+
+        <h3 id="h-angles">H 2GLL and Diag from both angles</h3>
+        <p>Each case on the left, and the same case after a <code>U2</code> on the right. Cases marked <strong>same</strong> look identical from both angles.</p>
+        <div class="h-angle-grid">
+          <div class="h-pair is-same"><div class="h-pics"><div class="cube-fig" data-case="H-2GLL-AsA"></div></div><p><code>H-2GLL-AsA</code><span>same</span></p></div>
+          <div class="h-pair is-same"><div class="h-pics"><div class="cube-fig" data-case="H-2GLL-CsC"></div></div><p><code>H-2GLL-CsC</code><span>same</span></p></div>
+          <div class="h-pair is-same"><div class="h-pics"><div class="cube-fig" data-case="H-2GLL-OsO"></div></div><p><code>H-2GLL-OsO</code><span>same</span></p></div>
+          <div class="h-pair is-same"><div class="h-pics"><div class="cube-fig" data-case="H-2GLL-OxO"></div></div><p><code>H-2GLL-OxO</code><span>same</span></p></div>
+          <div class="h-pair"><div class="h-pics"><div class="cube-fig" data-case="H-2GLL-AsC"></div><div class="cube-fig" data-case="H-2GLL-AsC" data-u2></div></div><p><code>H-2GLL-AsC</code></p></div>
+          <div class="h-pair"><div class="h-pics"><div class="cube-fig" data-case="H-2GLL-AsO"></div><div class="cube-fig" data-case="H-2GLL-AsO" data-u2></div></div><p><code>H-2GLL-AsO</code></p></div>
+          <div class="h-pair"><div class="h-pics"><div class="cube-fig" data-case="H-2GLL-CsO"></div><div class="cube-fig" data-case="H-2GLL-CsO" data-u2></div></div><p><code>H-2GLL-CsO</code></p></div>
+          <div class="h-pair"><div class="h-pics"><div class="cube-fig" data-case="H-2GLL-CxO"></div><div class="cube-fig" data-case="H-2GLL-CxO" data-u2></div></div><p><code>H-2GLL-CxO</code></p></div>
+          <div class="h-pair is-same"><div class="h-pics"><div class="cube-fig" data-case="H-Diag-CsO"></div></div><p><code>H-Diag-CsO</code><span>same</span></p></div>
+          <div class="h-pair is-same"><div class="h-pics"><div class="cube-fig" data-case="H-Diag-CxO"></div></div><p><code>H-Diag-CxO</code><span>same</span></p></div>
+          <div class="h-pair is-same"><div class="h-pics"><div class="cube-fig" data-case="H-Diag-OsC"></div></div><p><code>H-Diag-OsC</code><span>same</span></p></div>
+          <div class="h-pair is-same"><div class="h-pics"><div class="cube-fig" data-case="H-Diag-OxC"></div></div><p><code>H-Diag-OxC</code><span>same</span></p></div>
+          <div class="h-pair"><div class="h-pics"><div class="cube-fig" data-case="H-Diag-AsA"></div><div class="cube-fig" data-case="H-Diag-AsA" data-u2></div></div><p><code>H-Diag-AsA</code></p></div>
+          <div class="h-pair"><div class="h-pics"><div class="cube-fig" data-case="H-Diag-AsC"></div><div class="cube-fig" data-case="H-Diag-AsC" data-u2></div></div><p><code>H-Diag-AsC</code></p></div>
+          <div class="h-pair"><div class="h-pics"><div class="cube-fig" data-case="H-Diag-AsO"></div><div class="cube-fig" data-case="H-Diag-AsO" data-u2></div></div><p><code>H-Diag-AsO</code></p></div>
+          <div class="h-pair"><div class="h-pics"><div class="cube-fig" data-case="H-Diag-OsO"></div><div class="cube-fig" data-case="H-Diag-OsO" data-u2></div></div><p><code>H-Diag-OsO</code></p></div>
+        </div>
+        <div class="callout is-tip">
+          <span class="callout-icon" aria-hidden="true">💡</span>
+          <p>Cubers often find <code>Diag</code> H easier than <code>2GLL</code> H: in Diag, the two patterns that lead to the same alg tend to look related, while in 2GLL they look quite different. If H 2GLL is your slow spot, give those four asymmetric cases extra drilling from both angles.</p>
+        </div>
+
+        <h3 id="h-torches">Torches: another way to read H 2GLL</h3>
+        <p>Some cubers read H 2GLL from the front and back sides (the two without yellow in ZBTrain's pictures) and look for <strong>torches</strong>: two matching colours next to the opposite colour, "pointing" towards it. It sorts the cases into families that match their algs:</p>
+        <ul>
+          <li><strong>One torch</strong>: <code>AsO</code>, <code>CxO</code>, <code>AsC</code> and <code>CsO</code>, the four asymmetric cases. They're solved by "double Sune" style algs (two Sune or two Antisune triggers joined together), and which way the torch points tells you which of the four you have.</li>
+          <li><strong>Two torches</strong>: <code>CsC</code> and <code>OsO</code>.</li>
+          <li><strong>No torch</strong>: <code>AsA</code> (often called the pure twist) and <code>OxO</code>.</li>
+        </ul>
+        <div class="docs-figures">
+          <figure class="docs-figure"><div class="cube-fig" data-case="H-2GLL-AsO" data-show="fb"></div><figcaption><b>One torch</b> (<code>H-2GLL-AsO</code>)</figcaption></figure>
+          <figure class="docs-figure"><div class="cube-fig" data-case="H-2GLL-CsC" data-show="fb"></div><figcaption><b>Two torches</b> (<code>H-2GLL-CsC</code>)</figcaption></figure>
+          <figure class="docs-figure"><div class="cube-fig" data-case="H-2GLL-AsA" data-show="fb"></div><figcaption><b>No torch</b> (<code>H-2GLL-AsA</code>)</figcaption></figure>
+        </div>
+        <p>Whatever you use, H mostly comes down to reps. It's many cubers' least-practised set, so a few extra minutes on it pays off.</p>
+
+        <h2 id="practise-recognition">Practising recognition in ZBTrain</h2>
+        <ul>
+          <li>The <strong>recognition / execution split</strong> under the timer shows how long you took before your first turn, so you can see if recognition is your bottleneck.</li>
+          <li><strong>Recall mode</strong> greys out the last layer after your first move, so you train recognising the case up front instead of while turning.</li>
+          <li>Click any case (or its <strong>ⓘ</strong> button) to see it with a setup, and compare similar cases side by side.</li>
+        </ul>
+
+        <section class="docs-sources">
+          <h2>Sources and further reading</h2>
+          <ul>
+            <li><a href="https://docs.google.com/spreadsheets/d/1nrrO2xaIHcI8EKaJUxj0PDzx4CJ58jqhsFDZSbxQaoQ/edit" target="_blank" rel="noopener">ZBLL Recognition Method Comparison</a> by OreKehStrah</li>
+            <li><a href="https://www.zzmethod.com/improvement-guide/ll/zbll-recog" target="_blank" rel="noopener">ZBLL Recognition</a> by Krzysztof Bloch (yoruba), ZZ Method</li>
+            <li><a href="https://www.youtube.com/watch?v=OoUYM9hjsds" target="_blank" rel="noopener">How to Recognize ZBLL: BH System</a> (video), ZZ Method</li>
+            <li><a href="https://www.speedsolving.com/wiki/index.php/ZBLL" target="_blank" rel="noopener">ZBLL</a> on the Speedsolving.com wiki</li>
+            <li>The H recognition tips come from discussions in the ZB community and a community write-up on H 2GLL "torches". Which cases are symmetric, and which algs solve which cases, were checked against ZBTrain's case data.</li>
+          </ul>
+        </section>
+      </article>
+      <nav class="docs-pager" id="docsPager" aria-label="Previous and next page"></nav>
+      <p class="docs-updated">Last updated November 2026</p>
+    </main>
+
+    <aside class="docs-toc" id="docsToc" aria-label="On this page"></aside>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-row">
+      <a href="../index.html" class="footer-link">Home</a>
+      <span class="footer-separator" aria-hidden="true">·</span>
+      <a href="../learn.html" class="footer-link">Learn</a>
+    </div>
+  </footer>
+
+  <script src="../scripts/guideFigures.js"></script>
+  <script src="../scripts/guide.js"></script>
+  <script src="../scripts/darkmode.js"></script>
+</body>
+</html>

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Practicing and keeping it | ZB guide | ZBTrain</title>
+  <meta name="description" content="How to practise ZBLL: the four things to train, a step-by-step routine, speed goals, and keeping cases with spaced repetition.">
+
+  <link rel="icon" type="image/png" href="../images/logo.png" sizes="72x72">
+  <link rel="stylesheet" href="../styles/tokens.css">
+  <link rel="stylesheet" href="../styles/base.css">
+  <link rel="stylesheet" href="../styles/homepage.css">
+  <link rel="stylesheet" href="../styles/guide.css">
+  <!-- Cube animations: cubing.js (https://js.cubing.net/cubing/) -->
+  <script src="https://cdn.cubing.net/v0/js/cubing/twisty" type="module"></script>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="brand-container">
+      <button type="button" id="docsMenuBtn" class="btn btn-ghost btn-icon docs-menu-btn" aria-label="Guide pages" aria-expanded="false" aria-controls="docsSidebar">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <a href="../index.html" class="brand-link" title="ZBTrain home"><img src="../images/logo.png" alt="" class="logoimg"><span class="brand-text">ZBTrain</span></a>
+      <nav class="set-switch" aria-label="Algorithm set">
+        <a href="../learn.html">Learn</a>
+        <a href="../zbll.html">ZBLL</a>
+        <a href="../zbls.html">ZBLS</a>
+        <a href="../sheets.html">Sheets</a>
+        <a href="index.html" aria-current="page">Guide</a>
+      </nav>
+    </div>
+    <button type="button" id="darkModeToggle" class="btn btn-ghost btn-icon dark-mode-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode"></button>
+  </header>
+
+  <div class="docs-layout">
+    <!-- Page list, breadcrumbs, "On this page" and previous/next: scripts/guide.js -->
+    <aside class="docs-sidebar" id="docsSidebar"></aside>
+
+    <main class="docs-main">
+      <nav class="docs-breadcrumb" id="docsBreadcrumb" aria-label="Breadcrumb"></nav>
+      <article class="docs-article">
+        <h1>Practicing and keeping it</h1>
+        <p class="docs-lead">Knowing an alg isn't the same as using it in a solve. Here's what to practise, how to do it step by step, and how to keep your cases without relearning them.</p>
+
+        <h2 id="four-things">The four things to train</h2>
+        <p>In a solve, ZBLL is three quick steps: recognise the case, do the alg, do the last U turn. Practice should cover each part:</p>
+        <div class="docs-cards">
+          <div class="docs-card"><h4>1. Recognition speed</h4>Seeing which case it is, quickly and reliably.</div>
+          <div class="docs-card"><h4>2. Alg speed</h4>Fast, smooth turning, with the alg in your muscle memory.</div>
+          <div class="docs-card"><h4>3. Case → alg connection</h4>Seeing the case and knowing its alg straight away, not just knowing the alg on its own.</div>
+          <div class="docs-card"><h4>4. The final AUF</h4>Knowing which way to turn U at the end, from one sticker you check, instead of looking around.</div>
+        </div>
+
+        <h2 id="step-by-step">Step by step</h2>
+        <ol class="docs-steps">
+          <li><strong>Learn each alg on its own</strong> with good turning. To link it to its case, do the alg backwards (its inverse) from a solved cube and look at the case it makes. In ZBTrain, click a case for its setup and press <strong>Play</strong> to watch the alg.</li>
+          <li><strong>Pick an AUF sticker</strong> for each alg: one sticker that tells you the final U turn without searching. ZBTrain shows every alg with its pre- and post-AUF for the scramble you got.</li>
+          <li><strong>Drill each alg</strong> until it's under about 1.5 seconds. Over time, aim for 1–1.2 seconds.</li>
+          <li><strong>Practise them mixed.</strong> Select the group in ZBTrain and use <strong>Recap</strong>, which gives each case once. Do a few recaps focusing on clean recognition, turning and your AUF sticker.</li>
+          <li><strong>Then go for speed</strong>: recaps where recognition plus execution has to beat a target time.</li>
+          <li><strong>Use them in real solves</strong> as soon as you can.</li>
+        </ol>
+        <div class="callout is-tip">
+          <span class="callout-icon" aria-hidden="true">💡</span>
+          <p>Don't practise all 12 at once on the first day. Learn them in halves (6) or thirds (4), so each case comes up more often while it's new.</p>
+        </div>
+
+        <div class="docs-figures">
+          <figure class="docs-figure">
+            <twisty-player class="docs-player" alg="R U2 R' U' R U' R2 U2 R U R' U R" experimental-setup-anchor="end" experimental-stickering="ZBLL" background="none"></twisty-player>
+            <figcaption>Watch an alg slowly first, then drill it (<code>T-2GLL-AsA</code>).</figcaption>
+          </figure>
+        </div>
+
+        <h2 id="goals">Speed goals</h2>
+        <ul>
+          <li><strong>Per alg:</strong> under 1.5 seconds to start with, 1–1.2 seconds eventually.</li>
+          <li><strong>Recognition + execution together:</strong> under 3 seconds is a good first target. Faster solvers aim for low 2s or under 2.</li>
+          <li>Or relative to your solves: the last layer usually takes about a third of your solve, so aim for a third of your average.</li>
+        </ul>
+
+        <h2 id="keeping-it">Keeping it: spaced repetition</h2>
+        <p>Algs you don't revisit fade. The fix is <strong>spaced repetition</strong>: review a group after a day or two, then after a few days, then weekly, with each review a little further apart. Every time you remember a case, it takes longer to forget it.</p>
+        <p>A review doesn't mean relearning: go through each case a few times and do a recap in the trainer. That takes about 5–7 minutes, and it's a good warm-up before a session. Doing solves also helps, since with ZBLS you get a ZBLL case every solve.</p>
+        <p>ZBTrain's <a href="../learn.html">Learn</a> page does the scheduling for you:</p>
+        <ul>
+          <li>Each day you get your new cases plus the ones due for review.</li>
+          <li>After each solve, the trainer suggests how well you knew the case (from mistakes, pauses and recognition time), and you can change it.</li>
+          <li>Cases you know well come back less and less often. Ones you miss come back sooner.</li>
+        </ul>
+
+        <h2 id="useful-tools">Useful tools in ZBTrain</h2>
+        <ul>
+          <li><strong>Virtual cube</strong>: practise from the keyboard with no scrambling, for lots of reps.</li>
+          <li><strong>Smart cube</strong>: practise on a real cube with your moves recorded.</li>
+          <li><strong>Alg detection and trouble spots</strong>: see which alg you actually used, and where in an alg you usually pause or make mistakes.</li>
+          <li><strong>Slow cases</strong>: drill just the cases above a time you choose.</li>
+          <li><strong>Weighted case order</strong>: slower cases come up more often.</li>
+        </ul>
+
+        <section class="docs-sources">
+          <h2>Sources and further reading</h2>
+          <ul>
+            <li><a href="https://www.zzmethod.com/improvement-guide/ll/zbll-practice" target="_blank" rel="noopener">How to Practice ZBLL</a> by Krzysztof Bloch (yoruba), ZZ Method</li>
+            <li><a href="https://www.zzmethod.com/improvement-guide/ll/zbll-guide" target="_blank" rel="noopener">ZBLL Full Guide</a> by Krzysztof Bloch (yoruba), ZZ Method</li>
+            <li><a href="https://js.cubing.net/cubing/" target="_blank" rel="noopener">cubing.js</a> for the cube animations</li>
+          </ul>
+        </section>
+      </article>
+      <nav class="docs-pager" id="docsPager" aria-label="Previous and next page"></nav>
+      <p class="docs-updated">Last updated November 2026</p>
+    </main>
+
+    <aside class="docs-toc" id="docsToc" aria-label="On this page"></aside>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-row">
+      <a href="../index.html" class="footer-link">Home</a>
+      <span class="footer-separator" aria-hidden="true">·</span>
+      <a href="../learn.html" class="footer-link">Learn</a>
+      <span class="footer-separator" aria-hidden="true">·</span>
+      <span>Cube animations by <a href="https://js.cubing.net/cubing/" class="footer-link" target="_blank" rel="noopener">cubing.js</a></span>
+    </div>
+  </footer>
+
+  <script src="../scripts/guide.js"></script>
+  <script src="../scripts/darkmode.js"></script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZBLS and LSLL | ZB guide | ZBTrain</title>
+  <meta name="description" content="What ZBLS is, why it makes ZBLL show up every solve, how to approach learning it, and practising ZBLS and ZBLL together.">
+
+  <link rel="icon" type="image/png" href="../images/logo.png" sizes="72x72">
+  <link rel="stylesheet" href="../styles/tokens.css">
+  <link rel="stylesheet" href="../styles/base.css">
+  <link rel="stylesheet" href="../styles/homepage.css">
+  <link rel="stylesheet" href="../styles/guide.css">
+  <!-- Cube animations: cubing.js (https://js.cubing.net/cubing/) -->
+  <script src="https://cdn.cubing.net/v0/js/cubing/twisty" type="module"></script>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="brand-container">
+      <button type="button" id="docsMenuBtn" class="btn btn-ghost btn-icon docs-menu-btn" aria-label="Guide pages" aria-expanded="false" aria-controls="docsSidebar">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <a href="../index.html" class="brand-link" title="ZBTrain home"><img src="../images/logo.png" alt="" class="logoimg"><span class="brand-text">ZBTrain</span></a>
+      <nav class="set-switch" aria-label="Algorithm set">
+        <a href="../learn.html">Learn</a>
+        <a href="../zbll.html">ZBLL</a>
+        <a href="../zbls.html">ZBLS</a>
+        <a href="../sheets.html">Sheets</a>
+        <a href="index.html" aria-current="page">Guide</a>
+      </nav>
+    </div>
+    <button type="button" id="darkModeToggle" class="btn btn-ghost btn-icon dark-mode-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode"></button>
+  </header>
+
+  <div class="docs-layout">
+    <!-- Page list, breadcrumbs, "On this page" and previous/next: scripts/guide.js -->
+    <aside class="docs-sidebar" id="docsSidebar"></aside>
+
+    <main class="docs-main">
+      <nav class="docs-breadcrumb" id="docsBreadcrumb" aria-label="Breadcrumb"></nav>
+      <article class="docs-article">
+        <h1>ZBLS and LSLL</h1>
+        <p class="docs-lead">ZBLL needs oriented edges. ZBLS gets them for you while you insert the last pair, so every solve ends in a ZBLL case.</p>
+
+        <h2 id="what-is-zbls">What ZBLS is</h2>
+        <p><strong>ZBLS</strong> (ZB last slot) inserts the last F2L pair and, at the same time, orients the four last-layer edges. The result is a solved F2L with a cross of the top colour on top, which is always a ZBLL case.</p>
+        <p>Without it, the edges are only oriented by luck, about 1 solve in 8. So ZBLS is what turns ZBLL from an occasional bonus into something you use every solve.</p>
+        <div class="docs-figures">
+          <figure class="docs-figure">
+            <twisty-player class="docs-player" alg="R' U2 R2 U R2 U R" experimental-setup-anchor="end" experimental-stickering="ZBLS" background="none"></twisty-player>
+            <figcaption>A ZBLS case (<code>F2L 12-1</code>): the pair goes in and the edges end up oriented.</figcaption>
+          </figure>
+        </div>
+
+        <h2 id="cases">How the cases are organised</h2>
+        <p>ZBTrain has <strong>302 ZBLS cases</strong>, grouped by the F2L case they come from (<code>F2L 1</code> to <code>F2L 41</code>). Within each F2L case, the variants differ in which last-layer edges are flipped. So <code>F2L 12-3</code> is "F2L case 12, edge-orientation variant 3".</p>
+        <p>Many of them are a normal pair insert with a small change, so if you know your F2L cases, a lot of ZBLS feels familiar.</p>
+
+        <h2 id="learning-zbls">Learning ZBLS</h2>
+        <ul>
+          <li>You don't need it before you start ZBLL. Plenty of people learn some ZBLL first and add ZBLS alongside.</li>
+          <li>Learn it F2L case by F2L case, starting with the pair cases you get most often in your solves.</li>
+          <li>The same habits as ZBLL apply: a few cases at a time, drilled, then reviewed with spaced repetition. ZBTrain's beginner path for ZBLS goes F2L 1 to 41.</li>
+        </ul>
+
+        <h2 id="lsll">Practising both together: LSLL</h2>
+        <p>The <a href="../trainer.html?lsll">LSLL trainer</a> gives you a random ZBLS case followed by whatever ZBLL it leaves you, like a real solve's ending. After each solve it shows which ZBLS and ZBLL cases came up, which of your algs you used for each, and how long each part took.</p>
+
+        <div class="docs-cta-box">
+          <h2>Ready?</h2>
+          <p>Start with 3 new cases a day. In about a week you'll know your first group.</p>
+          <div class="docs-cta">
+            <a class="btn btn-primary" href="../learn.html?path=ZBLL">Start the beginner path</a>
+            <a class="btn btn-secondary" href="../zbls.html">Browse the ZBLS cases</a>
+          </div>
+        </div>
+
+        <section class="docs-sources">
+          <h2>Sources and further reading</h2>
+          <ul>
+            <li><a href="https://www.speedsolving.com/wiki/index.php/ZBLL" target="_blank" rel="noopener">ZBLL</a> on the Speedsolving.com wiki</li>
+            <li><a href="https://www.zzmethod.com/improvement-guide/ll/zbll-guide" target="_blank" rel="noopener">ZBLL Full Guide</a> by Krzysztof Bloch (yoruba), ZZ Method</li>
+            <li><a href="https://js.cubing.net/cubing/" target="_blank" rel="noopener">cubing.js</a> for the cube animations</li>
+          </ul>
+        </section>
+      </article>
+      <nav class="docs-pager" id="docsPager" aria-label="Previous and next page"></nav>
+      <p class="docs-updated">Last updated November 2026</p>
+    </main>
+
+    <aside class="docs-toc" id="docsToc" aria-label="On this page"></aside>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-row">
+      <a href="../index.html" class="footer-link">Home</a>
+      <span class="footer-separator" aria-hidden="true">·</span>
+      <a href="../learn.html" class="footer-link">Learn</a>
+      <span class="footer-separator" aria-hidden="true">·</span>
+      <span>Cube animations by <a href="https://js.cubing.net/cubing/" class="footer-link" target="_blank" rel="noopener">cubing.js</a></span>
+    </div>
+  </footer>
+
+  <script src="../scripts/guide.js"></script>
+  <script src="../scripts/darkmode.js"></script>
+</body>
+</html>

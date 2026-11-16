@@ -27,13 +27,16 @@
       <p>Drill your last slot and last layer algs with a virtual cube or a smart cube. Pick a set to choose your cases.</p>
     </div>
 
-    <a class="learn-strip" href="learn.html">
+    <div class="learn-strip">
       <span class="learn-strip-body">
         <span class="learn-strip-title">New to ZB? Learn a few cases a day</span>
-        <span class="learn-strip-text" id="learnStripText">Spaced repetition for ZBLL and ZBLS: new cases each day, and reviews when you're about to forget them.</span>
+        <span class="learn-strip-text" id="learnStripText">A beginner path picks your first cases for you, then spaced repetition brings each one back before you forget it.</span>
       </span>
-      <span class="set-card-cta" aria-hidden="true">Start learning →</span>
-    </a>
+      <span class="learn-strip-links">
+        <a class="set-card-cta" href="guide/index.html">Beginner's guide</a>
+        <a class="set-card-cta" href="learn.html" id="learnStripCta">Start learning →</a>
+      </span>
+    </div>
 
     <div class="set-cards">
       <a class="set-card" href="zbls.html">
@@ -87,7 +90,7 @@
       if (!s || !s.days || !text) return;
       text.textContent = "🔥 " + s.days + " day" + (s.days === 1 ? "" : "s") + " in a row" +
         (s.today ? ". Nice, you've studied today." : ". Study today to keep it going.");
-      document.querySelector(".learn-strip .set-card-cta").textContent = "Continue →";
+      document.getElementById("learnStripCta").textContent = "Continue →";
     })();
   </script>
   <script src="scripts/darkmode.js"></script>

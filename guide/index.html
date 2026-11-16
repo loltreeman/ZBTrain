@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Introduction | ZB guide | ZBTrain</title>
+  <meta name="description" content="A beginner-friendly guide to the ZB method: what ZBLL and ZBLS are, whether they are worth learning and how long it takes.">
+
+  <link rel="icon" type="image/png" href="../images/logo.png" sizes="72x72">
+  <link rel="stylesheet" href="../styles/tokens.css">
+  <link rel="stylesheet" href="../styles/base.css">
+  <link rel="stylesheet" href="../styles/homepage.css">
+  <link rel="stylesheet" href="../styles/guide.css">
+  <!-- Cube animations: cubing.js (https://js.cubing.net/cubing/) -->
+  <script src="https://cdn.cubing.net/v0/js/cubing/twisty" type="module"></script>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="brand-container">
+      <button type="button" id="docsMenuBtn" class="btn btn-ghost btn-icon docs-menu-btn" aria-label="Guide pages" aria-expanded="false" aria-controls="docsSidebar">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <a href="../index.html" class="brand-link" title="ZBTrain home"><img src="../images/logo.png" alt="" class="logoimg"><span class="brand-text">ZBTrain</span></a>
+      <nav class="set-switch" aria-label="Algorithm set">
+        <a href="../learn.html">Learn</a>
+        <a href="../zbll.html">ZBLL</a>
+        <a href="../zbls.html">ZBLS</a>
+        <a href="../sheets.html">Sheets</a>
+        <a href="index.html" aria-current="page">Guide</a>
+      </nav>
+    </div>
+    <button type="button" id="darkModeToggle" class="btn btn-ghost btn-icon dark-mode-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode"></button>
+  </header>
+
+  <div class="docs-layout">
+    <!-- Page list, breadcrumbs, "On this page" and previous/next: scripts/guide.js -->
+    <aside class="docs-sidebar" id="docsSidebar"></aside>
+
+    <main class="docs-main">
+      <nav class="docs-breadcrumb" id="docsBreadcrumb" aria-label="Breadcrumb"></nav>
+      <article class="docs-article">
+        <h1>New to ZB? Start here</h1>
+        <p class="docs-lead">The ZB method finishes the cube with one algorithm for the whole last layer. It's famous for its huge alg count, but nobody learns 472 algs at once: you learn 12 at a time, in a sensible order, and keep them with short reviews. This guide shows you how.</p>
+
+        <div class="docs-figures">
+          <figure class="docs-figure">
+            <twisty-player class="docs-player" alg="R U R' U R U2 R' U2 R' U' R U' R' U2 R" experimental-setup-anchor="end" experimental-stickering="ZBLL" background="none"></twisty-player>
+            <figcaption>One ZBLL alg solves the whole last layer at once (<code>T-2GLL-CsC</code>). Press play. The animations use the standard colour scheme with white on top; with yellow on top everything works the same.</figcaption>
+          </figure>
+        </div>
+
+        <h2 id="what-is-zb">What the ZB method is</h2>
+        <p>ZB is CFOP with a different ending. You solve the cross and the first three F2L pairs as usual. Then, instead of inserting the last pair and doing OLL and PLL, you do two steps:</p>
+        <ol class="docs-steps">
+          <li><strong>ZBLS</strong> (ZB last slot): insert the last F2L pair <em>and</em> orient the last-layer edges, so all four show the top colour.</li>
+          <li><strong>ZBLL</strong> (ZB last layer): solve the entire last layer with one algorithm.</li>
+        </ol>
+        <p>Once the edges are oriented, every possible last layer is a ZBLL case. That's one look and one alg, where OLL + PLL needs two looks and two algs.</p>
+        <div class="docs-table-wrap">
+          <table>
+            <tr><th></th><th>CFOP ending</th><th>ZB ending</th></tr>
+            <tr><td>Steps after the first three pairs</td><td>Last pair → OLL → PLL</td><td>ZBLS → ZBLL</td></tr>
+            <tr><td>Looks for the last layer</td><td>2</td><td>1</td></tr>
+            <tr><td>Algs</td><td>57 OLL + 21 PLL</td><td>302 ZBLS + 472 ZBLL (+ 21 PLL)</td></tr>
+            <tr><td>Last layer</td><td>Two algs back to back</td><td>One alg, about 12 moves on average when solved optimally</td></tr>
+          </table>
+        </div>
+        <p>Compared with finishing in two steps (OCLL then PLL), ZBLL saves around <strong>8 moves</strong> on average, which is why top solvers in both ZZ and CFOP use it.</p>
+
+        <h2 id="worth-it">Is it worth learning?</h2>
+        <div class="docs-cards">
+          <div class="docs-card">
+            <h3>Why people learn it</h3>
+            <ul>
+              <li>One look and one alg for the last layer</li>
+              <li>Fewer moves than OLL + PLL</li>
+              <li>Lots of short, fast algs (many use only R and U)</li>
+              <li>Useful from day one: any case you don't know yet, you still solve with OCLL + PLL</li>
+            </ul>
+          </div>
+          <div class="docs-card">
+            <h3>What makes it hard</h3>
+            <ul>
+              <li>493 cases in total, 472 once you know PLL</li>
+              <li>Recognition takes practice: you read the corners <em>and</em> the edges</li>
+              <li>It needs oriented edges, so in plain CFOP it only comes up about 1 solve in 8 unless you also learn ZBLS</li>
+            </ul>
+          </div>
+        </div>
+        <div class="callout is-tip">
+          <span class="callout-icon" aria-hidden="true">💡</span>
+          <p>The hardest part of ZB isn't any single alg: it's turning up every day. Learning a few cases at a time and reviewing them on a schedule (spaced repetition) is what gets people to the end. That's what ZBTrain's <a href="../learn.html">Learn</a> page is built around.</p>
+        </div>
+
+        <h2 id="how-long">How long it takes</h2>
+        <p>ZBLL is grouped into sets of 12 cases that share a corner pattern. A common pace is <strong>one group of 12 a week</strong>: a few days to learn the algs, the rest of the week to drill them. At that pace, all 472 cases take about <strong>40 weeks</strong>, roughly ten months.</p>
+        <p>That sounds long, but the time passes anyway, and each group pays off as soon as you know it. Keeping what you've learned is cheap: a few minutes of review a day, or a quick warm-up before a session.</p>
+
+        <h2 id="history">A short history</h2>
+        <ul>
+          <li><strong>1981:</strong> Lars Petrus's method orients the last-layer edges early, which opens the door to solving the last layer in one step. The algs didn't exist yet.</li>
+          <li><strong>1980s:</strong> Treep and K. and H. Dockhorn generate solutions for every last layer (1,212 cases once symmetries and inverses are counted together).</li>
+          <li><strong>2000–2001:</strong> Bernard Helmstetter generates one-step last-layer algs, including the set with all edges oriented.</li>
+          <li><strong>2001:</strong> Zbigniew Zborowski and Ron van Bruchem independently add edge orientation to CFOP. That's where the "ZB" comes from, and they credited Helmstetter's algs on their sites.</li>
+          <li><strong>2005:</strong> the earliest known use of the name "ZBLL".</li>
+          <li><strong>2022:</strong> James Straughan proposes the names PHLL or HPLL, to credit Petrus and Helmstetter.</li>
+        </ul>
+
+        <h2 id="this-guide">How this guide is organised</h2>
+        <ul>
+          <li><a href="before-you-start.html">Before you start</a>: what to know first (OCLL, PLL, COLL recognition, edge orientation)</li>
+          <li><a href="case-names.html">Case names</a>: what names like <code>T-6-AsA</code> mean</li>
+          <li><a href="recognition.html">Recognition</a>: how to tell the cases apart, and which system to use</li>
+          <li><a href="learning-plan.html">Learning plan</a>: the order to learn the sets in, and a weekly routine</li>
+          <li><a href="practice.html">Practicing and keeping it</a>: drilling, mixed practice and reviews</li>
+          <li><a href="zbls.html">ZBLS and LSLL</a>: getting a ZBLL case on every solve</li>
+        </ul>
+
+        <div class="docs-cta-box">
+          <h2>Want to skip ahead?</h2>
+          <p>The beginner path picks your first cases for you (T and U first, 3 new cases a day) and brings them back for review before you forget them.</p>
+          <div class="docs-cta">
+            <a class="btn btn-primary" href="../learn.html?path=ZBLL">Start the beginner path</a>
+            <a class="btn btn-secondary" href="before-you-start.html">Read the guide first</a>
+          </div>
+        </div>
+
+        <section class="docs-sources">
+          <h2>Sources and further reading</h2>
+          <ul>
+            <li><a href="https://www.zzmethod.com/improvement-guide/ll/zbll-guide" target="_blank" rel="noopener">ZBLL Full Guide</a> by Krzysztof Bloch (yoruba), ZZ Method</li>
+            <li><a href="https://www.speedsolving.com/wiki/index.php/ZBLL" target="_blank" rel="noopener">ZBLL</a> on the Speedsolving.com wiki</li>
+            <li><a href="https://www.cubinghistory.com/3x3/Steps/ZBLL" target="_blank" rel="noopener">ZBLL</a> on Cubing History</li>
+            <li><a href="https://js.cubing.net/cubing/" target="_blank" rel="noopener">cubing.js</a> for the cube animations</li>
+          </ul>
+        </section>
+      </article>
+      <nav class="docs-pager" id="docsPager" aria-label="Previous and next page"></nav>
+      <p class="docs-updated">Last updated November 2026</p>
+    </main>
+
+    <aside class="docs-toc" id="docsToc" aria-label="On this page"></aside>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-row">
+      <a href="../index.html" class="footer-link">Home</a>
+      <span class="footer-separator" aria-hidden="true">·</span>
+      <a href="../learn.html" class="footer-link">Learn</a>
+      <span class="footer-separator" aria-hidden="true">·</span>
+      <span>Cube animations by <a href="https://js.cubing.net/cubing/" class="footer-link" target="_blank" rel="noopener">cubing.js</a></span>
+    </div>
+  </footer>
+
+  <script src="../scripts/guide.js"></script>
+  <script src="../scripts/darkmode.js"></script>
+</body>
+</html>

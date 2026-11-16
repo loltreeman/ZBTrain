@@ -371,3 +371,60 @@
         width: 100%;
     }
 }
+
+/* Beginner path */
+.deck-start {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+}
+
+.path-strip {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sp-2) var(--sp-3);
+    padding: 8px 12px;
+    border-radius: var(--r-sm);
+    background: var(--accent-soft);
+    font-size: var(--fs-sm);
+}
+
+.path-badge {
+    padding: 2px 8px;
+    border-radius: var(--r-pill);
+    background: var(--accent);
+    color: var(--text-on-accent);
+    font-size: var(--fs-xs);
+    font-weight: 600;
+}
+
+.path-text {
+    flex: 1;
+    color: var(--text-2);
+}
+
+.path-text b {
+    color: var(--text);
+}
+
+.path-hint {
+    color: var(--text-2);
+    font-size: var(--fs-sm);
+    line-height: 1.5;
+}
+
+.path-hint a,
+.learn-intro a {
+    color: var(--accent-text);
+}
+
+@media (max-width: 640px) {
+    .deck-start {
+        width: 100%;
+    }
+
+    .deck-start .deck-study {
+        flex: 1;
+    }
+}

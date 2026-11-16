@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Case names | ZB guide | ZBTrain</title>
+  <meta name="description" content="What ZBLL case names like T-6-AsA mean: the OCLL set, the corner group and the edge letters.">
+
+  <link rel="icon" type="image/png" href="../images/logo.png" sizes="72x72">
+  <link rel="stylesheet" href="../styles/tokens.css">
+  <link rel="stylesheet" href="../styles/base.css">
+  <link rel="stylesheet" href="../styles/homepage.css">
+  <link rel="stylesheet" href="../styles/guide.css">
+  <!-- Cube animations: cubing.js (https://js.cubing.net/cubing/) -->
+  <script src="https://cdn.cubing.net/v0/js/cubing/twisty" type="module"></script>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="brand-container">
+      <button type="button" id="docsMenuBtn" class="btn btn-ghost btn-icon docs-menu-btn" aria-label="Guide pages" aria-expanded="false" aria-controls="docsSidebar">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <a href="../index.html" class="brand-link" title="ZBTrain home"><img src="../images/logo.png" alt="" class="logoimg"><span class="brand-text">ZBTrain</span></a>
+      <nav class="set-switch" aria-label="Algorithm set">
+        <a href="../learn.html">Learn</a>
+        <a href="../zbll.html">ZBLL</a>
+        <a href="../zbls.html">ZBLS</a>
+        <a href="../sheets.html">Sheets</a>
+        <a href="index.html" aria-current="page">Guide</a>
+      </nav>
+    </div>
+    <button type="button" id="darkModeToggle" class="btn btn-ghost btn-icon dark-mode-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode"></button>
+  </header>
+
+  <div class="docs-layout">
+    <!-- Page list, breadcrumbs, "On this page" and previous/next: scripts/guide.js -->
+    <aside class="docs-sidebar" id="docsSidebar"></aside>
+
+    <main class="docs-main">
+      <nav class="docs-breadcrumb" id="docsBreadcrumb" aria-label="Breadcrumb"></nav>
+      <article class="docs-article">
+        <h1>Case names</h1>
+        <p class="docs-lead">Every ZBLL case in ZBTrain has a three-part name, like <code>T-6-AsA</code>. Once you know what each part means, the names stop looking like noise.</p>
+
+        <div class="name-parts">
+          <div class="name-part"><span class="name-token">T</span><span><strong>Set</strong>: the OCLL shape, which is how the top corners are twisted. There are 7: T, U, L, H, Pi, Sune and Antisune.</span></div>
+          <div class="name-part"><span class="name-token">6</span><span><strong>Corner group</strong>: how the corners are permuted (what COLL recognition tells you). Each set has up to 6.</span></div>
+          <div class="name-part"><span class="name-token">AsA</span><span><strong>Edges</strong>: which of the 12 possible edge arrangements you have.</span></div>
+        </div>
+
+        <h2 id="sets">The 7 sets</h2>
+        <div class="docs-table-wrap">
+          <table>
+            <tr><th>Set</th><th>Cases</th><th>Notes</th></tr>
+            <tr><td>T</td><td>72</td><td rowspan="3">6 corner groups × 12 edge cases</td></tr>
+            <tr><td>U</td><td>72</td></tr>
+            <tr><td>L</td><td>72</td></tr>
+            <tr><td>H</td><td>40</td><td>H looks the same after a half turn, so many cases are duplicates of each other</td></tr>
+            <tr><td>Pi</td><td>72</td><td rowspan="3">6 corner groups × 12 edge cases</td></tr>
+            <tr><td>Sune</td><td>72</td></tr>
+            <tr><td>Antisune</td><td>72</td></tr>
+            <tr><td><strong>Total</strong></td><td><strong>472</strong></td><td>Plus the 21 PLLs (corners already oriented) = 493</td></tr>
+          </table>
+        </div>
+
+        <h2 id="corner-groups">The corner groups</h2>
+        <ul>
+          <li><code>2GLL</code>: the corners are already in the right places relative to each other. These cases can all be solved with just R and U turns, which is where the name comes from (2-generator last layer). They tend to be the easiest algs.</li>
+          <li><code>Diag</code>: two corners are swapped diagonally.</li>
+          <li><code>3</code>, <code>4</code>, <code>5</code>, <code>6</code>: the different adjacent swaps (two neighbouring corners swapped), depending on where the swap is relative to the OCLL shape.</li>
+        </ul>
+        <p>So <code>T-6</code> means "a T shape with corner pattern 6": exactly 12 cases.</p>
+
+        <h2 id="edge-letters">The edge letters</h2>
+        <p>The last part describes the edges using three letters:</p>
+        <ul>
+          <li><strong>C</strong>: same colour</li>
+          <li><strong>A</strong>: an adjacent colour (a neighbouring side)</li>
+          <li><strong>O</strong>: the opposite colour</li>
+        </ul>
+        <p>For <strong>T, U, L and Sune</strong> cases, the letters compare the stickers around the <strong>front-right top corner</strong> in the case picture:</p>
+        <ul>
+          <li>The <strong>first letter</strong> compares the front edge with the corner's front sticker.</li>
+          <li>The <strong>last letter</strong> compares the right edge with the corner's right sticker.</li>
+          <li>The <strong>middle letter</strong> is <code>s</code> for these "straight" comparisons, giving 9 cases (<code>CsC</code>, <code>CsA</code>, … <code>OsO</code>).</li>
+          <li>The other 3 cases compare them <strong>crosswise</strong> instead (the front edge with the corner's right sticker, and the right edge with its front sticker), marked <code>x</code>: <code>CxO</code>, <code>OxC</code> and <code>OxO</code>.</li>
+        </ul>
+        <p>These are the same 12 patterns BH recognition uses. See all 12 drawn out on the <a href="recognition.html#bh-patterns">Recognition</a> page.</p>
+        <div class="docs-figures">
+          <figure class="docs-figure"><img class="docs-img" src="../svg/top/T-2GLL-CsC.svg" alt="T-2GLL-CsC"><figcaption><code>CsC</code>: both edges match the corner</figcaption></figure>
+          <figure class="docs-figure"><img class="docs-img" src="../svg/top/T-2GLL-OsO.svg" alt="T-2GLL-OsO"><figcaption><code>OsO</code>: both edges are the opposite colour</figcaption></figure>
+          <figure class="docs-figure"><img class="docs-img" src="../svg/top/T-2GLL-OxO.svg" alt="T-2GLL-OxO"><figcaption><code>OxO</code>: opposite, compared crosswise</figcaption></figure>
+        </div>
+        <div class="callout is-warn">
+          <span class="callout-icon" aria-hidden="true">⚠️</span>
+          <p>H, Pi and Antisune use the same letters, but they're read from a different reference, so for those just go by the case picture. ZBTrain shows the picture everywhere a case appears.</p>
+        </div>
+
+        <h2 id="see-it-move">See a case solved</h2>
+        <div class="docs-figures">
+          <figure class="docs-figure">
+            <twisty-player class="docs-player" alg="R' U2 R U R' U R2 U2 R' U' R U' R'" experimental-setup-anchor="end" experimental-stickering="ZBLL" background="none"></twisty-player>
+            <figcaption><code>T-2GLL-OxO</code>: a 2GLL case, so the alg only needs R and U.</figcaption>
+          </figure>
+        </div>
+
+        <h2 id="other-names">Names on other sites</h2>
+        <p>Sheets and sites don't all use the same names. ZBLL Explorer numbers its cases (like "H 26"), and many sheets label corner groups T1–T6. They're the same cases, just labelled differently. ZBTrain's <a href="../sheets.html">Sheets</a> page doesn't rely on names at all: it checks which case each alg actually solves, so you can import any sheet.</p>
+        <div class="callout is-tip">
+          <span class="callout-icon" aria-hidden="true">💡</span>
+          <p>You don't have to memorise the names to solve the cases. They're labels for sheets and trainers. What you do during a solve is <a href="recognition.html">recognition</a>.</p>
+        </div>
+
+        <section class="docs-sources">
+          <h2>Sources and further reading</h2>
+          <ul>
+            <li><a href="https://www.speedsolving.com/wiki/index.php/ZBLL" target="_blank" rel="noopener">ZBLL</a> on the Speedsolving.com wiki</li>
+            <li><a href="https://www.zzmethod.com/improvement-guide/ll/zbll-guide" target="_blank" rel="noopener">ZBLL Full Guide</a> by Krzysztof Bloch (yoruba), ZZ Method</li>
+            <li><a href="https://pepkin88.me/zbll-explorer/" target="_blank" rel="noopener">ZBLL Explorer</a> by pepkin88: algs from many sources for every case</li>
+            <li><a href="https://js.cubing.net/cubing/" target="_blank" rel="noopener">cubing.js</a> for the cube animations</li>
+          </ul>
+        </section>
+      </article>
+      <nav class="docs-pager" id="docsPager" aria-label="Previous and next page"></nav>
+      <p class="docs-updated">Last updated November 2026</p>
+    </main>
+
+    <aside class="docs-toc" id="docsToc" aria-label="On this page"></aside>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-row">
+      <a href="../index.html" class="footer-link">Home</a>
+      <span class="footer-separator" aria-hidden="true">·</span>
+      <a href="../learn.html" class="footer-link">Learn</a>
+      <span class="footer-separator" aria-hidden="true">·</span>
+      <span>Cube animations by <a href="https://js.cubing.net/cubing/" class="footer-link" target="_blank" rel="noopener">cubing.js</a></span>
+    </div>
+  </footer>
+
+  <script src="../scripts/guide.js"></script>
+  <script src="../scripts/darkmode.js"></script>
+</body>
+</html>
