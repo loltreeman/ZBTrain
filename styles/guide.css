@@ -723,3 +723,12 @@
     font-size: 11px;
     font-weight: 600;
 }
+
+.docs-figure figcaption.is-wide {
+    max-width: 340px;
+}
+
+/* Keep move sequences in captions on one line */
+.docs-figure figcaption code {
+    white-space: nowrap;
+}
