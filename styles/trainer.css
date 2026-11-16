@@ -2189,3 +2189,20 @@ img.slow-case-open:hover {
     display: block;
     color: var(--text-3);
 }
+
+/* Recap complete (uses the case info window's look, styles/caseInfo.css) */
+.recap-done-card {
+    width: min(440px, 100%);
+}
+
+.recap-done-card p {
+    color: var(--text-2);
+    font-size: var(--fs-sm);
+    line-height: 1.5;
+}
+
+.recap-done-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+}
