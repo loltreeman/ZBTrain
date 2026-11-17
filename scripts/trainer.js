@@ -1072,12 +1072,20 @@ function removeElement(c) {
 
 // ── Recap complete ──────────────────────────────────────────────────────
 // Everything stops (continuous training too) and you see how each case went.
-// Then: recap all of them again, recap only the ones you tick (slow ones and
-// DNFs are ticked for you), keep training, or go back and add more cases.
+// Then recap or train either the cases you tick (slow ones and DNFs are
+// ticked for you) or all the cases you picked, or go back and add more.
 var recapDoneOpen = false;
 var recapStartedAt = recap ? new Date().toISOString() : null; // this recap's solves are logged after this
 var recapCases = recap ? toRecap.slice() : [];                 // the cases in this recap
 var recapRows = [];                                             // [{ c, attempts, time, ... }] for the dialog
+var allPickedCases = toTrain.slice();                           // everything you picked on the selection page
+
+// Train only these cases from now on (all of them: allPickedCases)
+function setTrainCases(cases) {
+    toTrain.length = 0;
+    cases.forEach(function (c) { toTrain.push(c); });
+    displayCaseCount(toTrain, "numSelected", "selected");
+}
 
 function startRecap(cases) {
     recap = true;
@@ -1126,11 +1134,11 @@ function recapSelected() {
 
 function updateRecapPicks() {
     var n = recapSelected().length;
-    var btn = document.querySelector('#recapDone [data-act="again-picked"]');
-    if (btn) {
+    var count = document.querySelector("#recapDone [data-ref=ticked]");
+    if (count) count.textContent = n ? n + " ticked case" + (n === 1 ? "" : "s") : "No cases ticked";
+    document.querySelectorAll('#recapDone [data-act="again-picked"], #recapDone [data-act="train-picked"]').forEach(function (btn) {
         btn.disabled = !n;
-        btn.textContent = n ? "Recap " + n + " ticked case" + (n === 1 ? "" : "s") : "Tick cases to recap";
-    }
+    });
 }
 
 function showRecapDone() {
@@ -1209,7 +1217,7 @@ function renderRecapDone() {
         '<div class="case-info-stat"><span>Best</span><b>' + (times.length ? Math.min.apply(null, times).toFixed(2) + "s" : "–") + "</b></div>" +
         '<div class="case-info-stat"><span>DNFs</span><b>' + dnfs + "</b></div>" +
         "</div>" +
-        "<p>Slowest first. Cases slower than your average" + (dnfs ? " and DNFs" : "") + " are ticked, so you can recap just those." +
+        "<p>Slowest first. Cases slower than your average" + (dnfs ? " and DNFs" : "") + " are ticked, so you can recap or train just those." +
         (isContinuousOn() ? " Continuous training is paused until you choose." : "") + "</p>" +
         '<div class="recap-pick-row" role="group" aria-label="Tick">Tick:' +
         '<button type="button" class="chip" data-act="pick-weak">Slow ones</button>' +
@@ -1219,11 +1227,18 @@ function renderRecapDone() {
         '<div class="recap-table-wrap"><table class="recap-table">' +
         '<thead><tr><th></th><th>Case</th><th class="num">Time</th><th class="num" title="Recognition + execution">Recog + exec</th></tr></thead>' +
         "<tbody>" + rowsHtml + "</tbody></table></div>" +
+        // Recap = each case once; train = random cases until you stop
+        '<div class="recap-next">' +
+        '<div class="recap-next-row"><span class="recap-next-label" data-ref="ticked"></span>' +
+        '<button type="button" class="btn btn-primary btn-sm" data-act="again-picked">Recap</button>' +
+        '<button type="button" class="btn btn-secondary btn-sm" data-act="train-picked">Train</button></div>' +
+        '<div class="recap-next-row"><span class="recap-next-label">All ' + allPickedCases.length + " cases you picked</span>" +
+        '<button type="button" class="btn btn-secondary btn-sm" data-act="again">Recap</button>' +
+        '<button type="button" class="btn btn-secondary btn-sm" data-act="train-all">Train</button></div>' +
+        "</div>" +
+        '<p class="recap-next-hint">Recap does each case once. Train keeps giving you cases until you stop.</p>' +
         '<div class="recap-done-actions">' +
-        '<button type="button" class="btn btn-primary" data-act="again-picked"></button>' +
-        '<button type="button" class="btn btn-secondary" data-act="again">Recap all ' + toTrain.length + "</button>" +
-        '<button type="button" class="btn btn-secondary" data-act="train">Keep training</button>' +
-        '<button type="button" class="btn btn-ghost" data-act="back" title="Your selection is kept, so you can tick more cases">Add more cases</button>' +
+        '<button type="button" class="btn btn-ghost btn-sm" data-act="back" title="Your selection is kept, so you can tick more cases">Add more cases</button>' +
         "</div></div></div>";
     // Each case's picture: its diagram, or the cube drawn for other ZBLS slots
     overlay.querySelectorAll(".recap-thumb").forEach(function (slot) {
@@ -1234,6 +1249,9 @@ function renderRecapDone() {
             img.src = encodeURI(src);
             img.alt = "";
             img.loading = "lazy";
+            // The angle you picked on the ZBLL page
+            var angle = parseInt(caseOrientation[c.set], 10) || 0;
+            if (angle) img.style.transform = "rotate(" + angle + "deg)";
             slot.appendChild(img);
         } else if (window.CubeViews && window.virtualCube) {
             var canvas = document.createElement("canvas");
@@ -1244,25 +1262,31 @@ function renderRecapDone() {
     overlay.hidden = false;
     updateRecapPicks();
     var first = overlay.querySelector('[data-act="again-picked"]');
-    (first.disabled ? overlay.querySelector('[data-act="again"]') : first).focus();
+    (first.disabled ? overlay.querySelector('[data-act="train-all"]') : first).focus();
     updateContinuousHint();
 }
 
 function closeRecapDone(choice) {
     if (choice === "back") { goBack(); return; }
-    var picked = choice === "again-picked" ? recapSelected() : null;
+    var picked = /-picked$/.test(choice) ? recapSelected() : null;
     if (picked && !picked.length) return;
     var overlay = document.getElementById("recapDone");
     if (overlay) overlay.hidden = true;
     recapDoneOpen = false;
     if (choice === "again") {
-        startRecap(toTrain);
-    } else if (picked) {
+        setTrainCases(allPickedCases);
+        startRecap(allPickedCases);
+    } else if (choice === "again-picked") {
         startRecap(picked);
     } else {
+        // Train: the ticked cases, all of them, or (Escape) whatever you were training
+        if (choice === "train-picked") setTrainCases(picked);
+        else if (choice === "train-all") setTrainCases(allPickedCases);
         var numRecap = document.getElementById("numRecap");
         if (numRecap) numRecap.textContent = "";
     }
+    // The next case comes from what you just chose
+    if (choice !== "train" && timerStatus === "Stop") prevCase = generateScramble();
     if (timerRef && timerRef.focus) timerRef.focus();
     updateContinuousHint();
     // Pick up continuous training where it left off

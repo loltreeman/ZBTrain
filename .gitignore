@@ -1,2 +1,5 @@
 # Local Claude Code settings (preview server config, etc.)
 .claude/
+
+# reco.nz pages cached by tools/updateTopSolvers.js
+tools/.reco-cache/

@@ -2235,7 +2235,9 @@ img.slow-case-open:hover {
 }
 
 .recap-table-wrap {
+    flex: none;
     max-height: min(42vh, 360px);
+    min-height: min(180px, 100%);
     overflow: auto;
     border: 1px solid var(--border);
     border-radius: var(--r-md, 8px);
@@ -2278,6 +2280,35 @@ img.slow-case-open:hover {
     display: flex;
     align-items: center;
     gap: 6px;
+}
+
+.recap-next {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.recap-next-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sp-2);
+    padding: 8px 10px;
+    border-radius: var(--r-md, 8px);
+    background: var(--surface-2);
+}
+
+.recap-next-label {
+    flex: 1;
+    min-width: 140px;
+    font-size: var(--fs-sm);
+    font-weight: 600;
+}
+
+.recap-next-hint {
+    margin: 0;
+    font-size: var(--fs-xs) !important;
+    color: var(--text-3) !important;
 }
 
 .recap-thumb {
