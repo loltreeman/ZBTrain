@@ -53,17 +53,70 @@
     // ── Algs for the trainer ────────────────────────────────────────────
 
     var extraCache = null; // case key → [alg] from sheets that are turned on
+    var extraCacheTop = false; // whether topSolverAlgs.js was loaded when it was made
 
     function sheetAlgs() {
-        if (extraCache) return extraCache;
+        if (extraCache && extraCacheTop === !!topData()) return extraCache;
         extraCache = {};
+        extraCacheTop = !!topData();
         list().forEach(function (s) {
             if (!s.enabled) return;
             (s.entries || []).forEach(function (e) {
                 (extraCache[e.key] = extraCache[e.key] || []).push(e.alg);
             });
         });
+        // The top solvers' algs come after your own sheets
+        if (topOn() && topData()) {
+            Object.keys(topData()).forEach(function (key) {
+                topData()[key].forEach(function (e) {
+                    (extraCache[key] = extraCache[key] || []).push(e[0]);
+                });
+            });
+        }
         return extraCache;
+    }
+
+    // ── Top solvers' algs (topSolverAlgs.js) ────────────────────────────
+    // Built in, so it can't be removed, only turned off.
+
+    var TOP_KEY = "topSolverAlgs";
+
+    function topData() {
+        return typeof topSolverAlgs !== "undefined" ? topSolverAlgs : null;
+    }
+
+    function topOn() {
+        try { return localStorage.getItem(TOP_KEY) !== "off"; } catch (e) { return true; }
+    }
+
+    function setTopOn(on) {
+        try { localStorage.setItem(TOP_KEY, on ? "on" : "off"); } catch (e) {}
+        extraCache = null;
+    }
+
+    // "x12630 t11383" → [{ who: "x", name: "Xuanyi Geng", id, url }]
+    function parseRecons(text) {
+        var names = typeof TOP_SOLVERS !== "undefined" ? TOP_SOLVERS : {};
+        return String(text || "").split(/\s+/).filter(Boolean).map(function (r) {
+            var id = r.slice(1);
+            return { who: r[0], name: names[r[0]] || "Top solver", id: id, url: "https://reco.nz/solve/" + id };
+        });
+    }
+
+    // The top solvers' algs for one case: [{ alg, recons }]
+    function topAlgs(key) {
+        var d = topData();
+        return ((d && d[key]) || []).map(function (e) { return { alg: e[0], recons: parseRecons(e[1]) }; });
+    }
+
+    // Solves where a top solver used this alg (any AUF or way of writing it)
+    function topUsesOf(key, alg) {
+        var id = algId(alg);
+        var out = [];
+        topAlgs(key).forEach(function (e) {
+            if (algId(e.alg) === id) out = out.concat(e.recons);
+        });
+        return out;
     }
 
     // Same alg written differently (AUFs, rotations, wide moves) counts once
@@ -91,7 +144,7 @@
         return out;
     }
 
-    window.addEventListener("storage", function (e) { if (e.key === STORE_KEY) extraCache = null; });
+    window.addEventListener("storage", function (e) { if (e.key === STORE_KEY || e.key === TOP_KEY) extraCache = null; });
 
     // ── Reading algs ────────────────────────────────────────────────────
 
@@ -119,6 +172,11 @@
         return /'$/.test(t) ? t.slice(0, -1) : t + "'";
     }
 
+    // ZBLS case keys for other slots: "ZBLS-12-3" in FL → "ZBLS-FL-12-3"
+    function zblsSlotKey(key, slot) {
+        return slot && slot !== "FR" ? key.replace(/^ZBLS-/, "ZBLS-" + slot + "-") : key;
+    }
+
     // Which case an alg solves.
     // → { ok: true, deck, key, name } or { ok: false, reason }
     function checkAlg(alg) {
@@ -126,7 +184,11 @@
         if (!tokens) return { ok: false, reason: "Not readable as an alg" };
         if (!window.LSLL || !window.virtualCube) return { ok: false, reason: "Checker not loaded" };
         var inverse = AlgAuf.toCubeMoves(tokens.slice().reverse().map(invertToken));
-        if (window.virtualCube.makeCube(inverse).isSolved()) return { ok: false, reason: "Doesn't change the cube" };
+        var raw = window.virtualCube.makeCube(inverse);
+        if (raw.isSolved()) return { ok: false, reason: "Doesn't change the cube" };
+        // Which F2L slot the alg solves (ZBLS can be done in any slot)
+        var broken = LSLL.brokenSlots ? LSLL.brokenSlots(raw) : [];
+        var slot = broken.length === 1 ? broken[0] : "FR";
         // The position the alg solves, held each possible way: the first
         // way that looks like a ZBLL or a front-right ZBLS case wins
         var nearMiss = null;
@@ -139,7 +201,9 @@
             }
             if (LSLL.f2lExceptPair(cube)) {
                 var ls = LSLL.zblsCaseOf(cube);
-                if (ls) return { ok: true, deck: "ZBLS", key: ls.key, name: ls.name };
+                // Other slots: the same case, seen with that slot turned to the front right
+                if (ls && slot !== "FR") return { ok: true, deck: "ZBLS", slot: slot, key: zblsSlotKey(ls.key, slot), name: ls.name + " (" + slot + ")" };
+                if (ls) return { ok: true, deck: "ZBLS", slot: "FR", key: ls.key, name: ls.name };
                 nearMiss = nearMiss || "Front-right pair case not recognised";
             }
             return null;
@@ -403,8 +467,14 @@
         update: update,
         remove: remove,
         extraAlgs: extraAlgs,
+        topOn: topOn,
+        setTopOn: setTopOn,
+        topAlgs: topAlgs,
+        topUsesOf: topUsesOf,
+        topData: topData,
         cleanAlg: cleanAlg,
         checkAlg: checkAlg,
+        zblsSlotKey: zblsSlotKey,
         parseCaseName: parseCaseName,
         parseCSV: parseCSV,
         parseText: parseText,

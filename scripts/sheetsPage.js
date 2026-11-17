@@ -11,23 +11,79 @@
         });
     }
 
+    // "ZBLS-12-3" → "F2L 12-3", "ZBLS-FL-12-3" → "F2L 12-3 (FL)"
     function caseLabel(key) {
-        var m = /^ZBLS-(\d+)-(\d+)$/.exec(key);
-        return m ? "F2L " + m[1] + "-" + m[2] : key;
+        var m = /^ZBLS-(?:(FL|BR|BL)-)?(\d+)-(\d+)$/.exec(key);
+        return m ? "F2L " + m[2] + "-" + m[3] + (m[1] ? " (" + m[1] + ")" : "") : key;
     }
 
     // ── Your sheets ─────────────────────────────────────────────────────
 
+    // Built-in: the algs Xuanyi, Qixian and Tymon used in reconstructed solves
+    function topRow() {
+        var data = AlgSheets.topData && AlgSheets.topData();
+        if (!data) return null;
+        var on = AlgSheets.topOn();
+        var zbll = 0, zbls = 0, solves = {};
+        Object.keys(data).forEach(function (key) {
+            data[key].forEach(function (e) {
+                if (/^ZBLS-/.test(key)) zbls++; else zbll++;
+                e[1].split(" ").forEach(function (r) { solves[r.slice(1)] = true; });
+            });
+        });
+        var li = document.createElement("li");
+        li.className = "sheet-row" + (on ? "" : " is-off");
+        li.innerHTML =
+            '<label class="switch-wrap" title="Use these algs in the trainer">' +
+            '<input type="checkbox" class="sheet-toggle"' + (on ? " checked" : "") + ' aria-label="Use the top solvers\' algs in the trainer"></label>' +
+            '<div class="sheet-info"><span class="sheet-name">Top solvers\' algs <span class="sheet-badge">Built in</span></span>' +
+            '<span class="sheet-meta">What Xuanyi Geng, Qixian Cao and Tymon Kolasiński used in ' + Object.keys(solves).length +
+            ' reconstructed solves · ' + zbll + " ZBLL, " + zbls + " ZBLS algs · " + Object.keys(data).length + " cases</span>" +
+            '<span class="sheet-meta">Collected by <a href="https://x.com/zbller" target="_blank" rel="noopener">Yota Ueda</a> from ' +
+            '<a href="https://reco.nz/" target="_blank" rel="noopener">reco.nz</a> · ' +
+            '<a href="https://docs.google.com/spreadsheets/d/1wYaKvm1FQ8ZAJ4I_te8N75rowwn-9lgB1A8M8khfxVA" target="_blank" rel="noopener">Sheet</a>. ' +
+            "Open a case's ⓘ to see the solves each alg was used in.</span></div>" +
+            '<div class="sheet-actions">' +
+            '<button type="button" class="btn btn-ghost btn-sm" data-act="xlsx">Excel</button>' +
+            '<button type="button" class="btn btn-ghost btn-sm" data-act="csv">CSV</button>' +
+            "</div>";
+        li.querySelector(".sheet-toggle").addEventListener("change", function (e) {
+            AlgSheets.setTopOn(e.target.checked);
+            renderSheets();
+        });
+        var rows = function () {
+            var out = [["Case", "Alg", "Used by", "Reconstructions"]];
+            Object.keys(data).sort().forEach(function (key) {
+                AlgSheets.topAlgs(key).forEach(function (e) {
+                    var names = [];
+                    e.recons.forEach(function (r) { if (names.indexOf(r.name) < 0) names.push(r.name); });
+                    out.push([caseLabel(key), e.alg, names.join(", "), e.recons.map(function (r) { return r.url; }).join(" ")]);
+                });
+            });
+            return out;
+        };
+        li.querySelector('[data-act="xlsx"]').addEventListener("click", function () {
+            AlgSheets.exportExcel(rows(), "Top_solvers_algs", "Top solvers").catch(function (e) { alert(e.message); });
+        });
+        li.querySelector('[data-act="csv"]').addEventListener("click", function () {
+            AlgSheets.exportCSV(rows(), "Top_solvers_algs");
+        });
+        return li;
+    }
+
     function renderSheets() {
         var sheets = AlgSheets.list();
         var root = $("sheetList");
-        if (!sheets.length) {
-            root.innerHTML = '<p class="goal-text">No sheets yet. Add one below.</p>';
-            return;
-        }
         root.innerHTML = "";
         var ul = document.createElement("ul");
         ul.className = "sheet-list";
+        var top = topRow();
+        if (top) ul.appendChild(top);
+        if (!sheets.length) {
+            root.appendChild(ul);
+            root.insertAdjacentHTML("beforeend", '<p class="goal-text">None of your own sheets yet. Add one below.</p>');
+            return;
+        }
         sheets.forEach(function (s) {
             var zbll = 0, zbls = 0, cases = {};
             (s.entries || []).forEach(function (e) {

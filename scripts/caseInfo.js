@@ -14,6 +14,8 @@
         { test: function () { return typeof zbllAlgs !== "undefined"; }, src: "scripts/algorithms.js" },
         { test: function () { return typeof zbllScrambles !== "undefined"; }, src: "scripts/scrambles.js" },
         { test: function () { return typeof zblsAlgs !== "undefined"; }, src: "scripts/zblsData.js" },
+        { test: function () { return typeof zblsSlotAlgs !== "undefined"; }, src: "scripts/zblsSlots.js" },
+        { test: function () { return !!window.ZBLSSlots; }, src: "scripts/zblsSlotTools.js" },
         { test: function () { return !!window.CubeGoals; }, src: "scripts/cubeGoals.js" },
         { test: function () { return typeof Cube3 !== "undefined"; }, src: "scripts/cube.js" },
         // cube3x3.js redefines Cube3 with the turning methods
@@ -23,6 +25,7 @@
         { test: function () { return !!window.AlgDetect; }, src: "scripts/algDetect.js" },
         { test: function () { return !!window.virtualCube; }, src: "scripts/virtualCubeEmbed.js" },
         { test: function () { return !!window.AlgPlayer; }, src: "scripts/algPlayer.js" },
+        { test: function () { return typeof topSolverAlgs !== "undefined"; }, src: "scripts/topSolverAlgs.js" },
         { test: function () { return !!window.AlgSheets; }, src: "scripts/algSheets.js" },
     ];
 
@@ -49,8 +52,8 @@
     // ── Case data ───────────────────────────────────────────────────────
 
     function parseKey(key) {
-        var m = /^ZBLS-(\d+)-(\d+)$/.exec(key);
-        if (m) return { key: key, set: "ZBLS", subset: m[1], caseName: m[2], deck: "ZBLS" };
+        var m = /^ZBLS-(?:(FL|BR|BL)-)?(\d+)-(\d+)$/.exec(key);
+        if (m) return { key: key, set: "ZBLS", subset: m[2], caseName: m[3], deck: "ZBLS", slot: m[1] || "FR" };
         var parts = String(key).split("-");
         return { key: key, set: parts[0], subset: parts[1], caseName: parts.slice(2).join("-"), deck: "ZBLL" };
     }
@@ -63,6 +66,13 @@
             c.img = reg ? reg.img(c.subset, c.caseName) : "images/ZBLS/F2L " + c.subset + "-" + c.caseName + ".png";
             c.baseAlgs = ((typeof zblsAlgs !== "undefined" && zblsAlgs[c.subset]) || {})[c.caseName] || [];
             c.scrambles = ((typeof zblsScrambles !== "undefined" && zblsScrambles[c.subset]) || {})[c.caseName] || [];
+            // Another slot: its own algs, scrambles moved into that slot, and no diagram
+            if (c.slot !== "FR" && window.ZBLSSlots) {
+                c.name += " (" + c.slot + ")";
+                c.img = "";
+                c.baseAlgs = ZBLSSlots.algsFor(c.subset, c.caseName, c.slot, c.baseAlgs);
+                c.scrambles = c.scrambles.map(function (s) { return ZBLSSlots.moveScramble(s, c.slot); });
+            }
         } else {
             c.name = key;
             c.img = "svg/top/" + key + ".svg";
@@ -138,6 +148,7 @@
             '  <div class="case-info-body">' +
             '    <div class="case-info-top">' +
             '      <img class="case-info-img" alt="">' +
+            '      <canvas class="case-info-img case-info-canvas" hidden aria-hidden="true"></canvas>' +
             '      <div class="case-info-setup">' +
             '        <span class="case-info-label">Setup</span>' +
             '        <div class="case-info-scramble" data-ref="scramble"></div>' +
@@ -156,7 +167,8 @@
         els = {
             overlay: overlay,
             title: overlay.querySelector("#caseInfoTitle"),
-            img: overlay.querySelector(".case-info-img"),
+            img: overlay.querySelector("img.case-info-img"),
+            canvas: overlay.querySelector(".case-info-canvas"),
             scramble: overlay.querySelector('[data-ref="scramble"]'),
             stats: overlay.querySelector('[data-ref="stats"]'),
             algs: overlay.querySelector('[data-ref="algs"]'),
@@ -230,7 +242,12 @@
         var setup = currentScramble();
         var stats = caseStats(c);
         els.title.textContent = c.name;
-        els.img.src = encodeURI(c.img);
+        // No diagram (ZBLS in another slot): draw the cube for the shown setup
+        var drawn = !c.img && setup && window.CubeViews && window.virtualCube;
+        els.img.hidden = !!drawn;
+        els.canvas.hidden = !drawn;
+        if (drawn) CubeViews.renderTo(els.canvas, "classic", virtualCube.makeCube(setup), 120);
+        else els.img.src = encodeURI(c.img);
         els.img.alt = c.name;
         var angle = 0;
         try { angle = parseInt((JSON.parse(sessionStorage.getItem("caseOrientation") || "{}") || {})[c.set], 10) || 0; } catch (e) {}
@@ -262,13 +279,15 @@
                 tags.push('<span class="case-info-tag' + (i === mostUsed ? " is-used" : "") + '" title="Solves where you used this alg">' +
                     (i === mostUsed ? "You usually use this · " : "Used ") + stats.used[i] + "×</span>");
             }
-            if (i >= c.own.length) tags.push('<span class="case-info-tag">From a sheet</span>');
+            var uses = window.AlgSheets && AlgSheets.topUsesOf ? AlgSheets.topUsesOf(c.key, c.algs[i]) : [];
+            if (i >= c.own.length && !uses.length) tags.push('<span class="case-info-tag">From a sheet</span>');
             var text = a.ok
                 ? (a.pre ? '<span class="auf">' + esc(a.pre) + "</span> " : "") + esc(a.core) + (a.post ? ' <span class="auf">' + esc(a.post) + "</span>" : "")
                 : esc(c.algs[i]);
             return '<li class="case-info-alg' + (i === c.mainIndex ? " is-main" : "") + '">' +
                 '<div class="case-info-alg-text">' + text + "</div>" +
                 (tags.length ? '<div class="case-info-tags">' + tags.join("") + "</div>" : "") +
+                topLine(uses) +
                 '<div class="case-info-alg-actions">' +
                 '<button type="button" class="btn btn-ghost btn-sm" data-act="play" data-i="' + i + '"' + (window.AlgPlayer ? "" : " disabled") + ">" + ICONS.play + "Play</button>" +
                 '<button type="button" class="btn btn-ghost btn-sm" data-act="copy-alg" data-i="' + i + '">' + ICONS.copy + "Copy</button>" +
@@ -279,6 +298,24 @@
             els.algs.insertAdjacentHTML("beforeend", '<li class="case-info-hint">' +
                 (stats.detected ? "Which alg you used is known for " + stats.detected + " of your " + stats.count + " solves" : "Solve with the virtual cube or a smart cube to see which alg you use") + ".</li>");
         }
+    }
+
+    // "Used by Xuanyi Geng 1 2 · Tymon Kolasiński 1", each number a reco.nz recon
+    function topLine(uses) {
+        if (!uses.length) return "";
+        var byWho = {}, order = [];
+        uses.forEach(function (u) {
+            if (!byWho[u.name]) { byWho[u.name] = []; order.push(u.name); }
+            byWho[u.name].push(u);
+        });
+        return '<div class="case-info-top-solvers"><span class="case-info-top-label">Used by</span>' +
+            order.map(function (name) {
+                return '<span class="case-info-solver"><b>' + esc(name) + "</b>" +
+                    byWho[name].map(function (u, n) {
+                        return '<a href="' + esc(u.url) + '" target="_blank" rel="noopener" title="' +
+                            esc(name) + "'s solve on reco.nz" + '">' + (byWho[name].length > 1 ? "solve " + (n + 1) : "solve") + "</a>";
+                    }).join("") + "</span>";
+            }).join("") + "</div>";
     }
 
     function play(i) {

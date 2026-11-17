@@ -146,11 +146,57 @@
         refresh();
     }
 
+    // ── Slots and edge position (zblsSlotTools.js) ────────────────────
+    var slotBoxes = document.querySelectorAll("#slotPicks input");
+    var edgeSelect = document.getElementById("edgeFix");
+
+    function chosenSlots() {
+        var s = [];
+        slotBoxes.forEach(function (b) { if (b.checked) s.push(b.value); });
+        return s;
+    }
+
+    function updateSlotHint() {
+        var hint = document.getElementById("slotHint");
+        if (!hint || !window.ZBLSSlots) return;
+        var notes = chosenSlots().filter(function (s) { return s !== "FR"; }).map(function (s) {
+            var cov = ZBLSSlots.coverage(s);
+            return cov >= 1 ? s + ": algs for every case"
+                : s + ": algs for " + Math.round(cov * 100) + "% of cases; the rest use a " + ZBLSSlots.TURN[s] + " then the FR alg";
+        });
+        hint.textContent = notes.length ? notes.join(". ") + "." : "Train the last slot in front right, or add other slots.";
+    }
+
+    if (window.ZBLSSlots) {
+        var saved = ZBLSSlots.savedSlots();
+        slotBoxes.forEach(function (b) {
+            b.checked = saved.indexOf(b.value) >= 0;
+            b.addEventListener("change", function () {
+                // Always keep at least one slot
+                if (!chosenSlots().length) b.checked = true;
+                try { localStorage.setItem("zblsSlots", JSON.stringify(chosenSlots())); } catch (e) {}
+                updateSlotHint();
+            });
+        });
+        if (edgeSelect) {
+            edgeSelect.value = ZBLSSlots.savedEdge();
+            edgeSelect.addEventListener("change", function () {
+                try { localStorage.setItem("zblsEdgeFix", edgeSelect.value); } catch (e) {}
+            });
+        }
+        updateSlotHint();
+    }
+
+    // One trainer case per selected case and slot
     function startTraining(isRecap) {
         var list = [];
+        var slots = window.ZBLSSlots ? chosenSlots() : ["FR"];
         families.forEach(function (f) {
             casesOf(f).forEach(function (c) {
-                if (selected[key(f, c)]) list.push({ set: SET, subset: f, caseName: c });
+                if (!selected[key(f, c)]) return;
+                slots.forEach(function (slot) {
+                    list.push({ set: SET, subset: f, caseName: c, slot: slot });
+                });
             });
         });
         if (!list.length) return;

@@ -22,6 +22,7 @@ function getSlowCases(thresholdSeconds) {
                 set:      a.set,
                 subset:   a.subset,
                 caseId:   a.caseId,
+                slot:     a.slot || null,
                 total:    0,
                 count:    0,
                 times:    []
@@ -70,6 +71,7 @@ function getImgPath(c) {
 
 // The case's key for the case info window: "T-2GLL-CsA" or "ZBLS-12-3"
 function slowCaseKey(c) {
+    if (c.set === 'ZBLS' && c.slot && c.slot !== 'FR') return 'ZBLS-' + c.slot + '-' + c.subset + '-' + c.caseId;
     if (c.set && c.subset && c.caseId) return c.set + '-' + c.subset + '-' + c.caseId;
     var parts = String(c.caseName || '').split('-');
     return parts.length >= 3 ? c.caseName : null;

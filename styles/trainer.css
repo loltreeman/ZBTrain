@@ -2192,7 +2192,117 @@ img.slow-case-open:hover {
 
 /* Recap complete (uses the case info window's look, styles/caseInfo.css) */
 .recap-done-card {
-    width: min(440px, 100%);
+    width: min(560px, 100%);
+}
+
+.recap-summary {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--sp-2);
+}
+
+.recap-pick-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-3);
+    font-size: var(--fs-xs);
+}
+
+.recap-pick-row .chip {
+    height: 26px;
+    padding: 0 10px;
+    border: 0;
+    border-radius: var(--r-pill);
+    background: var(--surface-2);
+    color: var(--text-2);
+    font: 500 var(--fs-xs) var(--font-sans);
+    cursor: pointer;
+}
+
+.recap-pick-row .chip:hover {
+    background: var(--accent-soft);
+    color: var(--accent-text);
+}
+
+.recap-case .case-info-btn {
+    position: static;
+    flex: none;
+    width: 18px;
+    height: 18px;
+    font-size: 11px;
+}
+
+.recap-table-wrap {
+    max-height: min(42vh, 360px);
+    overflow: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--r-md, 8px);
+}
+
+.recap-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--fs-sm);
+}
+
+.recap-table th {
+    position: sticky;
+    top: 0;
+    background: var(--surface-2, var(--surface));
+    color: var(--text-3);
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    text-align: left;
+    padding: 6px 8px;
+}
+
+.recap-table td {
+    padding: 5px 8px;
+    border-top: 1px solid var(--border);
+}
+
+.recap-table td:first-child,
+.recap-table th:first-child {
+    width: 28px;
+}
+
+.recap-table .num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.recap-case {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.recap-split {
+    color: var(--text-3);
+}
+
+.recap-table tr.is-slow td.num:nth-child(3) {
+    color: var(--warn, #b45309);
+    font-weight: 600;
+}
+
+.recap-dnf {
+    color: var(--bad, #dc2626);
+    font-weight: 600;
+}
+
+@media (max-width: 520px) {
+    .recap-summary { grid-template-columns: repeat(2, 1fr); }
+    .recap-split { display: none; }
+    .recap-table th:last-child { display: none; }
+}
+
+/* The case window opens on top of the recap results */
+#recapDone.case-info-overlay {
+    z-index: 7999;
 }
 
 .recap-done-card p {
