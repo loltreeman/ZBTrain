@@ -60,14 +60,17 @@
 
     function renderCaseImage() {
         if (!caseImg || !caseCanvas) return;
-        var useCanvas = caseStyle !== "diagram" && lastCaseMoves !== null &&
-            window.CubeViews && CubeViews.has(caseStyle) &&
+        // A case with no diagram (e.g. ZBLS in another slot): draw the cube
+        var style = caseStyle;
+        if (style === "diagram" && !caseImg.getAttribute("src")) style = "classic";
+        var useCanvas = style !== "diagram" && lastCaseMoves !== null &&
+            window.CubeViews && CubeViews.has(style) &&
             window.virtualCube && window.virtualCube.makeCube;
         caseImg.hidden = useCanvas;
         caseCanvas.hidden = !useCanvas;
         if (!useCanvas) return;
         var cube = window.virtualCube.makeCube(lastCaseMoves);
-        CubeViews.renderTo(caseCanvas, caseStyle, cube, CASE_IMAGE_SIZE);
+        CubeViews.renderTo(caseCanvas, style, cube, CASE_IMAGE_SIZE);
         caseCanvas.setAttribute("aria-label", caseImg.alt || "Case image");
     }
 

@@ -732,3 +732,73 @@
 .docs-figure figcaption code {
     white-space: nowrap;
 }
+
+/* CFOP vs ZB side by side */
+.docs-compare {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--sp-3);
+    margin-top: var(--sp-3);
+}
+
+.docs-compare .docs-figure {
+    align-items: stretch;
+    padding: var(--sp-3);
+    border-radius: var(--r-md);
+    background: var(--surface);
+}
+
+.docs-compare .docs-player {
+    width: 100%;
+    background: var(--surface-2);
+}
+
+.docs-compare figcaption {
+    max-width: none;
+    font-size: var(--fs-sm);
+    text-align: left;
+}
+
+.compare-steps {
+    margin: 0 !important;
+    padding: 0 !important;
+    list-style: none;
+    font-size: var(--fs-xs);
+}
+
+.compare-steps li {
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr);
+    gap: 8px;
+    align-items: baseline;
+}
+
+.compare-steps li > code:last-child {
+    justify-self: start;
+}
+
+.compare-steps li + li {
+    margin-top: 4px !important;
+}
+
+.compare-steps span {
+    min-width: 64px;
+    color: var(--text-2);
+    font-weight: 600;
+}
+
+.compare-steps code {
+    white-space: normal !important;
+}
+
+@media (max-width: 640px) {
+    .docs-compare {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+.docs-article .docs-caption-note {
+    margin-top: var(--sp-2);
+    color: var(--text-2);
+    font-size: var(--fs-sm);
+}

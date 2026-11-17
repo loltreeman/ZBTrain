@@ -68,6 +68,33 @@
         </div>
         <p>Compared with finishing in two steps (OCLL then PLL), ZBLL saves around <strong>8 moves</strong> on average, which is why top solvers in both ZZ and CFOP use it.</p>
 
+        <h3 id="side-by-side">Side by side: the same last slot and last layer</h3>
+        <p>Here's one position, with the last pair still out and the last layer unsolved, finished both ways. Press play on each.</p>
+        <div class="docs-compare">
+          <figure class="docs-figure">
+            <twisty-player class="docs-player" experimental-setup-alg="F R U' R' U R U R2 F' R U R U' R' U' F U R U' R' F' R U R' U'" alg="U R U' R' // last pair
+F R U R' U' F' // OLL
+U // AUF
+R U R' U' R' F R2 U' R' U' R U R' F' // PLL" background="none"></twisty-player>
+            <figcaption><b>CFOP: 3 algs, 25 moves</b></figcaption>
+            <ol class="compare-steps">
+              <li><span>Last pair</span><code>U R U' R'</code></li>
+              <li><span>OLL</span><code>F R U R' U' F'</code></li>
+              <li><span>PLL</span><code>(U) R U R' U' R' F R2 U' R' U' R U R' F'</code></li>
+            </ol>
+          </figure>
+          <figure class="docs-figure">
+            <twisty-player class="docs-player" experimental-setup-alg="F R U' R' U R U R2 F' R U R U' R' U' F U R U' R' F' R U R' U'" alg="R' F R F' // ZBLS
+U2 R U R' U R U2 R' L U2 L' U' L U' L' // ZBLL" background="none"></twisty-player>
+            <figcaption><b>ZB: 2 algs, 19 moves</b></figcaption>
+            <ol class="compare-steps">
+              <li><span>ZBLS</span><code>R' F R F'</code></li>
+              <li><span>ZBLL</span><code>U2 R U R' U R U2 R' L U2 L' U' L U' L'</code></li>
+            </ol>
+          </figure>
+        </div>
+        <p>ZBLS pairs up and inserts the last pair while orienting the edges (here a single sledgehammer), and then one ZBLL alg finishes everything. How much you save changes from case to case, and this example is just one of them, but you always replace two last-layer looks with one.</p>
+
         <h2 id="worth-it">Is it worth learning?</h2>
         <div class="docs-cards">
           <div class="docs-card">

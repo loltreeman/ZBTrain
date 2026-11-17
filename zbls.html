@@ -56,6 +56,30 @@
           </div>
         </div>
 
+        <!-- Training options (scripts/zblsSlotTools.js) -->
+        <div class="control-group">
+          <span class="group-label">Slots</span>
+          <div class="slot-picks" id="slotPicks" role="group" aria-label="Slots to train">
+            <label><input type="checkbox" value="FR"> FR</label>
+            <label><input type="checkbox" value="FL"> FL</label>
+            <label><input type="checkbox" value="BR"> BR</label>
+            <label><input type="checkbox" value="BL"> BL</label>
+          </div>
+          <p class="side-hint" id="slotHint"></p>
+        </div>
+
+        <div class="control-group">
+          <label class="group-label" for="edgeFix">Edge position</label>
+          <select id="edgeFix" class="input">
+            <option value="any">Any (random AUF)</option>
+            <option value="UF">Fixed at UF</option>
+            <option value="UR">Fixed at UR</option>
+            <option value="UB">Fixed at UB</option>
+            <option value="UL">Fixed at UL</option>
+          </select>
+          <p class="side-hint">Fixed: the slot's edge always starts in the same place, so you learn each case from one angle. If the edge is in a slot, the corner starts above the slot instead.</p>
+        </div>
+
         <p class="side-hint">Click a case to select it. Click the large image to select or clear the whole F2L case.</p>
       </div>
 
@@ -91,6 +115,8 @@
   </footer>
 
   <script src="scripts/zblsData.js"></script>
+  <script src="scripts/zblsSlots.js"></script>
+  <script src="scripts/zblsSlotTools.js"></script>
   <script src="scripts/caseInfo.js"></script>
   <script src="scripts/zblsSelect.js"></script>
   <script src="scripts/darkmode.js"></script>

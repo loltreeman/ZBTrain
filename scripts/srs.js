@@ -316,9 +316,15 @@
     // T and U first, then L, then H and Pi, and Sune and Antisune last
     // (the ZZ method's ZBLL guide recommends this order). Within a set, 2GLL
     // first (only R and U turns, the easiest algs), then the other corner
-    // groups. ZBLS goes F2L 1 to 41. The next group is added once every case
-    // of the last one has been started.
+    // groups. The next group is added once every case of the last one has
+    // been started.
+    //
+    // ZBLS: look-alike F2L cases are numbered next to each other (19 to 22
+    // differ only in where the edge is), and learning look-alikes together
+    // makes them easy to mix up. So the path steps through them 6 apart:
+    // F2L 1, 7, 13, 19, 25, 31, 37, then 2, 8, 14, … and so on.
     var PATH_SETS = ["T", "U", "L", "H", "Pi", "Sune", "Antisune"];
+    var ZBLS_STRIDE = 6;
 
     function pathGroups(deck) {
         var groups = [], seen = {};
@@ -329,6 +335,13 @@
         cases.forEach(function (c) {
             if (!seen[c.group]) { seen[c.group] = true; groups.push(c.group); }
         });
+        if (deck === "ZBLS") {
+            // "F2L 12" → 12 (the trailing number; "F2L" has a digit in it too)
+            var n = function (g) { return parseInt((/(\d+)$/.exec(g) || [])[1], 10) || 0; };
+            groups.sort(function (a, b) {
+                return ((n(a) - 1) % ZBLS_STRIDE) - ((n(b) - 1) % ZBLS_STRIDE) || n(a) - n(b);
+            });
+        }
         return groups;
     }
 

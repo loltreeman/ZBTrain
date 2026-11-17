@@ -16,9 +16,11 @@
     padding: 0 32px;
 }
 
+/* Centred, not baseline: a button with only an icon (the guide's menu
+   button) has its baseline at its bottom edge, which pulls the logo off line */
 .brand-container {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     gap: var(--sp-2);
     min-width: 0;
 }
@@ -567,6 +569,48 @@
     box-shadow: 0 1px 2px rgb(0 0 0 / 0.08);
 }
 
+/* Phones: logo, menu and dark mode on the first row, the page tabs on a
+   full-width row of their own underneath (they don't fit beside the logo) */
+@media (max-width: 640px) {
+    .site-header {
+        flex-wrap: wrap;
+        row-gap: var(--sp-2);
+        height: auto;
+        padding-top: var(--sp-3);
+        padding-bottom: var(--sp-2);
+    }
+
+    .site-header .brand-container {
+        display: contents;
+    }
+
+    .site-header .dark-mode-toggle {
+        margin-left: auto;
+    }
+
+    .site-header .set-switch {
+        order: 10;
+        flex: 1 0 100%;
+        margin-left: 0;
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+
+    .site-header .set-switch::-webkit-scrollbar {
+        display: none;
+    }
+
+    .site-header .set-switch a {
+        flex: 1 0 auto;
+        min-height: 36px;
+        padding: 0 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: var(--fs-sm);
+    }
+}
+
 /* ── ZBLS selection page ───────────────────────────────────────────────── */
 
 .zbls-family-hint,
@@ -802,4 +846,28 @@
 
 .learn-strip-links a:hover {
     text-decoration: underline;
+}
+
+/* ZBLS page: slots to train */
+.slot-picks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.slot-picks label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 30px;
+    padding: 0 10px;
+    border-radius: var(--r-sm);
+    background: var(--surface-2);
+    font-size: var(--fs-sm);
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.slot-picks input {
+    accent-color: var(--accent);
 }

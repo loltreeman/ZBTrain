@@ -31,6 +31,13 @@ function caseSetData(set) {
     return (window.CASE_SETS && window.CASE_SETS[set]) || null;
 }
 
+// The key a case's algs, main alg and notes are saved under. ZBLS cases in
+// another slot get their own: "ZBLS-FL-12-3" (see zblsSlotTools.js).
+function caseStoreKey(c) {
+    if (c.set === "ZBLS" && c.slot && c.slot !== "FR") return "ZBLS-" + c.slot + "-" + c.subset + "-" + c.caseName;
+    return c.set + "-" + c.subset + "-" + c.caseName;
+}
+
 if (selectedCasesRaw && selectedCasesRaw.length) {
     recap = !lsllMode && !learnMode && (JSON.parse(sessionStorage.getItem("recapMode")) || false);
 
@@ -39,13 +46,24 @@ if (selectedCasesRaw && selectedCasesRaw.length) {
             set: item.set,
             subset: item.subset,
             caseName: item.caseName,
+            // ZBLS: which F2L slot (FR, FL, BR, BL), chosen on the ZBLS page
+            slot: item.set === "ZBLS" ? item.slot || "FR" : null,
             // getSetup: use casemap zbll scrambles if available, choose random entry
             getSetup: function () {
                 var reg = caseSetData(this.set);
                 if (reg && reg.dynamic) return window.LSLL.generateSetup();
                 if (reg) {
                     var list = (reg.scrambles[this.subset] || {})[this.caseName] || [];
-                    if (list.length) return list[Math.floor(Math.random() * list.length)];
+                    if (list.length) {
+                        var setup = list[Math.floor(Math.random() * list.length)];
+                        // ZBLS: move it to the chosen slot, and fix the edge's starting spot
+                        if (this.set === "ZBLS" && window.ZBLSSlots) {
+                            setup = ZBLSSlots.moveScramble(setup, this.slot);
+                            var edge = ZBLSSlots.savedEdge();
+                            if (edge !== "any") setup = ZBLSSlots.fixEdge(setup, this.slot, edge);
+                        }
+                        return setup;
+                    }
                 }
                 try {
                     if (
@@ -67,7 +85,11 @@ if (selectedCasesRaw && selectedCasesRaw.length) {
             },
             getAlgsArray: function () {
                 var reg = caseSetData(this.set);
-                if (reg) return ((reg.algs[this.subset] || {})[this.caseName] || []).slice();
+                var frAlgs = reg ? ((reg.algs[this.subset] || {})[this.caseName] || []).slice() : null;
+                if (reg && this.slot && this.slot !== "FR" && window.ZBLSSlots) {
+                    return ZBLSSlots.algsFor(this.subset, this.caseName, this.slot, frAlgs);
+                }
+                if (reg) return frAlgs;
                 if (typeof zbllAlgs === "undefined") return [];
 
                 const setObj = zbllAlgs[this.set];
@@ -81,6 +103,7 @@ if (selectedCasesRaw && selectedCasesRaw.length) {
 
             getName: function () {
                 var reg = caseSetData(this.set);
+                if (reg && this.slot && this.slot !== "FR") return reg.name(this.subset, this.caseName) + " (" + this.slot + ")";
                 if (reg) return reg.name(this.subset, this.caseName);
                 return (
                     item.name ||
@@ -95,6 +118,8 @@ if (selectedCasesRaw && selectedCasesRaw.length) {
                         ? LSLL.zblsCaseOf(virtualCube.makeCube(displayedSetup)) : null;
                     return z ? z.img : "";
                 }
+                // Other ZBLS slots have no diagram: the case image draws the cube instead
+                if (reg && this.slot && this.slot !== "FR") return "";
                 if (reg) return reg.img(this.subset, this.caseName);
                 return (
                     item.img ||
@@ -614,6 +639,7 @@ function logAttempt(caseObj, timeStr, result) {
         set: (caseObj && caseObj.set) || null,
         subset: (caseObj && caseObj.subset) || null,
         caseId: (caseObj && caseObj.caseName) || null,
+        slot: (caseObj && caseObj.slot) || null,
         orientation:
             caseObj && caseObj._orientation != null
                 ? caseObj._orientation
@@ -716,7 +742,7 @@ function setAllStatsSets(shown) {
 // The key the case info window uses, or null (LSLL has no single case)
 function statsCaseKey(a) {
     if (a.set === "LSLL") return null;
-    if (a.set && a.subset && a.caseId) return a.set + "-" + a.subset + "-" + a.caseId;
+    if (a.set && a.subset && a.caseId) return caseStoreKey({ set: a.set, subset: a.subset, caseName: a.caseId, slot: a.slot });
     return null;
 }
 
@@ -1045,14 +1071,87 @@ function removeElement(c) {
 }
 
 // ── Recap complete ──────────────────────────────────────────────────────
-// Everything stops (continuous training too) and you choose what's next:
-// recap the same cases again, keep training them, or pick new cases.
+// Everything stops (continuous training too) and you see how each case went.
+// Then: recap all of them again, recap only the ones you tick (slow ones and
+// DNFs are ticked for you), keep training, or go back and add more cases.
 var recapDoneOpen = false;
+var recapStartedAt = recap ? new Date().toISOString() : null; // this recap's solves are logged after this
+var recapCases = recap ? toRecap.slice() : [];                 // the cases in this recap
+var recapRows = [];                                             // [{ c, attempts, time, ... }] for the dialog
+
+function startRecap(cases) {
+    recap = true;
+    sessionStorage.setItem("recapMode", JSON.stringify(true));
+    toRecap = copyArray(cases);
+    shuffleArray(toRecap);
+    recapCases = toRecap.slice();
+    recapStartedAt = new Date().toISOString();
+    displayCaseCount(toRecap, "numRecap", "to recap");
+}
+
+// How each case went in this recap, slowest first (DNFs on top)
+function recapResults() {
+    var attempts = [];
+    try { attempts = JSON.parse(localStorage.getItem("zbllAttempts") || "[]"); } catch (e) {}
+    attempts = attempts.filter(function (a) { return recapStartedAt && a.timestamp >= recapStartedAt; });
+    var rows = recapCases.map(function (c) {
+        var name = c.getName();
+        var mine = attempts.filter(function (a) { return a.caseName === name; });
+        var ok = mine.filter(function (a) { return a.result !== "DNF" && a.time > 0; });
+        var last = ok[ok.length - 1];
+        return {
+            c: c,
+            name: name,
+            count: mine.length,
+            dnf: mine.length > 0 && !ok.length,
+            time: ok.length ? Math.min.apply(null, ok.map(function (a) { return a.time; })) : null,
+            recog: last && last.recogTime != null ? last.recogTime : null,
+            exec: last && last.execTime != null ? last.execTime : null,
+        };
+    });
+    rows.sort(function (a, b) {
+        if (a.dnf !== b.dnf) return a.dnf ? -1 : 1;
+        return (b.time == null ? -1 : b.time) - (a.time == null ? -1 : a.time);
+    });
+    return rows;
+}
+
+function recapSelected() {
+    var out = [];
+    document.querySelectorAll("#recapDone .recap-pick").forEach(function (box) {
+        if (box.checked) out.push(recapRows[parseInt(box.dataset.i, 10)].c);
+    });
+    return out;
+}
+
+function updateRecapPicks() {
+    var n = recapSelected().length;
+    var btn = document.querySelector('#recapDone [data-act="again-picked"]');
+    if (btn) {
+        btn.disabled = !n;
+        btn.textContent = n ? "Recap " + n + " ticked case" + (n === 1 ? "" : "s") : "Tick cases to recap";
+    }
+}
 
 function showRecapDone() {
     recapDoneOpen = true;
     if (continuousTimeout) { clearTimeout(continuousTimeout); continuousTimeout = null; }
-    var n = toTrain.length;
+    // Some ways of ending a solve log it just after this is called
+    setTimeout(renderRecapDone, 0);
+}
+
+function renderRecapDone() {
+    if (!recapDoneOpen) return;
+    recapRows = recapResults();
+    var n = recapRows.length;
+    var times = recapRows.filter(function (r) { return r.time != null; }).map(function (r) { return r.time; });
+    var avg = times.length ? times.reduce(function (s, t) { return s + t; }, 0) / times.length : null;
+    var dnfs = recapRows.filter(function (r) { return r.dnf; }).length;
+    var fmt = function (t) { return t == null ? "–" : Number(t).toFixed(2); };
+    var esc = function (t) { return String(t).replace(/[&<>"]/g, function (ch) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[ch]; }); };
+    // Ticked to start with: DNFs and anything slower than this recap's average
+    var weak = function (r) { return r.dnf || (avg != null && r.time != null && r.time > avg); };
+
     var overlay = document.getElementById("recapDone");
     if (!overlay) {
         overlay = document.createElement("div");
@@ -1061,11 +1160,25 @@ function showRecapDone() {
         document.body.appendChild(overlay);
         overlay.addEventListener("click", function (e) {
             var btn = e.target.closest("[data-act]");
-            if (btn) closeRecapDone(btn.dataset.act);
+            if (!btn) return;
+            var act = btn.dataset.act;
+            if (act === "pick-weak" || act === "pick-all" || act === "pick-none") {
+                overlay.querySelectorAll(".recap-pick").forEach(function (box) {
+                    box.checked = act === "pick-all" || (act === "pick-weak" && box.dataset.weak === "1");
+                });
+                updateRecapPicks();
+            } else if (act === "info") {
+                if (window.CaseInfo) CaseInfo.open(caseStoreKey(recapRows[parseInt(btn.dataset.i, 10)].c));
+            } else {
+                closeRecapDone(act);
+            }
+        });
+        overlay.addEventListener("change", function (e) {
+            if (e.target.classList.contains("recap-pick")) updateRecapPicks();
         });
         // While it's open, keys don't start the timer or turn the cube
         window.addEventListener("keydown", function (e) {
-            if (!recapDoneOpen) return;
+            if (!recapDoneOpen || document.body.classList.contains("case-info-open")) return;
             if (e.key === "Escape") { e.preventDefault(); closeRecapDone("train"); }
             if (e.key !== "Tab" && e.key !== "Enter") e.stopPropagation();
             if (e.key === " " && e.target.tagName !== "BUTTON") e.preventDefault();
@@ -1074,32 +1187,62 @@ function showRecapDone() {
             if (recapDoneOpen) e.stopPropagation();
         }, true);
     }
+    var rowsHtml = recapRows.map(function (r, i) {
+        var split = r.recog != null && r.exec != null ? fmt(r.recog) + " + " + fmt(r.exec) : "–";
+        return '<tr class="' + (r.dnf ? "is-dnf" : weak(r) ? "is-slow" : "") + '">' +
+            '<td><input type="checkbox" class="recap-pick" data-i="' + i + '" data-weak="' + (weak(r) ? 1 : 0) + '"' +
+            (weak(r) ? " checked" : "") + ' aria-label="Recap ' + esc(r.name) + ' again"></td>' +
+            '<td class="recap-case">' + esc(r.name) +
+            (window.CaseInfo ? ' <button type="button" class="case-info-btn" data-act="info" data-i="' + i + '" title="Setup and algs" aria-label="Setup and algs for ' + esc(r.name) + '">i</button>' : "") +
+            "</td>" +
+            '<td class="num">' + (r.dnf ? '<span class="recap-dnf">DNF</span>' : fmt(r.time)) + "</td>" +
+            '<td class="num recap-split">' + split + "</td></tr>";
+    }).join("");
+
     overlay.innerHTML =
         '<div class="case-info-card recap-done-card" role="dialog" aria-modal="true" aria-labelledby="recapDoneTitle">' +
         '<div class="case-info-header"><h3 id="recapDoneTitle">Recap complete 🎉</h3></div>' +
         '<div class="case-info-body">' +
-        "<p>You've solved all " + n + " case" + (n === 1 ? "" : "s") + " once. What next?" +
+        '<div class="recap-summary">' +
+        '<div class="case-info-stat"><span>Cases</span><b>' + n + "</b></div>" +
+        '<div class="case-info-stat"><span>Average</span><b>' + (avg == null ? "–" : avg.toFixed(2) + "s") + "</b></div>" +
+        '<div class="case-info-stat"><span>Best</span><b>' + (times.length ? Math.min.apply(null, times).toFixed(2) + "s" : "–") + "</b></div>" +
+        '<div class="case-info-stat"><span>DNFs</span><b>' + dnfs + "</b></div>" +
+        "</div>" +
+        "<p>Slowest first. Cases slower than your average" + (dnfs ? " and DNFs" : "") + " are ticked, so you can recap just those." +
         (isContinuousOn() ? " Continuous training is paused until you choose." : "") + "</p>" +
+        '<div class="recap-pick-row" role="group" aria-label="Tick">Tick:' +
+        '<button type="button" class="chip" data-act="pick-weak">Slow ones</button>' +
+        '<button type="button" class="chip" data-act="pick-all">All</button>' +
+        '<button type="button" class="chip" data-act="pick-none">None</button>' +
+        "</div>" +
+        '<div class="recap-table-wrap"><table class="recap-table">' +
+        '<thead><tr><th></th><th>Case</th><th class="num">Time</th><th class="num" title="Recognition + execution">Recog + exec</th></tr></thead>' +
+        "<tbody>" + rowsHtml + "</tbody></table></div>" +
         '<div class="recap-done-actions">' +
-        '<button type="button" class="btn btn-primary" data-act="again">Recap again</button>' +
+        '<button type="button" class="btn btn-primary" data-act="again-picked"></button>' +
+        '<button type="button" class="btn btn-secondary" data-act="again">Recap all ' + toTrain.length + "</button>" +
         '<button type="button" class="btn btn-secondary" data-act="train">Keep training</button>' +
-        '<button type="button" class="btn btn-ghost" data-act="back">Choose new cases</button>' +
+        '<button type="button" class="btn btn-ghost" data-act="back" title="Your selection is kept, so you can tick more cases">Add more cases</button>' +
         "</div></div></div>";
     overlay.hidden = false;
-    overlay.querySelector('[data-act="again"]').focus();
+    updateRecapPicks();
+    var first = overlay.querySelector('[data-act="again-picked"]');
+    (first.disabled ? overlay.querySelector('[data-act="again"]') : first).focus();
     updateContinuousHint();
 }
 
 function closeRecapDone(choice) {
     if (choice === "back") { goBack(); return; }
+    var picked = choice === "again-picked" ? recapSelected() : null;
+    if (picked && !picked.length) return;
     var overlay = document.getElementById("recapDone");
     if (overlay) overlay.hidden = true;
     recapDoneOpen = false;
     if (choice === "again") {
-        recap = true;
-        sessionStorage.setItem("recapMode", JSON.stringify(true));
-        toRecap = copyArray(toTrain);
-        displayCaseCount(toRecap, "numRecap", "to recap");
+        startRecap(toTrain);
+    } else if (picked) {
+        startRecap(picked);
     } else {
         var numRecap = document.getElementById("numRecap");
         if (numRecap) numRecap.textContent = "";
@@ -1116,7 +1259,7 @@ if (originalGetAlgsArray) {
         var origFunc = c.getAlgsArray;
         // Your algs: the built-in list, or your edited version of it
         c.getOwnAlgs = function () {
-            var caseKey = this.set + "-" + this.subset + "-" + this.caseName;
+            var caseKey = caseStoreKey(this);
             var savedAlgs = JSON.parse(
                 localStorage.getItem("customAlgs") || "{}"
             );
@@ -1132,7 +1275,7 @@ if (originalGetAlgsArray) {
         // sheet removes its algs.
         c.getAlgsArray = function () {
             var own = this.getOwnAlgs();
-            var caseKey = this.set + "-" + this.subset + "-" + this.caseName;
+            var caseKey = caseStoreKey(this);
             return window.AlgSheets ? own.concat(AlgSheets.extraAlgs(caseKey, own)) : own;
         };
     });
@@ -2061,9 +2204,7 @@ if (window.virtualCube && typeof window.virtualCube.onSolve === "function") {
 }
 
 function getMainAlgKey(caseObj) {
-    return (
-        "mainAlg:" + caseObj.set + "-" + caseObj.subset + "-" + caseObj.caseName
-    );
+    return "mainAlg:" + caseStoreKey(caseObj);
 }
 
 function getMainAlgIndex(caseObj) {
@@ -2148,10 +2289,7 @@ function handleAddDetectedAlg(asMain) {
     var alg = detectedAlg.result.cleaned;
     if (!alg) return;
     var algs = (currentlyDisplayedCase.getOwnAlgs || currentlyDisplayedCase.getAlgsArray).call(currentlyDisplayedCase) || [];
-    var caseKey =
-        currentlyDisplayedCase.set + "-" +
-        currentlyDisplayedCase.subset + "-" +
-        currentlyDisplayedCase.caseName;
+    var caseKey = caseStoreKey(currentlyDisplayedCase);
     var savedAlgs = JSON.parse(localStorage.getItem("customAlgs") || "{}");
     if (!savedAlgs[caseKey]) savedAlgs[caseKey] = algs.slice();
     savedAlgs[caseKey].push(alg);
@@ -2213,7 +2351,7 @@ function getDisplayedAlgText(idx, fallback) {
 function displayedCaseKey() {
     var c = currentlyDisplayedCase;
     if (!c || c.set === "LSLL") return null;
-    return c.set + "-" + c.subset + "-" + c.caseName;
+    return caseStoreKey(c);
 }
 
 (function initCaseInfoLinks() {
@@ -2634,16 +2772,7 @@ function getAlgList() {
 }
 
 function getNoteKey(caseObj, index) {
-    return (
-        "algNote:" +
-        caseObj.set +
-        "-" +
-        caseObj.subset +
-        "-" +
-        caseObj.caseName +
-        ":" +
-        index
-    );
+    return "algNote:" + caseStoreKey(caseObj) + ":" + index;
 }
 
 function getAlgNote(caseObj, index) {
@@ -2692,12 +2821,7 @@ function handleEditAlg(index) {
     var newAlg = prompt("Edit algorithm:", currentAlg);
     if (newAlg === null) return;
 
-    var caseKey =
-        currentlyDisplayedCase.set +
-        "-" +
-        currentlyDisplayedCase.subset +
-        "-" +
-        currentlyDisplayedCase.caseName;
+    var caseKey = caseStoreKey(currentlyDisplayedCase);
     var own = (currentlyDisplayedCase.getOwnAlgs || currentlyDisplayedCase.getAlgsArray).call(currentlyDisplayedCase) || [];
     var savedAlgs = JSON.parse(localStorage.getItem("customAlgs") || "{}");
     if (!savedAlgs[caseKey]) savedAlgs[caseKey] = own.slice();

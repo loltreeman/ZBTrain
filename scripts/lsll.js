@@ -325,8 +325,43 @@
         return null;
     }
 
+    // ── F2L slots (for ZBLS in any slot) ────────────────────────────────
+    var SLOT_PIECES = {
+        FR: ["FR_", "FRD"], FL: ["FL_", "FLD"], BR: ["BR_", "BRD"], BL: ["BL_", "BLD"],
+    };
+
+    function pieceSolved(cube, key, fm) {
+        var col = cube.cubies[key].colors;
+        for (var s = 0; s < 6; s++) {
+            if (fm[col[s]] && fm[col[s]] !== LETTER[s]) return false;
+        }
+        return true;
+    }
+
+    // The F2L slots that aren't solved, e.g. ["FL"]
+    function brokenSlots(cube) {
+        var fm = faceOfColour(cube);
+        return Object.keys(SLOT_PIECES).filter(function (slot) {
+            return !SLOT_PIECES[slot].every(function (k) { return pieceSolved(cube, k, fm); });
+        });
+    }
+
+    // Where a piece is, e.g. findPiece(cube, "FR") → "F_U" (the FR edge is at UF)
+    function findPiece(cube, home) {
+        var fm = faceOfColour(cube);
+        var want = home.split("").sort().join("");
+        var keys = Object.keys(cube.cubies);
+        for (var i = 0; i < keys.length; i++) {
+            if (homeOf(cube, keys[i], fm) === want) return keys[i];
+        }
+        return null;
+    }
+
     window.LSLL = {
         f2lExceptPair: f2lExceptPair,
+        brokenSlots: brokenSlots,
+        findPiece: findPiece,
+        pieceSolved: function (cube, key) { return pieceSolved(cube, key, faceOfColour(cube)); },
         eachHolding: eachHolding,
         generateSetup: generateSetup,
         analyze: analyze,

@@ -33,6 +33,7 @@ high-volume drilling and long-term retention, with a virtual cube, smart cube su
 * **Alg Detection:** The trainer works out which alg you used, even with mistakes you undid, and lets you make it your main alg or add a new one.
 * **Case Info Window:** Click a case (or the ⓘ button) for its picture, a setup scramble, every alg with the right AUF, your stats on it, and which alg you usually use.
 * **Alg Sheets:** Import algs from a Google Sheets link, an Excel/CSV file or a pasted list. Each alg is checked to see which ZBLL or ZBLS case it actually solves, so sheets don't need to use our case names. Turn sheets on or off, or remove them.
+* **Top Solvers' Algs:** A built-in sheet of the ZBLL and ZBLS algs Xuanyi Geng, Qixian Cao and Tymon Kolasiński used in their reconstructed solves. The case info window shows which of them used each alg, with links to the solves on reco.nz. Collected by [Yota Ueda](https://x.com/zbller) in [this sheet](https://docs.google.com/spreadsheets/d/1wYaKvm1FQ8ZAJ4I_te8N75rowwn-9lgB1A8M8khfxVA).
 * **Export:** Export your algs to Excel, CSV or a printable PDF with each case's picture.
 
 ### Statistics

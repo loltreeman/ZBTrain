@@ -57,11 +57,71 @@
         <p>ZBTrain has <strong>302 ZBLS cases</strong>, grouped by the F2L case they come from (<code>F2L 1</code> to <code>F2L 41</code>). Within each F2L case, the variants differ in which last-layer edges are flipped. So <code>F2L 12-3</code> is "F2L case 12, edge-orientation variant 3".</p>
         <p>Many of them are a normal pair insert with a small change, so if you know your F2L cases, a lot of ZBLS feels familiar.</p>
 
-        <h2 id="learning-zbls">Learning ZBLS</h2>
+        <h2 id="zbls-vs-vhls">ZBLS vs VHLS</h2>
+        <p>Both orient the last-layer edges while you solve the last slot, so they often get mixed up. They're not the same set:</p>
         <ul>
-          <li>You don't need it before you start ZBLL. Plenty of people learn some ZBLL first and add ZBLS alongside.</li>
-          <li>Learn it F2L case by F2L case, starting with the pair cases you get most often in your solves.</li>
-          <li>The same habits as ZBLL apply: a few cases at a time, drilled, then reviewed with spaced repetition. ZBTrain's beginner path for ZBLS goes F2L 1 to 41.</li>
+          <li><strong>VHLS</strong> (Vandenbergh-Harris Last Slot, from the VH method) is <strong>32 algs</strong> for the few F2L cases where the pair is <strong>already made, or one move from being made</strong>. You first set the pair up into one of those cases, then the VHLS alg inserts it and orients the edges.</li>
+          <li><strong>ZBLS</strong> covers <strong>every</strong> last-slot case (302 in ZBTrain), wherever the corner and edge are. There's no setup step: you recognise the case and do one alg.</li>
+        </ul>
+        <p>So VHLS is a small subset of ZBLS. It's not especially efficient on its own, since setting up the pair costs moves, but it's a common stepping stone: you already make pairs in your F2L, so you can start orienting edges in your solves right away.</p>
+
+        <h2 id="when-to-learn">When to learn ZBLS</h2>
+        <p>It's recommended to learn ZBLS <strong>as soon as possible</strong>, or once you're comfortable with ZBLL.</p>
+        <ul>
+          <li><strong>You use it every solve.</strong> Every solve has a last slot, but ZBLL only comes up when the edges are oriented. So the ZBLS you learn gets practised in every solve.</li>
+          <li><strong>It unlocks ZBLL.</strong> Once ZBLS is in your solves, every solve ends in a ZBLL case, so all the ZBLL you've learned gets used.</li>
+          <li><strong>A common plan</strong>: learn the VHLS cases and the "both in slot" cases (corner and edge already in the slot) while you're learning T, U and L ZBLL, then fill in the rest.</li>
+        </ul>
+
+        <h3 id="how-long">How long it takes</h3>
+        <p>ZBLS has 302 cases, but they come in 41 sets (one per F2L case), and a lot of each set builds on F2L you already know. So it usually goes faster per case than ZBLL:</p>
+        <ul>
+          <li>At <strong>one F2L set every 1–2 days</strong>, a pace that has worked for cubers who've learned it all, that's roughly <strong>2 to 3 months</strong>.</li>
+          <li>At the ZBLL pace of <strong>12 cases a week</strong>, it's about <strong>6 months</strong>.</li>
+        </ul>
+        <p>As with ZBLL, what matters most is coming back every day and reviewing what you've learned.</p>
+
+        <h2 id="which-first">Which ZBLS cases to learn first</h2>
+        <p>There's no single right order. These are the approaches cubers who've learned full ZBLS describe:</p>
+        <div class="docs-cards">
+          <div class="docs-card"><h4>Connected pairs first</h4>Start with the cases where the corner and edge are already paired up. You probably know a few algs already and can use them in solves straight away.</div>
+          <div class="docs-card"><h4>Your worst cases first</h4>Start with the F2L cases you find awkward with normal F2L. That's where solving the last slot and the edges in one look saves the most.</div>
+          <div class="docs-card"><h4>Mostly random</h4>If you're sure you'll learn all of it, the order matters less. Learning cases from different families keeps them from blurring together.</div>
+          <div class="docs-card"><h4>One set at a time</h4>One F2L case (its edge-orientation variants) every day or two is a pace that's worked for people. When you're about a quarter through one set, it's fine to start the next.</div>
+        </div>
+
+        <h3 id="look-alikes">Space out look-alike cases</h3>
+        <p>Whatever order you pick, <strong>don't learn very similar sets at the same time</strong>. If you've always solved F2L intuitively, you may not be used to seeing F2L as separate "cases", and look-alikes are easy to mix up. Learn one, get comfortable, then come back for its neighbour.</p>
+        <div class="docs-figures">
+          <figure class="docs-figure"><img class="docs-img" src="../images/ZBLS/F2L 19-1.png" alt="F2L 19"><figcaption><code>F2L 19</code></figcaption></figure>
+          <figure class="docs-figure"><img class="docs-img" src="../images/ZBLS/F2L 20-1.png" alt="F2L 20"><figcaption><code>F2L 20</code></figcaption></figure>
+          <figure class="docs-figure"><img class="docs-img" src="../images/ZBLS/F2L 21-1.png" alt="F2L 21"><figcaption><code>F2L 21</code></figcaption></figure>
+          <figure class="docs-figure"><img class="docs-img" src="../images/ZBLS/F2L 22-1.png" alt="F2L 22"><figcaption><code>F2L 22</code></figcaption></figure>
+        </div>
+        <p class="docs-caption-note">F2L 19 to 22 all have the same corner, oriented and separated from its edge. Only where the edge sits, and which way it faces, changes. Space these out.</p>
+
+        <h3 id="zbls-practice">Practising</h3>
+        <ul>
+          <li>The same habits as ZBLL apply: a few cases at a time, drilled, then reviewed with spaced repetition.</li>
+          <li>ZBTrain's <a href="../zbls.html">ZBLS page</a> lets you pick exactly which cases to drill. The beginner path for ZBLS spaces look-alikes out for you: it goes F2L 1, 7, 13, 19… rather than 1, 2, 3, so cases like 19 to 22 come weeks apart. You can also choose your cases yourself on the <a href="../learn.html">Learn</a> page.</li>
+        </ul>
+
+        <h3 id="other-slots">Other slots and fixed angles</h3>
+        <p>Your last slot isn't always front-right. Once FR feels comfortable, many ZB solvers add <strong>FL</strong> (and sometimes BR) so they don't have to rotate or set up the pair first.</p>
+        <ul>
+          <li><strong>Train other slots:</strong> on ZBTrain's <a href="../zbls.html">ZBLS page</a>, tick FR, FL, BR or BL under <em>Slots</em>. Each case comes up in every slot you tick, with algs for that slot: all 302 cases have real FL and BR algs. BL algs are still scarce, so most BL cases use a <code>y2</code> followed by the FR alg.</li>
+          <li><strong>Practise one angle at a time:</strong> set <em>Edge position</em> to a fixed spot (for example UF). The slot's edge then always starts there, so you learn to recognise each case from one angle before mixing in the others. When the edge is already in a slot, the corner starts above the slot instead.</li>
+        </ul>
+
+        <h2 id="zbls-sheets">ZBLS sheets and trainers</h2>
+        <ul>
+          <li><a href="https://docs.google.com/spreadsheets/d/1UpyXOJjrnFboJv-o1SuuWrkGOqaEGqnN/edit" target="_blank" rel="noopener">S1neWav's FR ZBLS sheet</a>: a ZBLS sheet organised by F2L case, with the oriented slot edge on the left and misoriented on the right, plus a casemap tab to jump to any F2L case.</li>
+          <li><a href="https://docs.google.com/spreadsheets/d/1q07bhdQigqXbzNSvW6g8uBDaEDlcGS-PB14aH4c9NiM/edit" target="_blank" rel="noopener">Brina's ZBLS sheet</a> and <a href="https://docs.google.com/spreadsheets/d/1s8Q2VM2c1eV3oLIxFfM4exvABO0AcCeMCUdMiYKnzC0/edit" target="_blank" rel="noopener">Tao Yu's ZBLS sheet</a>.</li>
+          <li><a href="https://morganyeh06.github.io/zbls-trainer/" target="_blank" rel="noopener">Morgan Yeh's ZBLS trainer</a>, which many people use as their go-to ZBLS trainer.</li>
+          <li><a href="https://trexrush.github.io/zbls-trainer/" target="_blank" rel="noopener">trexrush's ZBLS trainer</a>, whose case order many sheets follow.</li>
+          <li><a href="https://uesyuu.github.io/zb_trainer/" target="_blank" rel="noopener">Uesyuu's ZB Trainer</a>, which lets you pick which slots to practise (for example FR only, or FR and FL).</li>
+          <li><a href="https://docs.google.com/spreadsheets/d/1Zj06LtWcVXQjdeYEtmp6q69Z6eN_mDXtk9N9lD3gJRA/edit" target="_blank" rel="noopener">ZB AlgSheet</a>: ZBLS for FR, FL and BR (including Twan's FL algs), plus ZBLL. ZBTrain's FL and BR algs come from here and from masadl's FL list for Tao Yu's Alg-Trainer.</li>
+          <li>Any of these can be imported on ZBTrain's <a href="../sheets.html">Sheets</a> page: it checks which ZBLS case each alg solves.</li>
         </ul>
 
         <h2 id="lsll">Practising both together: LSLL</h2>
@@ -81,6 +141,8 @@
           <ul>
             <li><a href="https://www.speedsolving.com/wiki/index.php/ZBLL" target="_blank" rel="noopener">ZBLL</a> on the Speedsolving.com wiki</li>
             <li><a href="https://www.zzmethod.com/improvement-guide/ll/zbll-guide" target="_blank" rel="noopener">ZBLL Full Guide</a> by Krzysztof Bloch (yoruba), ZZ Method</li>
+            <li><a href="https://www.speedsolving.com/wiki/index.php/VHLS" target="_blank" rel="noopener">VHLS</a> on the Speedsolving.com wiki, and <a href="https://sarah.cubing.net/3x3x3/vhls" target="_blank" rel="noopener">VHLS algorithms</a> on Sarah's Cubing Site</li>
+            <li>The advice on when to learn ZBLS, which cases to start with and spacing out look-alikes comes from discussions with cubers in the ZB community who have learned full ZBLS.</li>
             <li><a href="https://js.cubing.net/cubing/" target="_blank" rel="noopener">cubing.js</a> for the cube animations</li>
           </ul>
         </section>
