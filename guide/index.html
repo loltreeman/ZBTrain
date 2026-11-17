@@ -45,8 +45,9 @@
 
         <div class="docs-figures">
           <figure class="docs-figure">
-            <twisty-player class="docs-player" alg="R U R' U R U2 R' U2 R' U' R U' R' U2 R" experimental-setup-anchor="end" experimental-stickering="ZBLL" background="none"></twisty-player>
-            <figcaption>One ZBLL alg solves the whole last layer at once (<code>T-2GLL-CsC</code>). Press play. The animations use the standard colour scheme with white on top; with yellow on top everything works the same.</figcaption>
+            <twisty-player class="docs-player" alg="R' F R F' // ZBLS: insert the last pair and orient the edges
+R U R' U R U2 R' U2 R' U' R U' R' U2 R // ZBLL: solve the whole last layer" experimental-setup-anchor="end" background="none"></twisty-player>
+            <figcaption>The two steps of ZB. <b>ZBLS</b> (<code>R' F R F'</code>) inserts the last pair and orients the last-layer edges at the same time. Then one <b>ZBLL</b> alg (<code>R U R' U R U2 R' U2 R' U' R U' R' U2 R</code>, <code>T-2GLL-CsC</code>) solves the whole last layer. Press play. The animations use the standard colour scheme with white on top; with yellow on top everything works the same.</figcaption>
           </figure>
         </div>
 

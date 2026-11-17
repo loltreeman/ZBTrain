@@ -98,8 +98,9 @@
     function parseRecons(text) {
         var names = typeof TOP_SOLVERS !== "undefined" ? TOP_SOLVERS : {};
         return String(text || "").split(/\s+/).filter(Boolean).map(function (r) {
-            var id = r.slice(1);
-            return { who: r[0], name: names[r[0]] || "Top solver", id: id, url: "https://reco.nz/solve/" + id };
+            // "x12630", or a longer code for other solvers ("bz13001")
+            var m = /^([a-z]+)(\d+)$/.exec(r) || [r, "", r];
+            return { who: m[1], name: names[m[1]] || "Top solver", id: m[2], url: "https://reco.nz/solve/" + m[2] };
         });
     }
 

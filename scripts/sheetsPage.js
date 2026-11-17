@@ -28,7 +28,7 @@
         Object.keys(data).forEach(function (key) {
             data[key].forEach(function (e) {
                 if (/^ZBLS-/.test(key)) zbls++; else zbll++;
-                e[1].split(" ").forEach(function (r) { solves[r.slice(1)] = true; });
+                e[1].split(" ").forEach(function (r) { solves[r.replace(/^[a-z]+/, "")] = true; });
             });
         });
         var li = document.createElement("li");

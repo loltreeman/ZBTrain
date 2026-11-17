@@ -235,6 +235,17 @@
         return a && a.ok ? AlgAuf.toText(a) : state.c.algs[i];
     }
 
+    // The angle you picked for a set's pictures: live on the ZBLL page,
+    // or the one you started training with
+    function caseAngle(set) {
+        var ori = null;
+        if (typeof window.getCaseOrientation === "function") ori = window.getCaseOrientation();
+        if (!ori) {
+            try { ori = JSON.parse(sessionStorage.getItem("caseOrientation") || "{}"); } catch (e) {}
+        }
+        return parseInt((ori || {})[set], 10) || 0;
+    }
+
     function fmt(t) { return t == null ? "–" : t.toFixed(2) + "s"; }
 
     function render() {
@@ -249,8 +260,7 @@
         if (drawn) CubeViews.renderTo(els.canvas, "classic", virtualCube.makeCube(setup), 120);
         else els.img.src = encodeURI(c.img);
         els.img.alt = c.name;
-        var angle = 0;
-        try { angle = parseInt((JSON.parse(sessionStorage.getItem("caseOrientation") || "{}") || {})[c.set], 10) || 0; } catch (e) {}
+        var angle = caseAngle(c.set);
         els.img.style.transform = angle ? "rotate(" + angle + "deg)" : "";
         els.scramble.textContent = setup || "No setup for this case";
         els.overlay.querySelector('[data-act="another"]').disabled = c.scrambles.length < 2;
@@ -308,12 +318,15 @@
             if (!byWho[u.name]) { byWho[u.name] = []; order.push(u.name); }
             byWho[u.name].push(u);
         });
-        return '<div class="case-info-top-solvers"><span class="case-info-top-label">Used by</span>' +
+        return '<div class="case-info-top-solvers"><span class="case-info-top-label">Used in solves by</span>' +
             order.map(function (name) {
-                return '<span class="case-info-solver"><b>' + esc(name) + "</b>" +
-                    byWho[name].map(function (u, n) {
+                var list = byWho[name];
+                return '<span class="case-info-solver" data-who="' + esc(list[0].who) + '">' +
+                    '<span class="case-info-solver-name">' + esc(name) + "</span>" +
+                    list.map(function (u, n) {
                         return '<a href="' + esc(u.url) + '" target="_blank" rel="noopener" title="' +
-                            esc(name) + "'s solve on reco.nz" + '">' + (byWho[name].length > 1 ? "solve " + (n + 1) : "solve") + "</a>";
+                            esc(name) + "'s solve on reco.nz (opens in a new tab)" + '">' +
+                            (list.length > 1 ? n + 1 : "Recon") + '<span aria-hidden="true"> ↗</span></a>';
                     }).join("") + "</span>";
             }).join("") + "</div>";
     }

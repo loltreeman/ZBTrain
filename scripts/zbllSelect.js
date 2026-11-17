@@ -1,4 +1,6 @@
 const activeOrientation = {}; // tracks main image rotation per set
+// The case info window (caseInfo.js) shows pictures at the angle you picked here
+window.getCaseOrientation = function () { return activeOrientation; };
 const modalSelections = {};   // tracks which cases are selected per subset
 
 const zbllMap = {
