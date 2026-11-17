@@ -2280,6 +2280,24 @@ img.slow-case-open:hover {
     gap: 6px;
 }
 
+.recap-thumb {
+    flex: none;
+    display: inline-flex;
+    width: 48px;
+    height: 48px;
+}
+
+.recap-thumb img,
+.recap-thumb canvas {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.recap-name {
+    min-width: 0;
+}
+
 .recap-split {
     color: var(--text-3);
 }

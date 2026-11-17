@@ -1192,7 +1192,7 @@ function renderRecapDone() {
         return '<tr class="' + (r.dnf ? "is-dnf" : weak(r) ? "is-slow" : "") + '">' +
             '<td><input type="checkbox" class="recap-pick" data-i="' + i + '" data-weak="' + (weak(r) ? 1 : 0) + '"' +
             (weak(r) ? " checked" : "") + ' aria-label="Recap ' + esc(r.name) + ' again"></td>' +
-            '<td class="recap-case">' + esc(r.name) +
+            '<td class="recap-case"><span class="recap-thumb" data-i="' + i + '"></span><span class="recap-name">' + esc(r.name) + "</span>" +
             (window.CaseInfo ? ' <button type="button" class="case-info-btn" data-act="info" data-i="' + i + '" title="Setup and algs" aria-label="Setup and algs for ' + esc(r.name) + '">i</button>' : "") +
             "</td>" +
             '<td class="num">' + (r.dnf ? '<span class="recap-dnf">DNF</span>' : fmt(r.time)) + "</td>" +
@@ -1225,6 +1225,22 @@ function renderRecapDone() {
         '<button type="button" class="btn btn-secondary" data-act="train">Keep training</button>' +
         '<button type="button" class="btn btn-ghost" data-act="back" title="Your selection is kept, so you can tick more cases">Add more cases</button>' +
         "</div></div></div>";
+    // Each case's picture: its diagram, or the cube drawn for other ZBLS slots
+    overlay.querySelectorAll(".recap-thumb").forEach(function (slot) {
+        var c = recapRows[parseInt(slot.dataset.i, 10)].c;
+        var src = c.getImg ? c.getImg() : "";
+        if (src) {
+            var img = document.createElement("img");
+            img.src = encodeURI(src);
+            img.alt = "";
+            img.loading = "lazy";
+            slot.appendChild(img);
+        } else if (window.CubeViews && window.virtualCube) {
+            var canvas = document.createElement("canvas");
+            slot.appendChild(canvas);
+            try { CubeViews.renderTo(canvas, "classic", virtualCube.makeCube(c.getSetup()), 48); } catch (e) { slot.removeChild(canvas); }
+        }
+    });
     overlay.hidden = false;
     updateRecapPicks();
     var first = overlay.querySelector('[data-act="again-picked"]');
