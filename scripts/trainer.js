@@ -670,7 +670,43 @@ function logAttempt(caseObj, timeStr, result) {
 
     attempts.push(entry);
     saveAttempts();
+    lastLoggedAttempt = entry;
+    updateDnfToggle();
 }
+
+// ── DNF for the last solve ──────────────────────────────────────────────
+// With the virtual cube or a smart cube the trainer knows if you solved it.
+// With only the timer, you say so: the button next to the last time.
+var lastLoggedAttempt = null;
+
+function updateDnfToggle() {
+    var btn = document.getElementById("dnfToggle");
+    if (!btn) return;
+    var a = lastLoggedAttempt;
+    btn.hidden = !a || learnMode;
+    if (!a) return;
+    var dnf = a.result === "DNF";
+    btn.textContent = dnf ? "Undo DNF" : "DNF";
+    btn.setAttribute("aria-pressed", String(dnf));
+    btn.title = dnf ? "Count the last solve as solved again" : "Mark the last solve as not solved (DNF)";
+    var timeEl = document.getElementById("case-time");
+    if (timeEl && !timeEl.hidden) timeEl.textContent = a.time.toFixed(2) + (dnf ? " DNF" : "");
+}
+
+function toggleLastDnf() {
+    var a = lastLoggedAttempt;
+    if (!a) return;
+    a.result = a.result === "DNF" ? "OK" : "DNF";
+    saveAttempts();
+    updateDnfToggle();
+    try { renderCaseAttempts(currentlyDisplayedCase); } catch (e) {}
+    if (timerRef && timerRef.focus) timerRef.focus();
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    var btn = document.getElementById("dnfToggle");
+    if (btn) btn.addEventListener("click", toggleLastDnf);
+});
 
 function exportAttemptsCsv() {
     if (!attempts || attempts.length === 0) {
@@ -1403,6 +1439,7 @@ function handleTouchStart(event) {
 
     //start or stop timer depending on value of timerStatus
     if (timerStatus === "Stop") {
+        if (learnNeedsRating()) return;
         timerRef.style.color = "var(--timer-armed)";
     } else if (timerStatus === "Start") {
         //stop timer and change timerStatus
@@ -1432,6 +1469,7 @@ function handleTouchEnd(event) {
 
     //start or stop timer depending on value of timerStatus
     if (timerStatus === "Stop") {
+        if (learnNeedsRating()) return;
         //reset time and change timerStatus
         milliseconds = 0;
 
@@ -1520,6 +1558,7 @@ function handleKeyDown(event) {
 
         if (timerStatus === "Stop" && !lockoutActive) {
             if (holdTimer) return;
+            if (learnNeedsRating()) return;
 
             if (holdThreshold === 0) {
                 holdStarted = true;
@@ -1878,6 +1917,8 @@ function handleKeyUp(event) {
 function beginSolve(isVirtualOn) {
     // Recap finished: wait until you choose what's next
     if (recapDoneOpen) return;
+    // Learning mode: rate the case you just did first
+    if (learnNeedsRating()) return;
     // Learning mode with nothing due: check again (a learning case may be due by now)
     if (learnMode && !learnUpcoming) {
         prevCase = generateScramble();
@@ -2569,10 +2610,49 @@ function onLearnAttempt(caseObj, entry) {
         saved: false,
     };
     entry.learn = { state: before.state, suggested: suggestion.rating };
-    saveLearnPending();
+    // Not saved until you pick a rating: the next case waits for it
     renderLearnRating();
     renderLearnCounts();
+    updateRatingGate();
 }
+
+// Learning mode: you rate each case before the next one. Until then the next
+// scramble is hidden and the timer won't start. Returns true (and points you
+// at the rating buttons) while that's the case.
+function learnNeedsRating() {
+    if (!learnMode || !learnPending || learnPending.saved) return false;
+    var box = document.getElementById("learnRating");
+    if (box) {
+        box.classList.remove("needs-rating");
+        void box.offsetWidth; // restart the nudge animation
+        box.classList.add("needs-rating");
+        if (box.scrollIntoView) box.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }
+    return true;
+}
+
+function updateRatingGate() {
+    var waiting = !!(learnMode && learnPending && !learnPending.saved);
+    document.body.classList.toggle("learn-awaiting-rating", waiting);
+    var hint = document.querySelector(".timer-hint");
+    if (hint && waiting) hint.innerHTML = "Rate the case you just did to see the next one";
+    else updateContinuousHint();
+}
+
+// Keys 1–4 pick Again / Hard / Good / Easy while a rating is due
+document.addEventListener("keydown", function (e) {
+    if (!learnMode || !learnPending || learnPending.saved) return;
+    if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+    var r = { "1": 1, "2": 2, "3": 3, "4": 4 }[e.key];
+    if (!r) return;
+    e.preventDefault();
+    chooseLearnRating(r);
+});
+
+// Leaving without rating: keep the suggestion, as before
+window.addEventListener("pagehide", function () {
+    if (learnMode && learnPending && !learnPending.saved) saveLearnPending();
+});
 
 // Save the rating (the suggestion, or the one you picked)
 function saveLearnPending() {
@@ -2596,6 +2676,8 @@ function chooseLearnRating(r) {
     renderLearnCounts();
     // Nothing was due before: this rating may have changed that
     if (!learnUpcoming) prevCase = generateScramble();
+    updateRatingGate();
+    if (isContinuousOn() && !continuousPaused && timerStatus === "Stop") scheduleContinuousNext();
 }
 
 function renderLearnRating() {
@@ -2618,9 +2700,11 @@ function renderLearnRating() {
     var note = (p.picked ? "You picked <b>" + Srs.RATINGS[p.rating] + "</b>. Suggested: " : "Suggested: <b>" + Srs.RATINGS[suggested] + "</b> · ") +
         (p.picked ? Srs.RATINGS[suggested] + " · " : "") +
         p.suggestion.reasons.map(escapeHtml).join(" · ") +
-        '<span class="rate-hint">' + (p.picked ? "Click another to change it." : "Saved. Click another rating to change it.") + "</span>";
+        '<span class="rate-hint">' + (p.saved ? "Tap another to change it." : "Pick one to see the next case (or press 1–4).") + "</span>";
+    box.classList.toggle("is-waiting", !p.saved);
+    if (p.saved) box.classList.remove("needs-rating");
     box.innerHTML =
-        '<label>How well did you know it?</label>' +
+        '<label>' + (p.saved ? "How well did you know it?" : "How well did you know it? Rate it to go on") + "</label>" +
         '<div class="rate-row">' + buttons + "</div>" +
         '<p class="rate-note">' + note + "</p>";
 }

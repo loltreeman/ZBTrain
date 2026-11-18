@@ -386,6 +386,30 @@ body:has(#slowModeBanner[style*="flex"]) .app-shell {
     font-weight: 500;
 }
 
+/* Mark the last solve as a DNF (timer-only solves) */
+.case-card-header #case-time {
+    margin-left: auto;
+}
+
+.case-card-header .dnf-toggle {
+    margin-left: calc(var(--sp-3) * -1 + 6px);
+    padding: 0 9px;
+    height: 24px;
+    border: 1px solid var(--line-strong, var(--border));
+    color: var(--text-2);
+    font-size: var(--fs-xs);
+    font-weight: 600;
+}
+
+.case-card-header .dnf-toggle[hidden] {
+    display: none;
+}
+
+.case-card-header .dnf-toggle[aria-pressed="true"] {
+    border-color: var(--bad, #dc2626);
+    color: var(--bad, #dc2626);
+}
+
 #case-time {
     padding: 2px 8px;
     border-radius: var(--r-sm);
@@ -2120,6 +2144,41 @@ img.slow-case-open:hover {
 
 .learn-rating[hidden] {
     display: none;
+}
+
+/* Waiting for your rating: stands out, and nudges when you try to go on */
+.learn-rating.is-waiting {
+    padding: 10px;
+    margin: -10px;
+    border-radius: var(--r-md, 8px);
+    background: var(--accent-soft);
+    box-shadow: 0 0 0 1px var(--accent);
+}
+
+.learn-rating.is-waiting > label {
+    color: var(--accent-text);
+}
+
+.learn-rating.needs-rating {
+    animation: rating-nudge 420ms var(--ease, ease);
+}
+
+@keyframes rating-nudge {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .learn-rating.needs-rating { animation: none; }
+}
+
+/* The next scramble stays hidden until you rate */
+body.learn-awaiting-rating #current-scramble {
+    filter: blur(7px);
+    user-select: none;
 }
 
 .learn-rating > label {

@@ -316,6 +316,11 @@
         },
         detect: detect,
         canonicalKey: function (alg) { return algKeys(alg)[0] || ""; },
+        // The same moves however it's held: "y2 R U R'" and "L U L'" are the same alg
+        sameAlg: function (a, b) {
+            var kb = algKeys(b)[0];
+            return !!kb && algKeys(a).indexOf(kb) >= 0;
+        },
         methodsToNotation: methodsToNotation,
         methodNotation: METHOD_NOTATION,
         // Face turns only, relative to the centres (what a smart cube sees)
