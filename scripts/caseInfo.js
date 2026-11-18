@@ -200,15 +200,112 @@
 
     function isOpen() { return els && !els.overlay.hidden; }
 
+    // ── Setups that match the picture ───────────────────────────────────
+    // A saved setup can leave the case in any of four AUFs, so it may look
+    // turned compared with the picture. We read the picture's stickers (the
+    // ZBLL svgs: yellow top, side stickers around it), and add the U turn that
+    // makes the setup look the same, at the angle you picked for the set.
+
+    var pictureCache = {};
+
+    function loadPicture(c) {
+        if (c.deck !== "ZBLL" || !c.img) return Promise.resolve(null);
+        if (!pictureCache[c.key]) {
+            pictureCache[c.key] = fetch(encodeURI(c.img)).then(function (r) { return r.ok ? r.text() : null; })
+                .then(function (svg) { return svg ? parsePicture(svg) : null; })
+                .catch(function () { return null; });
+        }
+        return pictureCache[c.key];
+    }
+
+    // Stickers in the picture: U (9, back row first), then each side's 3,
+    // all read anticlockwise around the picture (F left→right, R front→back,
+    // B right→left, L back→front)
+    function parsePicture(svg) {
+        var polys = [], re = /<polygon fill='(#[0-9A-Fa-f]+)'[^>]*points='([^']+)'/g, m;
+        while ((m = re.exec(svg))) {
+            var pts = m[2].trim().split(/\s+/).map(function (p) { return p.split(",").map(Number); });
+            var cx = 0, cy = 0;
+            pts.forEach(function (p) { cx += p[0]; cy += p[1]; });
+            polys.push({ fill: m[1].toUpperCase(), cx: cx / pts.length, cy: cy / pts.length });
+        }
+        var pick = function (test, sort) { return polys.filter(test).sort(sort).map(function (p) { return p.fill; }); };
+        var pic = {
+            U: pick(function (p) { return Math.abs(p.cx) < 0.55 && Math.abs(p.cy) < 0.55 && p.fill !== "#000000"; },
+                function (a, b) { return Math.round((a.cy - b.cy) * 10) || a.cx - b.cx; }),
+            F: pick(function (p) { return p.cy > 0.6; }, function (a, b) { return a.cx - b.cx; }),
+            R: pick(function (p) { return p.cx > 0.6; }, function (a, b) { return b.cy - a.cy; }),
+            B: pick(function (p) { return p.cy < -0.6; }, function (a, b) { return b.cx - a.cx; }),
+            L: pick(function (p) { return p.cx < -0.6; }, function (a, b) { return a.cy - b.cy; }),
+        };
+        return pic.U.length === 9 && pic.F.length === 3 ? pic : null;
+    }
+
+    // The picture turned clockwise by quarter turns (as shown at your angle)
+    function turnPicture(pic, quarters) {
+        for (var q = 0; q < ((quarters % 4) + 4) % 4; q++) {
+            var u = [];
+            for (var r = 0; r < 3; r++) for (var col = 0; col < 3; col++) u.push(pic.U[(2 - col) * 3 + r]);
+            pic = { U: u, F: pic.R, R: pic.B, B: pic.L, L: pic.F };
+        }
+        return pic;
+    }
+
+    // Every way the picture's colours can sit on the cube's sides (the four
+    // side colours go round in this order; which one is in front doesn't matter)
+    var SIDE_COLOURS = ["#00D800", "#FFA100", "#0000F2", "#EE0000"];
+    var SIDES = ["F", "R", "B", "L"];
+
+    function pictureLooks(pic) {
+        var looks = {};
+        for (var shift = 0; shift < 4; shift++) {
+            var face = { "#FEFE00": "U" };
+            SIDE_COLOURS.forEach(function (col, i) { face[col] = SIDES[(i + shift) % 4]; });
+            var lab = function (col) { return face[col] || "?"; };
+            looks[pic.U.map(lab).join("") + "|" + SIDES.map(function (s) { return pic[s].map(lab).join(""); }).join("|")] = true;
+        }
+        return looks;
+    }
+
+    // The same description for a cube: each sticker by the side whose centre it matches
+    function cubeLook(cube) {
+        var s = CubeViews.getStickers(cube);
+        var centre = { U: s.U[4], F: s.F[4], R: s.R[4], B: s.B[4], L: s.L[4] };
+        var lab = function (col) {
+            for (var f in centre) if (centre[f] === col) return f;
+            return "?";
+        };
+        return s.U.map(lab).join("") + "|" + SIDES.map(function (f) { return s[f].slice(0, 3).map(lab).join(""); }).join("|");
+    }
+
+    // The setup, plus the U turn that makes it look like the picture
+    function matchPicture(setup) {
+        var c = state.c;
+        if (!c.picture || !setup || !window.virtualCube || !window.CubeViews) return setup;
+        var key = setup + "@" + caseAngle(c.set);
+        if (c.matched[key] != null) return c.matched[key];
+        var looks = pictureLooks(turnPicture(c.picture, Math.round(caseAngle(c.set) / 90)));
+        var out = setup;
+        ["", "U", "U2", "U'"].some(function (turn) {
+            try {
+                if (!looks[cubeLook(virtualCube.makeCube(setup + (turn ? " " + turn : "")))]) return false;
+            } catch (e) { return false; }
+            out = turn ? setup + " " + turn : setup;
+            return true;
+        });
+        c.matched[key] = out;
+        return out;
+    }
+
     function currentScramble() {
         var c = state.c;
-        if (c.scrambles.length) return c.scrambles[state.scrambleIndex % c.scrambles.length];
+        if (c.scrambles.length) return matchPicture(c.scrambles[state.scrambleIndex % c.scrambles.length]);
         // No saved scramble: undo the main alg
         var tokens = window.AlgAuf && c.algs[c.mainIndex] ? AlgAuf.tokenize(c.algs[c.mainIndex]) : null;
         if (!tokens) return "";
-        return tokens.slice().reverse().map(function (t) {
+        return matchPicture(tokens.slice().reverse().map(function (t) {
             return /2$/.test(t) ? t : /'$/.test(t) ? t.slice(0, -1) : t + "'";
-        }).join(" ");
+        }).join(" "));
     }
 
     function nextScramble() {
@@ -280,6 +377,16 @@
         // Algs: main first
         var order = c.algs.map(function (_, i) { return i; });
         order.sort(function (a, b) { return (b === c.mainIndex) - (a === c.mainIndex); });
+        // The same alg written twice (another AUF, a y2 version) shows once, main first
+        if (window.AlgSheets && AlgSheets.sameAlg) {
+            var shown = [];
+            order = order.filter(function (i) {
+                var twin = shown.filter(function (j) { return AlgSheets.sameAlg(c.algs[i], c.algs[j]); })[0];
+                if (twin == null) { shown.push(i); return true; }
+                if (stats.used[i]) stats.used[twin] = (stats.used[twin] || 0) + stats.used[i];
+                return false;
+            });
+        }
         state.adjusted = c.algs.map(function (alg) { return adjust(alg, setup); });
         els.algs.innerHTML = c.algs.length ? order.map(function (i) {
             var a = state.adjusted[i];
@@ -368,7 +475,11 @@
     function open(key) {
         return loadDependencies().then(function () {
             if (!els) build();
-            state.c = caseData(key);
+            var c = caseData(key);
+            c.matched = {};
+            return loadPicture(c).then(function (pic) { c.picture = pic; return c; });
+        }).then(function (c) {
+            state.c = c;
             state.scrambleIndex = Math.floor(Math.random() * Math.max(1, state.c.scrambles.length));
             if (!isOpen()) state.lastFocus = document.activeElement;
             render();

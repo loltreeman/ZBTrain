@@ -112,10 +112,9 @@
 
     // Solves where a top solver used this alg (any AUF or way of writing it)
     function topUsesOf(key, alg) {
-        var id = algId(alg);
         var out = [];
         topAlgs(key).forEach(function (e) {
-            if (algId(e.alg) === id) out = out.concat(e.recons);
+            if (sameAlg(e.alg, alg)) out = out.concat(e.recons);
         });
         return out;
     }
@@ -129,17 +128,21 @@
         return String(alg).replace(/\s+/g, " ").trim();
     }
 
+    // Same alg, however it's written: AUFs, rotations ("y2 R U R'" = "L U L'"), wide moves
+    function sameAlg(a, b) {
+        if (window.AlgDetect && AlgDetect.sameAlg) return AlgDetect.sameAlg(a, b);
+        return algId(a) === algId(b);
+    }
+
     // Algs from your sheets for one case, leaving out ones you already have
     function extraAlgs(key, own) {
         var extra = sheetAlgs()[key];
         if (!extra || !extra.length) return [];
-        var seen = {};
-        (own || []).forEach(function (a) { seen[algId(a)] = true; });
         var out = [];
+        var have = (own || []).slice();
         extra.forEach(function (a) {
-            var id = algId(a);
-            if (seen[id]) return;
-            seen[id] = true;
+            if (have.some(function (b) { return sameAlg(a, b); })) return;
+            have.push(a);
             out.push(a);
         });
         return out;
@@ -472,6 +475,7 @@
         setTopOn: setTopOn,
         topAlgs: topAlgs,
         topUsesOf: topUsesOf,
+        sameAlg: sameAlg,
         topData: topData,
         cleanAlg: cleanAlg,
         checkAlg: checkAlg,
