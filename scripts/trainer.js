@@ -2509,17 +2509,8 @@ function renderLearnCounts() {
 function renderLearnCard(caseObj, q) {
     var box = document.getElementById("learnCard");
     if (!box || !learnMode) return;
-    renderLearnCounts();
-
-    // While the user hasn't rated the case they just solved, hide the upcoming
-    // case card entirely so they can't peek at the next one.
-    var awaitingRating = !!(learnPending && !learnPending.saved);
-    if (awaitingRating) {
-        box.hidden = true;
-        return;
-    }
-
     box.hidden = false;
+    renderLearnCounts();
 
     if (!caseObj) {
         var waiting = q && q.waitingUntil;
@@ -2635,8 +2626,7 @@ function learnNeedsRating() {
         box.classList.remove("needs-rating");
         void box.offsetWidth; // restart the nudge animation
         box.classList.add("needs-rating");
-        // The rating box is in the centre of the page — no sidebar scroll needed
-        if (box.scrollIntoView) box.scrollIntoView({ block: "center", behavior: "smooth" });
+        if (box.scrollIntoView) box.scrollIntoView({ block: "nearest", behavior: "smooth" });
     }
     return true;
 }
@@ -2687,8 +2677,6 @@ function chooseLearnRating(r) {
     // Nothing was due before: this rating may have changed that
     if (!learnUpcoming) prevCase = generateScramble();
     updateRatingGate();
-    // Now that the rating is saved, reveal the next case card
-    if (learnUpcoming) renderLearnCard(learnUpcoming.caseObj);
     if (isContinuousOn() && !continuousPaused && timerStatus === "Stop") scheduleContinuousNext();
 }
 
@@ -2699,7 +2687,6 @@ function renderLearnRating() {
     box.hidden = false;
     var now = Date.now();
     var suggested = p.suggestion.rating;
-    var caseName = p.caseObj && p.caseObj.getName ? p.caseObj.getName() : "";
     var buttons = [1, 2, 3, 4].map(function (r) {
         var preview = Srs.schedule(p.before, r, now);
         var cls = "rate-btn rate-" + r +
@@ -2717,7 +2704,6 @@ function renderLearnRating() {
     box.classList.toggle("is-waiting", !p.saved);
     if (p.saved) box.classList.remove("needs-rating");
     box.innerHTML =
-        (caseName ? '<div class="rate-case-name">' + escapeHtml(caseName) + "</div>" : "") +
         '<label>' + (p.saved ? "How well did you know it?" : "How well did you know it? Rate it to go on") + "</label>" +
         '<div class="rate-row">' + buttons + "</div>" +
         '<p class="rate-note">' + note + "</p>";

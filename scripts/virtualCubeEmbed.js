@@ -1,7 +1,7 @@
 // This file is used to embed the virtual cube onto the trainer.
 
 (function (window, document) {
-    var T = 0.9;
+    var T = 1; // opaque stickers; hidden faces are no longer drawn
     var colors = [
         "rgba(20,200,20," + T + ")",
         "rgba(255,0,0," + T + ")",
@@ -12,6 +12,21 @@
     ];
 
     var canvas = document.getElementById("canvas");
+    var container = document.getElementById("virtualCubeContainer");
+    // Same origin for drawing and measuring, so centring is exact.
+    // Large enough that nothing is clipped when measuring.
+    var ORIGIN = 300;
+    // Which view to draw (see cubeViews.js). Saved between visits.
+    var view = "classic";
+    try {
+        var savedView = localStorage.getItem("cubeView");
+        if (savedView && window.CubeViews && CubeViews.has(savedView)) view = savedView;
+    } catch (e) {}
+
+    function renderCube(ctx) {
+        if (window.CubeViews) CubeViews.draw(view, ctx, cube3, ORIGIN, ORIGIN);
+        else cube3.draw(ctx, ORIGIN, ORIGIN);
+    }
     var context = canvas && canvas.getContext ? canvas.getContext("2d") : null;
 
     window.cube3 = new Cube3(colors);
@@ -24,47 +39,49 @@
 
     function draw() {
         if (!context) return;
+        // Clear in device pixels regardless of the current transform
+        context.save();
+        context.setTransform(1, 0, 0, 1, 0, 0);
         context.clearRect(0, 0, canvas.width, canvas.height);
-        cube3.draw(context, 80, 30);
+        context.restore();
+        renderCube(context);
     }
 
     // ─── Keybind system ────────────────────────────────────────────────────
 
-    /** Default key → cube3 method name. Never mutated at runtime.
-     *  Matches csTimer's QWERTY virtual-cube key map. */
+    /** Default key → cube3 method name. Never mutated at runtime. */
     var DEFAULT_CUBE_ACTIONS = {
-        h: "rotate_f",   g: "rotate_fp", i: "rotate_r",   k: "rotate_rp",
-        j: "rotate_u",   f: "rotate_up", w: "rotate_b",   o: "rotate_bp",
-        d: "rotate_l",   e: "rotate_lp", s: "rotate_d",   l: "rotate_dp",
-        t: "rotate_x",   y: "rotate_x",  b: "rotate_xp",  n: "rotate_xp",
-        ";": "rotate_y", a: "rotate_yp", p: "rotate_z",   q: "rotate_zp",
-        u: "rotate_R",   m: "rotate_Rp", v: "rotate_L",   r: "rotate_Lp",
-        "5": "rotate_m", "6": "rotate_m", x: "rotate_mp", ".": "rotate_mp",
-        "0": "rotate_s", "1": "rotate_sp",
+        h: "rotate_f",  g: "rotate_fp", i: "rotate_r",  k: "rotate_rp",
+        j: "rotate_u",  f: "rotate_up", w: "rotate_b",  o: "rotate_bp",
+        d: "rotate_l",  e: "rotate_lp", s: "rotate_d",  l: "rotate_dp",
+        b: "rotate_x",  n: "rotate_x",  t: "rotate_xp", y: "rotate_xp",
+        a: "rotate_y",  ";": "rotate_yp", q: "rotate_z", p: "rotate_zp",
+        u: "rotate_R",  m: "rotate_Rp", v: "rotate_L",  r: "rotate_Lp",
+        "5": "rotate_m", "6": "rotate_mp", "0": "rotate_s", "1": "rotate_sp",
         "2": "rotate_e", "9": "rotate_ep",
     };
 
     /** Dvorak-equivalent bindings — same physical key positions as QWERTY defaults,
      *  but using the characters Dvorak OS layout produces for those keys. */
     var LAYOUT_DVORAK = {
-        d: "rotate_f", i: "rotate_fp", c: "rotate_r", t: "rotate_rp",
-        h: "rotate_u", u: "rotate_up", ",": "rotate_b", r: "rotate_bp",
-        e: "rotate_l", ".": "rotate_lp", o: "rotate_d", n: "rotate_dp",
-        x: "rotate_x", b: "rotate_x", y: "rotate_xp", f: "rotate_xp",
-        a: "rotate_y", s: "rotate_yp", "'": "rotate_z", l: "rotate_zp",
-        g: "rotate_R", m: "rotate_Rp", k: "rotate_L", p: "rotate_Lp",
+        d: "rotate_f",   i: "rotate_fp",  c: "rotate_r",   t: "rotate_rp",
+        h: "rotate_u",   u: "rotate_up",  ",": "rotate_b", r: "rotate_bp",
+        e: "rotate_l",   ".": "rotate_lp", o: "rotate_d",  n: "rotate_dp",
+        x: "rotate_x",   b: "rotate_x",   y: "rotate_xp", f: "rotate_xp",
+        a: "rotate_y",   s: "rotate_yp",  "'": "rotate_z", l: "rotate_zp",
+        g: "rotate_R",   m: "rotate_Rp",  k: "rotate_L",  p: "rotate_Lp",
         "5": "rotate_m", "6": "rotate_mp", "0": "rotate_s", "1": "rotate_sp",
         "2": "rotate_e", "9": "rotate_ep",
     };
 
     /** Colemak-equivalent bindings. */
     var LAYOUT_COLEMAK = {
-        h: "rotate_f", d: "rotate_fp", u: "rotate_r", e: "rotate_rp",
-        n: "rotate_u", t: "rotate_up", w: "rotate_b", y: "rotate_bp",
-        s: "rotate_l", f: "rotate_lp", r: "rotate_d", i: "rotate_dp",
-        b: "rotate_x", k: "rotate_x", g: "rotate_xp", j: "rotate_xp",
-        a: "rotate_y", o: "rotate_yp", q: "rotate_z", ";": "rotate_zp",
-        l: "rotate_R", m: "rotate_Rp", v: "rotate_L", p: "rotate_Lp",
+        h: "rotate_f",   d: "rotate_fp",  u: "rotate_r",   e: "rotate_rp",
+        n: "rotate_u",   t: "rotate_up",  w: "rotate_b",   y: "rotate_bp",
+        s: "rotate_l",   f: "rotate_lp",  r: "rotate_d",   i: "rotate_dp",
+        b: "rotate_x",   k: "rotate_x",   g: "rotate_xp",  j: "rotate_xp",
+        a: "rotate_y",   o: "rotate_yp",  q: "rotate_z",   ";": "rotate_zp",
+        l: "rotate_R",   m: "rotate_Rp",  v: "rotate_L",   p: "rotate_Lp",
         "5": "rotate_m", "6": "rotate_mp", "0": "rotate_s", "1": "rotate_sp",
         "2": "rotate_e", "9": "rotate_ep",
     };
@@ -72,25 +89,25 @@
     /** Colemak-DH (Mod-DH) equivalent bindings.
      *  Differs from Colemak: physical T->b, G->m, H->m-swap, B->d, M->h swapped. */
     var LAYOUT_COLEMAK_DH = {
-        m: "rotate_f", g: "rotate_fp", u: "rotate_r", e: "rotate_rp",
-        n: "rotate_u", t: "rotate_up", w: "rotate_b", y: "rotate_bp",
-        s: "rotate_l", f: "rotate_lp", r: "rotate_d", i: "rotate_dp",
-        d: "rotate_x", k: "rotate_x", b: "rotate_xp", j: "rotate_xp",
-        a: "rotate_y", o: "rotate_yp", q: "rotate_z", ";": "rotate_zp",
-        l: "rotate_R", h: "rotate_Rp", v: "rotate_L", p: "rotate_Lp",
+        m: "rotate_f",   g: "rotate_fp",  u: "rotate_r",   e: "rotate_rp",
+        n: "rotate_u",   t: "rotate_up",  w: "rotate_b",   y: "rotate_bp",
+        s: "rotate_l",   f: "rotate_lp",  r: "rotate_d",   i: "rotate_dp",
+        d: "rotate_x",   k: "rotate_x",   b: "rotate_xp",  j: "rotate_xp",
+        a: "rotate_y",   o: "rotate_yp",  q: "rotate_z",   ";": "rotate_zp",
+        l: "rotate_R",   h: "rotate_Rp",  v: "rotate_L",   p: "rotate_Lp",
         "5": "rotate_m", "6": "rotate_mp", "0": "rotate_s", "1": "rotate_sp",
         "2": "rotate_e", "9": "rotate_ep",
     };
 
     var BUILT_IN_LAYOUTS = {
-        "QWERTY": DEFAULT_CUBE_ACTIONS,
-        "Dvorak": LAYOUT_DVORAK,
-        "Colemak": LAYOUT_COLEMAK,
+        "QWERTY":     DEFAULT_CUBE_ACTIONS,
+        "Dvorak":     LAYOUT_DVORAK,
+        "Colemak":    LAYOUT_COLEMAK,
         "Colemak-DH": LAYOUT_COLEMAK_DH,
     };
 
     var LS_KEY = "cubeKeybinds";
-    var LS_ACTIVE_LAYOUT_KEY = "cubeActiveLayout";
+    var LS_ACTIVE_LAYOUT_KEY  = "cubeActiveLayout";
     var LS_CUSTOM_LAYOUTS_KEY = "cubeCustomLayouts";
 
     /** Load merged keybinds: saved overrides on top of defaults. */
@@ -110,13 +127,13 @@
                 });
                 // Remove default entries whose keys were re-bound to something else
                 // (i.e. a default key now appears as a *different* key in saved)
-                var savedValues = Object.values ? Object.values(saved) : Object.keys(saved).map(function (k) { return saved[k]; });
+                var savedValues = Object.values ? Object.values(saved) : Object.keys(saved).map(function(k){ return saved[k]; });
                 Object.keys(DEFAULT_CUBE_ACTIONS).forEach(function (defKey) {
                     if (!saved[defKey] && savedValues.indexOf(DEFAULT_CUBE_ACTIONS[defKey]) !== -1) {
                         // This method now has a different key — remove the default binding
                         // only if the method is fully remapped (not just a dual key like b/n)
                         // Count how many times this method appears in merged
-                        var count = Object.keys(merged).filter(function (k) { return merged[k] === DEFAULT_CUBE_ACTIONS[defKey]; }).length;
+                        var count = Object.keys(merged).filter(function(k){ return merged[k] === DEFAULT_CUBE_ACTIONS[defKey]; }).length;
                         if (count > 1) {
                             // Safe to drop the old key, the new key covers it
                             delete merged[defKey];
@@ -154,17 +171,20 @@
 
     var allowMoves = false;
 
-    document.addEventListener("keydown", function (event) {
-        if (event.target.tagName === "INPUT" || event.target.tagName === "TEXTAREA") return;
-        if (!allowMoves) return;
-        var k = event.key;
-        if (!k) return;
-        if (k.length === 1) k = k.toLowerCase();
-        if (!(k in cubeActions)) return;
+    // Moves done during the current solve (Cube3 method names), and the
+    // setup they started from. Read by algDetect.js after each solve.
+    var moveLog = [];
+    var currentSetup = "";
+    var lastSolve = null;
+
+    // One move, from any input (keyboard, smart cube). Returns false if
+    // moves aren't allowed right now.
+    function performMethod(method, source) {
+        if (!allowMoves) return false;
+        if (typeof cube3[method] !== "function") return false;
 
         if (cube3.isSolving) {
-            var aufKeys = getAUFKeys();
-            var isAUF = !!aufKeys[k];
+            var isAUF = method === "rotate_u" || method === "rotate_up";
             if (!window._firstMoveFired && !isAUF) {
                 window._firstMoveFired = true;
                 document.dispatchEvent(new CustomEvent("cubeFirstMove", { detail: { time: performance.now() } }));
@@ -172,14 +192,27 @@
                 window._aufMoveFired = true;
                 document.dispatchEvent(new CustomEvent("cubeAUFMove", { detail: { time: performance.now() } }));
             }
+            moveLog.push({ method: method, source: source || "keyboard", time: performance.now() });
         }
 
-        var method = cubeActions[k];
+        cube3[method]();
+        cube3.moveCount = (cube3.moveCount || 0) + 1;
+        draw();
+        return true;
+    }
+
+    document.addEventListener("keydown", function (event) {
+        if (event.target.tagName === "INPUT" || event.target.tagName === "TEXTAREA") return;
+        if (!allowMoves) return;
+        var k = event.key;
+        if (!k) return;
+        if (k.length === 1) k = k.toLowerCase();
+        if (!(k in cubeActions)) return;
+        // With a smart cube connected, only the cube turns the cube
+        if (window.SmartCube && window.SmartCube.isConnected()) return;
+
         try {
-            if (typeof cube3[method] === "function") cube3[method]();
-            cube3.moveCount = (cube3.moveCount || 0) + 1;
-            draw();
-            event.preventDefault();
+            if (performMethod(cubeActions[k], "keyboard")) event.preventDefault();
         } catch (e) { }
     });
 
@@ -193,9 +226,12 @@
         var inRecallMode = recallCheckbox && recallCheckbox.checked;
         if (inRecallMode && !window._firstMoveFired) return;
 
-        var now = cube3.isSolved();
+        var now = window.CubeGoals ? CubeGoals.isGoal(cube3) : cube3.isSolved();
 
         if (!prevSolved && now) {
+            // Keep this solve's moves so the trainer can work out which alg was used
+            lastSolve = { setup: currentSetup, moves: moveLog.slice() };
+            document.dispatchEvent(new CustomEvent("cubeSolved", { detail: lastSolve }));
             if (typeof solveCallback === "function") solveCallback();
             cube3.isSolving = false;
             window._firstMoveFired = false;
@@ -216,27 +252,50 @@
         setTimeout(function () { resizeCanvas(); }, 10);
     }
 
-    function applyScrambleString(scramble) {
-        if (!scramble || !scramble.length) return;
+    var INVERTED_METHODS = { rotate_x: 1, rotate_y: 1, rotate_z: 1 };
+
+    // Turn one notation token (e.g. "R'", "y2", "r") into a Cube3 method
+    // name and how many times to call it.
+    function tokenToMethod(tok) {
+        var base = tok.charAt(0).toUpperCase();
+        var isInverse = tok.indexOf("'") !== -1;
+        var times = tok.indexOf("2") !== -1 ? 2 : 1;
+        var rotationMap = { X: "rotate_x", Y: "rotate_y", Z: "rotate_z" };
+        var sliceMap    = { M: "rotate_m", E: "rotate_e", S: "rotate_s" };
+        var wideMoveMap = { r: "rotate_R", u: "rotate_U", f: "rotate_F", l: "rotate_L", d: "rotate_D", b: "rotate_B" };
+        var method;
+        var baseOrig = tok.charAt(0);
+        if (rotationMap[base])      { method = rotationMap[base]; if (isInverse) method += "p"; }
+        else if (sliceMap[base])    { method = sliceMap[base];    if (isInverse) method += "p"; }
+        else if (wideMoveMap[baseOrig]) { method = wideMoveMap[baseOrig]; if (isInverse) method += "p"; }
+        else { method = "rotate_" + base.toLowerCase(); if (isInverse) method += "p"; }
+        // Cube3's rotate_x / rotate_y / rotate_z turn the opposite
+        // way to standard notation (the default keybinds compensate), so flip
+        // them here to make typed notation like "y" behave correctly.
+        if (INVERTED_METHODS[method.replace(/p$/, "")]) {
+            method = /p$/.test(method) ? method.slice(0, -1) : method + "p";
+        }
+        return { method: method, times: times };
+    }
+
+    // Apply a move string (e.g. "z2 R U R' U'") to any Cube3.
+    function applyMoves(cube, scramble) {
+        if (!scramble || !scramble.trim().length) return;
         var tokens = scramble.trim().split(/\s+/).filter(Boolean);
         tokens.forEach(function (tok) {
-            var base = tok.charAt(0).toUpperCase();
-            var isInverse = tok.indexOf("'") !== -1;
-            var times = tok.indexOf("2") !== -1 ? 2 : 1;
-            var rotationMap = { X: "rotate_x", Y: "rotate_y", Z: "rotate_z" };
-            var sliceMap = { M: "rotate_m", E: "rotate_e", S: "rotate_s" };
-            var wideMoveMap = { r: "rotate_R", u: "rotate_U", f: "rotate_F", l: "rotate_L", d: "rotate_D", b: "rotate_B" };
-            var method;
-            var baseOrig = tok.charAt(0);
-            if (rotationMap[base]) { method = rotationMap[base]; if (isInverse) method += "p"; }
-            else if (sliceMap[base]) { method = sliceMap[base]; if (isInverse) method += "p"; }
-            else if (wideMoveMap[baseOrig]) { method = wideMoveMap[baseOrig]; if (isInverse) method += "p"; }
-            else { method = "rotate_" + base.toLowerCase(); if (isInverse) method += "p"; }
-            for (var i = 0; i < times; i++) {
-                if (typeof cube3[method] === "function") cube3[method]();
-                else console.warn("Unknown move method:", method, "from token:", tok);
+            var m = tokenToMethod(tok);
+            for (var i = 0; i < m.times; i++) {
+                if (typeof cube[m.method] === "function") cube[m.method]();
+                else console.warn("Unknown move method:", m.method, "from token:", tok);
             }
         });
+    }
+
+    function applyScrambleString(scramble) {
+        if (!scramble || !scramble.length) return;
+        applyMoves(cube3, scramble);
+        currentSetup = scramble;
+        moveLog = [];
         draw();
         window._firstMoveFired = false;
         window._aufMoveFired = false;
@@ -246,12 +305,14 @@
 
     function resizeCanvas() {
         if (!canvas) return;
-        var cssWidth = 400;
-        var cssHeight = 300;
+        // Fill the container; its size comes from CSS (and the Cube size setting)
+        var cssWidth = container ? Math.floor(container.clientWidth) : 400;
+        var cssHeight = container ? Math.floor(container.clientHeight) : 300;
+        if (!cssWidth || !cssHeight) return; // hidden (virtual cube off)
         var ratio = window.devicePixelRatio || 1;
-        canvas.width = Math.round(cssWidth * ratio);
+        canvas.width  = Math.round(cssWidth  * ratio);
         canvas.height = Math.round(cssHeight * ratio);
-        canvas.style.width = cssWidth + "px";
+        canvas.style.width  = cssWidth  + "px";
         canvas.style.height = cssHeight + "px";
         canvas.style.marginLeft = canvas.style.marginRight = "auto";
         canvas.style.display = "block";
@@ -262,7 +323,7 @@
         var s = Math.min(cssWidth / nb.w, cssHeight / nb.h) * 0.88;
         if (s <= 0) s = 1;
         var scale = ratio * s;
-        var offsetX = (cssWidth - nb.w * s) / 2 - nb.minX * s;
+        var offsetX = (cssWidth  - nb.w * s) / 2 - nb.minX * s;
         var offsetY = (cssHeight - nb.h * s) / 2 - nb.minY * s;
         context.setTransform(scale, 0, 0, scale, Math.round(offsetX * ratio), Math.round(offsetY * ratio));
         draw();
@@ -275,7 +336,7 @@
             off.width = W; off.height = H;
             var octx = off.getContext("2d");
             octx.clearRect(0, 0, W, H);
-            cube3.draw(octx, 0, 0);
+            renderCube(octx);
             var data = octx.getImageData(0, 0, W, H).data;
             var minX = W, minY = H, maxX = 0, maxY = 0;
             for (var y = 0; y < H; y++) {
@@ -303,18 +364,53 @@
 
     window.addEventListener("resize", resizeCanvas);
 
+    // Re-fit whenever the container changes size (window, layout, Cube size setting)
+    if (container && "ResizeObserver" in window) {
+        var lastW = 0, lastH = 0;
+        new ResizeObserver(function () {
+            var w = Math.floor(container.clientWidth), h = Math.floor(container.clientHeight);
+            if (w === lastW && h === lastH) return;
+            lastW = w; lastH = h;
+            resizeCanvas();
+        }).observe(container);
+    }
+
     // ─── public API ───────────────────────────────────────────────────────
 
     window.virtualCube = {
-        applyScramble: applyScrambleString,
-        onSolve: function (cb) { solveCallback = cb; },
-        isSolved: function () { return cube3.isSolved(); },
-        draw: draw,
-        enableMoves: function () { allowMoves = true; },
-        disableMoves: function () { allowMoves = false; },
+        applyScramble:  applyScrambleString,
+        onSolve:        function (cb) { solveCallback = cb; },
+        isSolved:       function () { return window.CubeGoals ? CubeGoals.isGoal(cube3) : cube3.isSolved(); },
+        draw:           draw,
+        enableMoves:    function () { allowMoves = true; },
+        disableMoves:   function () { allowMoves = false; },
         areMovesAllowed: function () { return !!allowMoves; },
-        reset: resetCube,
-        resize: function () { resizeCanvas(); },
+        reset:          resetCube,
+        resize:         function () { resizeCanvas(); },
+        getView:        function () { return view; },
+        // A move in standard notation from another input (smart cube).
+        applyMove:      function (notation, source) {
+            var m = tokenToMethod(String(notation).trim());
+            var ok = false;
+            for (var i = 0; i < m.times; i++) ok = performMethod(m.method, source || "smartcube") || ok;
+            return ok;
+        },
+        getMoveLog:     function () { return moveLog.slice(); },
+        getSetup:       function () { return currentSetup; },
+        getLastSolve:   function () { return lastSolve; },
+        // A fresh cube (same colours as the virtual cube) with moves applied.
+        // Used for case images; does not touch the cube you are turning.
+        makeCube:       function (moves) {
+            var c = new Cube3(colors.slice());
+            applyMoves(c, moves || "");
+            return c;
+        },
+        setView:        function (name) {
+            if (!window.CubeViews || !CubeViews.has(name)) return;
+            view = name;
+            try { localStorage.setItem("cubeView", name); } catch (e) {}
+            resizeCanvas(); // re-measure: each view has a different shape
+        },
 
         // ── keybind API ──────────────────────────────────────────────────
         /** Return a copy of the live key → method map. */
