@@ -2146,6 +2146,23 @@ img.slow-case-open:hover {
     display: none;
 }
 
+/* Centred variant: shown below the timer in the main training area */
+.learn-rating-center {
+    width: min(480px, 100%);
+    margin: var(--sp-3) auto 0;
+    padding: var(--sp-3) var(--sp-4);
+    border-radius: var(--r-md);
+    background: var(--surface);
+}
+
+/* Case name shown at the top of the rating box */
+.rate-case-name {
+    font-size: var(--fs-sm);
+    font-weight: 700;
+    color: var(--text-2);
+    margin-bottom: var(--sp-1);
+}
+
 /* Waiting for your rating: stands out, and nudges when you try to go on */
 .learn-rating.is-waiting {
     padding: 10px;
@@ -2153,6 +2170,13 @@ img.slow-case-open:hover {
     border-radius: var(--r-md, 8px);
     background: var(--accent-soft);
     box-shadow: 0 0 0 1px var(--accent);
+}
+
+/* Centre variant: already has card styling; use a border highlight instead */
+.learn-rating-center.is-waiting {
+    padding: var(--sp-3) var(--sp-4);
+    margin: var(--sp-3) auto 0;
+    box-shadow: 0 0 0 2px var(--accent);
 }
 
 .learn-rating.is-waiting > label {
