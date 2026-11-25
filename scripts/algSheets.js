@@ -55,14 +55,23 @@
     var extraCache = null; // case key → [alg] from sheets that are turned on
     var extraCacheTop = false; // whether topSolverAlgs.js was loaded when it was made
 
+    function loadedState() { return !!topData() + "|" + builtinLists().length; }
+
     function sheetAlgs() {
-        if (extraCache && extraCacheTop === !!topData()) return extraCache;
+        if (extraCache && extraCacheTop === loadedState()) return extraCache;
         extraCache = {};
-        extraCacheTop = !!topData();
+        extraCacheTop = loadedState();
         list().forEach(function (s) {
             if (!s.enabled) return;
             (s.entries || []).forEach(function (e) {
                 (extraCache[e.key] = extraCache[e.key] || []).push(e.alg);
+            });
+        });
+        // Community collections (communityAlgs.js) that are turned on
+        builtinLists().forEach(function (b) {
+            if (!builtinOn(b.id)) return;
+            Object.keys(b.algs || {}).forEach(function (key) {
+                b.algs[key].forEach(function (a) { (extraCache[key] = extraCache[key] || []).push(a); });
             });
         });
         // The top solvers' algs come after your own sheets
@@ -74,6 +83,35 @@
             });
         }
         return extraCache;
+    }
+
+    // ── Community collections (communityAlgs.js) ────────────────────────
+    // Built in like the top solvers' algs: on by default, can be turned off.
+
+    var BUILTIN_KEY = "builtinSheets"; // { id: false } for the ones turned off
+
+    function builtinLists() {
+        return typeof communityAlgs !== "undefined" && Array.isArray(communityAlgs) ? communityAlgs : [];
+    }
+
+    function builtinOn(id) {
+        try { return (JSON.parse(localStorage.getItem(BUILTIN_KEY)) || {})[id] !== false; } catch (e) { return true; }
+    }
+
+    // Which community collection an extra alg came from ("ZBLL Explorer"), or ""
+    function sourceOf(key, alg) {
+        var hit = builtinLists().filter(function (b) {
+            return builtinOn(b.id) && (b.algs[key] || []).indexOf(alg) >= 0;
+        })[0];
+        return hit ? hit.name : "";
+    }
+
+    function setBuiltinOn(id, on) {
+        var map = {};
+        try { map = JSON.parse(localStorage.getItem(BUILTIN_KEY)) || {}; } catch (e) {}
+        if (on) delete map[id]; else map[id] = false;
+        try { localStorage.setItem(BUILTIN_KEY, JSON.stringify(map)); } catch (e) {}
+        extraCache = null;
     }
 
     // ── Top solvers' algs (topSolverAlgs.js) ────────────────────────────
@@ -148,7 +186,7 @@
         return out;
     }
 
-    window.addEventListener("storage", function (e) { if (e.key === STORE_KEY || e.key === TOP_KEY) extraCache = null; });
+    window.addEventListener("storage", function (e) { if (e.key === STORE_KEY || e.key === TOP_KEY || e.key === BUILTIN_KEY) extraCache = null; });
 
     // ── Reading algs ────────────────────────────────────────────────────
 
@@ -471,6 +509,10 @@
         update: update,
         remove: remove,
         extraAlgs: extraAlgs,
+        builtinLists: builtinLists,
+        sourceOf: sourceOf,
+        builtinOn: builtinOn,
+        setBuiltinOn: setBuiltinOn,
         topOn: topOn,
         setTopOn: setTopOn,
         topAlgs: topAlgs,
