@@ -429,9 +429,10 @@
                     (i === mostUsed ? "You usually use this · " : "Used ") + stats.used[i] + "×</span>");
             }
             var uses = window.AlgSheets && AlgSheets.topUsesOf ? AlgSheets.topUsesOf(c.key, c.algs[i]) : [];
+            // Algs from your own imported sheets are marked; built-in collections aren't
             if (i >= c.own.length && !uses.length) {
-                var from = window.AlgSheets && AlgSheets.sourceOf ? AlgSheets.sourceOf(c.key, c.algs[i]) : "";
-                tags.push('<span class="case-info-tag">' + (from ? "From " + esc(from) : "From a sheet") + "</span>");
+                var builtIn = window.AlgSheets && AlgSheets.sourceOf && AlgSheets.sourceOf(c.key, c.algs[i]);
+                if (!builtIn) tags.push('<span class="case-info-tag">From a sheet</span>');
             }
             var text = a.ok
                 ? (a.pre ? '<span class="auf">' + esc(a.pre) + "</span> " : "") + esc(a.core) + (a.post ? ' <span class="auf">' + esc(a.post) + "</span>" : "")
