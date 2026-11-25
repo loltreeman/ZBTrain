@@ -1477,6 +1477,41 @@ img.slow-case-open:hover {
     font-size: var(--fs-xs);
 }
 
+/* Move rows: label, keys, Rebind, + Key; the warning goes on its own line */
+.kb-row .kb-warn {
+    grid-column: 1 / -1;
+}
+
+.kb-row .kb-warn:empty {
+    display: none;
+}
+
+.kb-key-cell {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+/* Remove one key from a move that has several */
+.kb-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.kb-badge-remove {
+    padding: 0 2px;
+    border: 0;
+    background: none;
+    color: var(--text-3);
+    font: 600 12px / 1 var(--font-sans);
+    cursor: pointer;
+}
+
+.kb-badge-remove:hover {
+    color: var(--bad, #dc2626);
+}
+
 .kb-rebind-btn {
     height: 26px;
     padding: 0 10px;
@@ -2090,6 +2125,10 @@ img.slow-case-open:hover {
 .learn-card.is-new .learn-badge { background: var(--accent-soft); color: var(--accent-text); }
 .learn-card.is-learning .learn-badge { background: var(--bad-soft); color: var(--bad); }
 .learn-card.is-review .learn-badge { background: var(--good-soft); color: var(--good); }
+.learn-card-head .learn-choose-alg {
+    margin-left: auto;
+}
+
 .learn-card.is-rating .learn-badge { background: var(--surface-3); color: var(--text-2); }
 
 .learn-card-name {

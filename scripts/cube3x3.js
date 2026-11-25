@@ -230,6 +230,23 @@ Cube3.prototype.rotate_Lp = function() {
     this.rotate_lp(); this.rotate_mp();
 }
 
+// Wide F and B (Fw = F S, Bw = B S')
+Cube3.prototype.rotate_F = function() {
+    this.rotate_f(); this.rotate_s();
+}
+
+Cube3.prototype.rotate_Fp = function() {
+    this.rotate_fp(); this.rotate_sp();
+}
+
+Cube3.prototype.rotate_B = function() {
+    this.rotate_b(); this.rotate_sp();
+}
+
+Cube3.prototype.rotate_Bp = function() {
+    this.rotate_bp(); this.rotate_s();
+}
+
 // Wide U and D (Uw = U E', Dw = D E)
 Cube3.prototype.rotate_U = function() {
     this.rotate_u(); this.rotate_ep();

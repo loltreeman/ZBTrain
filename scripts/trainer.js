@@ -2301,53 +2301,21 @@ if (window.virtualCube && typeof window.virtualCube.onSolve === "function") {
             lockoutActive = false;
         }, 800);
 
+        // The cube says it's solved, so there's nothing to inspect: with recall
+        // mode or a mask, show the whole cube again and record it straight away.
+        // (Stopping the timer yourself still asks you to confirm; see handleKeyUp.)
         var recallCheckbox = document.getElementById("recallModeCheckbox");
-
         if (recallCheckbox && recallCheckbox.checked) {
-            // 1. Reveal full cube — remove ALL grey
             removeRecallMask();
+        } else if (useUserDefinedMask && useUserDefinedMask.checked && typeof restoreOriginalColors === "function") {
+            restoreOriginalColors();
+            if (window.virtualCube && typeof window.virtualCube.draw === "function") window.virtualCube.draw();
+        }
+        var solvedBanner = document.getElementById("recallBanner");
+        if (solvedBanner) { solvedBanner.style.display = "none"; solvedBanner.classList.remove("is-inspect"); }
+        recallPendingConfirm = false;
 
-            // 2. DON'T check yet — just show the cube and wait for spacebar
-            // Store the cube state snapshot for checking on confirm
-            recallWasSolved = false; // will be determined on spacebar press
-            recallPendingConfirm = true;
-            skipNextPauseAction = true;
-            window.lastAttemptedScramble = prevScramble;
-            awaitingNext = true;
-
-            // 3. Show neutral "inspect" banner
-            var banner = document.getElementById("recallBanner");
-            if (banner) {
-                banner.textContent = "Inspect — press Space to confirm";
-                banner.classList.add("is-inspect");
-                banner.style.display = "flex";
-                banner.style.opacity = "1";
-            }
-        } else if (useUserDefinedMask && useUserDefinedMask.checked) {
-            if (typeof restoreOriginalColors === "function") {
-                restoreOriginalColors();
-                if (
-                    window.virtualCube &&
-                    typeof window.virtualCube.draw === "function"
-                ) {
-                    window.virtualCube.draw();
-                }
-            }
-            recallWasSolved = false;
-            recallPendingConfirm = true;
-            skipNextPauseAction = true;
-            window.lastAttemptedScramble = prevScramble;
-            awaitingNext = true;
-
-            var banner = document.getElementById("recallBanner");
-            if (banner) {
-                banner.textContent = "Inspect — press Space to confirm";
-                banner.classList.add("is-inspect");
-                banner.style.display = "flex";
-                banner.style.opacity = "1";
-            }
-        } else {
-            // Normal mode — auto-finalize immediately, no spacebar needed
+        {
             timerStatus = "Stop";
             var lastAttemptScramble = prevScramble;
             displayCaseInfo();
@@ -2533,7 +2501,17 @@ function displayedCaseKey() {
 // Making an alg your main one in the window: show it first here too
 window.onCaseInfoChange = function (key) {
     if (key === displayedCaseKey()) document.querySelector("#case-algs").innerHTML = getAlgList();
+    // Learning: the card shows the main alg you just picked
+    if (learnMode && learnUpcoming && learnUpcoming.caseObj && caseStoreKey(learnUpcoming.caseObj) === key) {
+        renderLearnCard(learnUpcoming.caseObj);
+    }
 };
+
+// Learning: open the upcoming case's algs to make another one your main alg
+function learnChooseAlg() {
+    if (!window.CaseInfo || !learnUpcoming || !learnUpcoming.caseObj) return;
+    CaseInfo.open(caseStoreKey(learnUpcoming.caseObj));
+}
 
 // ── Learning mode (trainer.html?learn=ZBLL / ZBLS, scheduling in srs.js) ──
 // The queue decides the next case. After each solve the trainer suggests a
@@ -2639,6 +2617,8 @@ function renderLearnCard(caseObj, q) {
         '<span class="learn-badge">' + labels[kind] + "</span>" +
         (kind === "new" ? '<span class="learn-card-name">' + escapeHtml(caseObj.getName()) + "</span>" : "") +
         (!showAlg ? '<button type="button" class="btn btn-ghost btn-sm" onclick="learnShowAlg()">Show alg</button>' : "") +
+        // Pick a different main alg before you've done the case
+        (showAlg && window.CaseInfo ? '<button type="button" class="btn btn-ghost btn-sm learn-choose-alg" onclick="learnChooseAlg()">Choose alg</button>' : "") +
         "</div>" +
         (kind === "new"
             ? '<div class="learn-new"><img class="learn-new-img" src="' + encodeURI(caseObj.getImg()) + '" alt="">' +
@@ -2759,15 +2739,17 @@ function updateRatingGate() {
     else updateContinuousHint();
 }
 
-// Keys 1–4 pick Again / Hard / Good / Easy while a rating is due
-document.addEventListener("keydown", function (e) {
+// Keys 1–4 pick Again / Hard / Good / Easy while a rating is due. Caught
+// before the virtual cube sees them (capture on window), so 1 isn't also an S'.
+window.addEventListener("keydown", function (e) {
     if (!learnMode || !learnPending || learnPending.saved) return;
     if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
     var r = { "1": 1, "2": 2, "3": 3, "4": 4 }[e.key];
     if (!r) return;
     e.preventDefault();
+    e.stopImmediatePropagation();
     chooseLearnRating(r);
-});
+}, true);
 
 // Leaving without rating: keep the suggestion, as before
 window.addEventListener("pagehide", function () {
@@ -3447,6 +3429,8 @@ document.addEventListener("cubeFirstMove", function (e) {
     var recallCheckbox = document.getElementById("recallModeCheckbox");
     if (recallCheckbox && recallCheckbox.checked && !recallMaskApplied) {
         setTimeout(function () {
+            // Already solved (a very fast solve or a smart cube): nothing to hide
+            if (timerStatus !== "Start" || recallMaskApplied) return;
             applyRecallMask();
             var banner = document.getElementById("recallBanner");
             if (banner) {

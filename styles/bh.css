@@ -187,6 +187,45 @@
     grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
 }
 
+/* Two rows of six, like the Q–Y and A–H keys */
+@media (min-width: 641px) {
+    .bh-answers.is-patterns {
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+}
+
+/* The key that picks this answer */
+.bh-key {
+    position: absolute;
+    top: 5px;
+    left: 6px;
+    min-width: 18px;
+    padding: 1px 4px;
+    border-radius: 4px;
+    background: var(--surface);
+    color: var(--text-3);
+    font: 600 11px / 1.3 var(--font-mono, monospace);
+    text-align: center;
+    pointer-events: none;
+}
+
+.bh-answer {
+    position: relative;
+}
+
+.bh-answers.is-patterns .bh-answer {
+    cursor: grab;
+}
+
+.bh-answer.is-dragging {
+    opacity: 0.4;
+}
+
+.bh-answer.is-drop {
+    outline: 2px dashed var(--accent);
+    outline-offset: 2px;
+}
+
 .bh-answer {
     display: flex;
     flex-direction: column;

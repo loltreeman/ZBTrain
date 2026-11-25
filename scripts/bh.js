@@ -36,6 +36,9 @@
     var SIDES = ["F", "R", "B", "L"];
     var AUF = ["", "U", "U2", "U'"];
     var MODES = ["name", "case", "story", "pattern"];
+    // Answer keys by button position, like the keyboard: the first row of six
+    // is Q W E R T Y, the second A S D F G H, then Z X C V B N
+    var KEYS = "QWERTYASDFGHZXCVBN".split("");
 
     // ── Saved state ─────────────────────────────────────────────────────
 
@@ -319,6 +322,11 @@
 
     var subsetCache = {};
 
+    // "Sune-3" → "Sune-Bottom", like ZBLL Explorer (zbllSubsets.js); IDs stay the same
+    function subName(set, sub) {
+        return set + "-" + (window.ZbllSubsets ? ZbllSubsets.label(set, sub, 0) : sub);
+    }
+
     function subsetsOf(set) {
         var subs = Object.keys(zbllAlgs[set] || {});
         return SUB_ORDER.filter(function (s) { return subs.indexOf(s) >= 0; })
@@ -424,10 +432,27 @@
     }
 
     // Answer buttons with a pattern picture each (Name and Story mode)
+    // Your order for the 12 pattern buttons (drag to change it)
+    function patternOrder() {
+        var o = Array.isArray(settings.order) ? settings.order.filter(function (p) { return PATTERNS.indexOf(p) >= 0; }) : [];
+        PATTERNS.forEach(function (p) { if (o.indexOf(p) < 0) o.push(p); });
+        return o;
+    }
+
+    // Keys answer only when they wouldn't turn the virtual cube
+    function keysOn() {
+        return !((settings.mode === "case" || settings.mode === "pattern") && cubeOn());
+    }
+
+    function keyHint(i) {
+        return keysOn() && KEYS[i] ? '<kbd class="bh-key" aria-hidden="true">' + KEYS[i] + "</kbd>" : "";
+    }
+
     function patternButtons() {
         els.answers.className = "bh-answers is-patterns";
-        els.answers.innerHTML = PATTERNS.map(function (p) {
-            return '<button type="button" class="bh-answer" data-answer="' + p + '">' +
+        els.answers.innerHTML = patternOrder().map(function (p, i) {
+            return '<button type="button" class="bh-answer" draggable="true" data-answer="' + p + '"' +
+                (keysOn() && KEYS[i] ? ' aria-keyshortcuts="' + KEYS[i] + '"' : "") + ">" + keyHint(i) +
                 '<span class="bh-answer-pic" aria-hidden="true">' + draw(patternStickers(p, "", 0), GF.SHOW.bh) + "</span>" +
                 '<span class="bh-answer-name">' + esc(nameOf(p)) + "</span></button>";
         }).join("");
@@ -499,7 +524,7 @@
 
     function newCaseQuestion() {
         var my = ++token;
-        els.prompt.textContent = "Which " + settings.set + "-" + settings.sub + " case is this?";
+        els.prompt.textContent = "Which " + subName(settings.set, settings.sub) + " case is this?";
         els.picture.innerHTML = "";
         loadSubset(settings.set, settings.sub).then(function (cases) {
             if (my !== token) return;
@@ -516,7 +541,7 @@
             }).map(function (o) { return o.name; });
             q = { mode: "case", info: c, turns: turns, cases: cases, setup: made && made.setup, right: same, done: false };
             els.picture.innerHTML = draw(st, bhShow(st));
-            els.picture.setAttribute("aria-label", "BH stickers of a " + settings.set + "-" + settings.sub + " case");
+            els.picture.setAttribute("aria-label", "BH stickers of a " + subName(settings.set, settings.sub) + " case");
             caseButtons(cases);
             loadCube();
             startFlash();
@@ -527,11 +552,11 @@
         var pics = settings.answers === "pictures";
         var std = settings.angle === "standard";
         els.answers.className = "bh-answers " + (pics ? "is-cases" : "is-names");
-        els.answers.innerHTML = cases.map(function (c) {
+        els.answers.innerHTML = cases.map(function (c, i) {
             var pic = "";
             if (pics && std) pic = '<span class="bh-answer-pic bh-answer-full" aria-hidden="true">' + GF.draw2D(turned(c.stickers, c.standard[0]), null) + "</span>";
             else if (pics) pic = '<img class="bh-answer-img" src="svg/top/' + encodeURIComponent(c.key) + '.svg" alt="">';
-            return '<button type="button" class="bh-answer" data-answer="' + c.name + '" aria-label="' + esc(c.key) + '">' + pic +
+            return '<button type="button" class="bh-answer" data-answer="' + c.name + '" aria-label="' + esc(c.key) + '">' + keyHint(i) + pic +
                 '<span class="bh-answer-name"' + (pics ? " data-reveal" : "") + ">" + esc(c.name) + "</span></button>";
         }).join("");
     }
@@ -790,7 +815,7 @@
     }
     function fillSubs() {
         var subs = subsetsOf(settings.set);
-        els.sub.innerHTML = subs.map(function (s) { return '<option value="' + s + '">' + settings.set + "-" + s + "</option>"; }).join("");
+        els.sub.innerHTML = subs.map(function (s) { return '<option value="' + s + '">' + subName(settings.set, s) + "</option>"; }).join("");
         if (subs.indexOf(settings.sub) < 0) settings.sub = subs[0];
         els.sub.value = settings.sub;
         els.angle.title = "Standard angle for " + settings.set + ": " + STANDARD_TEXT[settings.set];
@@ -852,9 +877,61 @@
         if (settings.mode === "pattern") renderPatternGrid();
     });
 
+    // Letter keys: the answer button in that position (see KEYS)
+    document.addEventListener("keydown", function (e) {
+        if (e.ctrlKey || e.metaKey || e.altKey || !keysOn()) return;
+        if (e.target && e.target.closest && e.target.closest("input, select, textarea")) return;
+        var i = KEYS.indexOf(String(e.key).toUpperCase());
+        if (i < 0 || els.answers.hidden) return;
+        var b = els.answers.querySelectorAll("[data-answer]")[i];
+        if (!b) return;
+        e.preventDefault();
+        b.click();
+        b.focus({ preventScroll: true });
+    });
+
+    // Drag a pattern button onto another to move it there (your order is saved)
+    var dragging = null;
+    els.answers.addEventListener("dragstart", function (e) {
+        var b = e.target.closest("[data-answer]");
+        if (!b || !els.answers.classList.contains("is-patterns")) { e.preventDefault(); return; }
+        dragging = b.dataset.answer;
+        e.dataTransfer.effectAllowed = "move";
+        try { e.dataTransfer.setData("text/plain", dragging); } catch (err) {}
+        b.classList.add("is-dragging");
+    });
+    els.answers.addEventListener("dragover", function (e) {
+        if (!dragging) return;
+        var b = e.target.closest("[data-answer]");
+        if (!b) return;
+        e.preventDefault();
+        els.answers.querySelectorAll(".is-drop").forEach(function (x) { x.classList.remove("is-drop"); });
+        if (b.dataset.answer !== dragging) b.classList.add("is-drop");
+    });
+    els.answers.addEventListener("dragend", function () {
+        dragging = null;
+        els.answers.querySelectorAll(".is-dragging, .is-drop").forEach(function (x) { x.classList.remove("is-dragging", "is-drop"); });
+    });
+    els.answers.addEventListener("drop", function (e) {
+        var b = e.target.closest("[data-answer]");
+        if (!dragging || !b) return;
+        e.preventDefault();
+        var order = patternOrder();
+        var from = order.indexOf(dragging), to = order.indexOf(b.dataset.answer);
+        if (from >= 0 && to >= 0 && from !== to) {
+            order.splice(to, 0, order.splice(from, 1)[0]);
+            settings.order = order;
+            saveSettings();
+            var marks = q && q.done;
+            patternButtons();
+            if (marks && q.mode === "name") markButtons([q.answer], null);
+        }
+        dragging = null;
+    });
+
     // Enter: show the answer (By pattern), or the next question
     document.addEventListener("keydown", function (e) {
-        if (e.key !== "Enter" || e.target.closest("input, select, textarea, button, a, summary")) return;
+        if (e.key !== "Enter" || (e.target && e.target.closest && e.target.closest("input, select, textarea, button, a, summary"))) return;
         e.preventDefault();
         if (q && q.mode === "pattern" && !q.revealed) revealPattern();
         else next();

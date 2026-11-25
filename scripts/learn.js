@@ -292,7 +292,7 @@
             refresh(true);
         });
         var name = el("button", "group-name",
-            '<svg class="icon group-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>' + esc(g));
+            '<svg class="icon group-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>' + esc((items[0] && items[0].groupLabel) || g));
         name.type = "button";
         name.setAttribute("aria-expanded", String(open));
         name.addEventListener("click", function () {
