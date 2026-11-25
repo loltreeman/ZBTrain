@@ -2397,6 +2397,34 @@ body.learn-awaiting-rating #current-scramble {
     color: var(--text-3) !important;
 }
 
+/* LSLL: which slots the ZBLS can be in */
+#lsllSlotSection[hidden] {
+    display: none;
+}
+
+.slot-picks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.slot-picks label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 30px;
+    padding: 0 10px;
+    border-radius: var(--r-sm);
+    background: var(--surface-2);
+    font-size: var(--fs-sm);
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.slot-picks input {
+    accent-color: var(--accent);
+}
+
 /* Save cases to a preset (scripts/presetStore.js) */
 .preset-picker {
     display: flex;

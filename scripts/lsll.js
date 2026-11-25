@@ -234,8 +234,52 @@
         var zbll = randomItem(zbllScrambles[set][sub][randomItem(Object.keys(zbllScrambles[set][sub]))]);
         var family = randomItem(Object.keys(zblsScrambles));
         var zbls = randomItem(zblsScrambles[family][randomItem(Object.keys(zblsScrambles[family]))]);
+        // The ZBLS in one of the slots you ticked (zblsSlotTools.js moves it there)
+        var slot = randomItem(savedSlots());
+        if (slot !== "FR" && window.ZBLSSlots) zbls = ZBLSSlots.moveScramble(zbls, slot);
         var tokens = (zbll + " " + randomItem(["", "U", "U2", "U'"]) + " " + zbls).split(/\s+/).filter(Boolean);
         return cancel(tokens).join(" ");
+    }
+
+    // Slots for the ZBLS (trainer settings, LSLL only)
+    var SLOTS = ["FR", "FL", "BR", "BL"];
+    function savedSlots() {
+        try {
+            var s = JSON.parse(localStorage.getItem("lsllSlots"));
+            if (Array.isArray(s)) s = s.filter(function (x) { return SLOTS.indexOf(x) >= 0; });
+            if (s && s.length) return s;
+        } catch (e) {}
+        return ["FR"];
+    }
+
+    // The ZBLS case of a position, in whichever slot is open: turns the cube
+    // so that slot is in front-right, looks the case up, and gives that
+    // slot's name, algs and key ("ZBLS-FL-12-3")
+    function zblsCaseOfSetup(moves) {
+        var cube = makeCube(moves);
+        var broken = brokenSlots(cube);
+        if (broken.length !== 1 || broken[0] === "FR" || !window.ZBLSSlots) return zblsCaseOf(cube);
+        var slot = broken[0];
+        var turned = null;
+        ["y", "y2", "y'"].some(function (r) {
+            var c = makeCube(moves + " " + r);
+            var b = brokenSlots(c);
+            if (b.length === 1 && b[0] === "FR") { turned = c; return true; }
+            return false;
+        });
+        var fr = turned && zblsCaseOf(turned);
+        if (!fr) return null;
+        var key = ZBLSSlots.key(fr.subset, fr.caseName, slot);
+        var base = (zblsAlgs[fr.subset] || {})[fr.caseName] || [];
+        var slotAlgs = ZBLSSlots.algsFor(fr.subset, fr.caseName, slot, base);
+        return {
+            name: fr.name + " (" + slot + ")",
+            key: key,
+            set: "ZBLS", subset: fr.subset, caseName: fr.caseName, slot: slot,
+            img: "", // no diagram for other slots: the trainer draws the cube
+            ownAlgs: ownAlgsFor(key, slotAlgs),
+            algs: algsFor(key, slotAlgs),
+        };
     }
 
     // A case's own algs, with your edits from the trainer (customAlgs)
@@ -257,8 +301,7 @@
     // moves: [[notation, ms], ...] from the case appearing (as saved with attempts)
     function analyze(setup, moves) {
         if (!moves || !moves.length) return null;
-        var start = makeCube(setup);
-        var zbls = zblsCaseOf(start);
+        var zbls = zblsCaseOfSetup(setup);
         var tokens = moves.map(function (m) { return m[0]; });
 
         // Split at the first moment F2L is solved and edges are oriented
@@ -366,6 +409,8 @@
         generateSetup: generateSetup,
         analyze: analyze,
         zblsCaseOf: zblsCaseOf,
+        zblsCaseOfSetup: zblsCaseOfSetup,
+        savedSlots: savedSlots,
         zbllCaseOf: zbllCaseOf,
         _sig: { zbls: zblsSig, zbll: zbllSig, index: function () { buildIndexes(); return { zbls: zblsIndex, zbll: zbllIndex }; } },
     };

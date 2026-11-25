@@ -91,7 +91,12 @@
                 info.type = "button";
                 info.title = "Setup and algs";
                 info.setAttribute("aria-label", "Setup and algs for " + data.name(family, c));
-                info.addEventListener("click", function () { CaseInfo.open("ZBLS-" + family + "-" + c); });
+                // In the slot you're training (FR if it's ticked, else the first ticked one)
+                info.addEventListener("click", function () {
+                    var slots = window.ZBLSSlots ? chosenSlots() : ["FR"];
+                    var slot = slots.indexOf("FR") >= 0 || !slots.length ? "FR" : slots[0];
+                    CaseInfo.open(window.ZBLSSlots ? ZBLSSlots.key(family, c, slot) : "ZBLS-" + family + "-" + c);
+                });
                 wrap.appendChild(info);
             }
             grid.appendChild(wrap);

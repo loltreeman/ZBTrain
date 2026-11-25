@@ -71,6 +71,51 @@
         return li;
     }
 
+    // Built in: algs from community collections (communityAlgs.js)
+    function builtinRow(b) {
+        var on = AlgSheets.builtinOn(b.id);
+        var zbll = 0, zbls = 0, slots = {};
+        Object.keys(b.algs || {}).forEach(function (key) {
+            var n = b.algs[key].length;
+            var m = /^ZBLS-(?:(FL|BR|BL)-)?/.exec(key);
+            if (m) { zbls += n; slots[m[1] || "FR"] = true; } else zbll += n;
+        });
+        var li = document.createElement("li");
+        li.className = "sheet-row" + (on ? "" : " is-off");
+        li.innerHTML =
+            '<label class="switch-wrap" title="Use these algs in the trainer">' +
+            '<input type="checkbox" class="sheet-toggle"' + (on ? " checked" : "") + ' aria-label="Use ' + esc(b.name) + ' in the trainer"></label>' +
+            '<div class="sheet-info"><span class="sheet-name">' + esc(b.name) + ' <span class="sheet-badge">Built in</span></span>' +
+            '<span class="sheet-meta">' +
+            [zbll ? zbll + " ZBLL algs" : "", zbls ? zbls + " ZBLS algs (" + ["FR", "FL", "BR", "BL"].filter(function (s) { return slots[s]; }).join(", ") + ")" : ""].filter(Boolean).join(" · ") +
+            " · " + Object.keys(b.algs || {}).length + " cases · only algs ZBTrain didn't already have</span>" +
+            '<span class="sheet-meta">By ' + esc(b.by) + " · " +
+            '<a href="' + esc(b.url) + '" target="_blank" rel="noopener">' + (/docs\.google/.test(b.url) ? "Sheet" : "Website") + "</a>" +
+            (b.note ? " · " + esc(b.note) : "") + "</span></div>" +
+            '<div class="sheet-actions">' +
+            '<button type="button" class="btn btn-ghost btn-sm" data-act="xlsx">Excel</button>' +
+            '<button type="button" class="btn btn-ghost btn-sm" data-act="csv">CSV</button>' +
+            "</div>";
+        li.querySelector(".sheet-toggle").addEventListener("change", function (e) {
+            AlgSheets.setBuiltinOn(b.id, e.target.checked);
+            renderSheets();
+        });
+        var rows = function () {
+            var out = [["Case", "Alg"]];
+            Object.keys(b.algs || {}).sort().forEach(function (key) {
+                b.algs[key].forEach(function (a) { out.push([caseLabel(key), a]); });
+            });
+            return out;
+        };
+        li.querySelector('[data-act="xlsx"]').addEventListener("click", function () {
+            AlgSheets.exportExcel(rows(), fileName(b.name), b.name.slice(0, 30)).catch(function (e) { alert(e.message); });
+        });
+        li.querySelector('[data-act="csv"]').addEventListener("click", function () {
+            AlgSheets.exportCSV(rows(), fileName(b.name));
+        });
+        return li;
+    }
+
     function renderSheets() {
         var sheets = AlgSheets.list();
         var root = $("sheetList");
@@ -79,6 +124,7 @@
         ul.className = "sheet-list";
         var top = topRow();
         if (top) ul.appendChild(top);
+        if (AlgSheets.builtinLists) AlgSheets.builtinLists().forEach(function (b) { ul.appendChild(builtinRow(b)); });
         if (!sheets.length) {
             root.appendChild(ul);
             root.insertAdjacentHTML("beforeend", '<p class="goal-text">None of your own sheets yet. Add one below.</p>');

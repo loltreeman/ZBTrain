@@ -115,7 +115,7 @@ if (selectedCasesRaw && selectedCasesRaw.length) {
                 // LSLL: the ZBLS case of the case on the results screen
                 if (reg && reg.dynamic) {
                     var z = displayedSetup && window.virtualCube
-                        ? LSLL.zblsCaseOf(virtualCube.makeCube(displayedSetup)) : null;
+                        ? LSLL.zblsCaseOfSetup(displayedSetup) : null;
                     return z ? z.img : "";
                 }
                 // Other ZBLS slots have no diagram: the case image draws the cube instead
@@ -273,9 +273,9 @@ function trainerSetup() {
         if (back) back.lastChild.textContent = " Learn";
         renderLearnCounts();
     } else if (lsllMode) {
-        document.getElementById("numSelected").textContent = "Any ZBLS + any last layer";
         var algsLabel = document.getElementById("case-algs-label");
         if (algsLabel) algsLabel.textContent = "Cases and algs you used";
+        setupLsllSlots();
     } else {
         displayCaseCount(toTrain, "numSelected", "selected");
     }
@@ -709,6 +709,40 @@ document.addEventListener("DOMContentLoaded", function () {
     if (btn) btn.addEventListener("click", toggleLastDnf);
     setupAddToPreset();
 });
+
+// ── LSLL: which slots the ZBLS can be in ────────────────────────────────
+function lsllSlotLabel() {
+    var slots = window.LSLL && LSLL.savedSlots ? LSLL.savedSlots() : ["FR"];
+    var el = document.getElementById("numSelected");
+    if (el) el.textContent = "Any ZBLS (" + slots.join(", ") + ") + any last layer";
+}
+
+function setupLsllSlots() {
+    var section = document.getElementById("lsllSlotSection");
+    if (!section || !window.LSLL || !LSLL.savedSlots) { lsllSlotLabel(); return; }
+    section.hidden = false;
+    var boxes = section.querySelectorAll("input[type=checkbox]");
+    var saved = LSLL.savedSlots();
+    boxes.forEach(function (b) {
+        b.checked = saved.indexOf(b.value) >= 0;
+        b.addEventListener("change", function () {
+            var picked = [];
+            boxes.forEach(function (x) { if (x.checked) picked.push(x.value); });
+            // Always keep at least one slot
+            if (!picked.length) { b.checked = true; picked = [b.value]; }
+            try { localStorage.setItem("lsllSlots", JSON.stringify(picked)); } catch (e) {}
+            lsllSlotLabel();
+            // The case on screen hasn't started yet: give one from the new slots
+            if (timerStatus === "Stop" && !awaitingNextSolveStarted()) prevCase = generateScramble();
+        });
+    });
+    lsllSlotLabel();
+}
+
+// Whether the virtual cube already has the shown case on it (then keep it)
+function awaitingNextSolveStarted() {
+    return !!(window.cube3 && cube3.isSolving);
+}
 
 // ── Add the case on the results panel to a preset ───────────────────────
 function setupAddToPreset() {
@@ -2812,7 +2846,7 @@ function getLsllAnalysis() {
         lsllAnalysis = {
             key: key,
             moves: rec ? rec.moves : null,
-            zbls: LSLL.zblsCaseOf(virtualCube.makeCube(displayedSetup)),
+            zbls: LSLL.zblsCaseOfSetup(displayedSetup),
             added: {},
         };
     }

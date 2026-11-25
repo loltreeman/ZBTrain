@@ -25,7 +25,10 @@
         { test: function () { return !!window.AlgDetect; }, src: "scripts/algDetect.js" },
         { test: function () { return !!window.virtualCube; }, src: "scripts/virtualCubeEmbed.js" },
         { test: function () { return !!window.AlgPlayer; }, src: "scripts/algPlayer.js" },
+        // finds pieces for the ZBLS "fixed piece" setting (zblsSlotTools.js)
+        { test: function () { return !!window.LSLL; }, src: "scripts/lsll.js" },
         { test: function () { return typeof topSolverAlgs !== "undefined"; }, src: "scripts/topSolverAlgs.js" },
+        { test: function () { return typeof communityAlgs !== "undefined"; }, src: "scripts/communityAlgs.js" },
         { test: function () { return !!window.AlgSheets; }, src: "scripts/algSheets.js" },
     ];
 
@@ -72,6 +75,11 @@
                 c.img = "";
                 c.baseAlgs = ZBLSSlots.algsFor(c.subset, c.caseName, c.slot, c.baseAlgs);
                 c.scrambles = c.scrambles.map(function (s) { return ZBLSSlots.moveScramble(s, c.slot); });
+            }
+            // The fixed piece you chose on the ZBLS page, like the trainer does
+            if (window.ZBLSSlots && ZBLSSlots.savedEdge() !== "any") {
+                var fixed = ZBLSSlots.savedEdge();
+                c.scrambles = c.scrambles.map(function (s) { return ZBLSSlots.fixEdge(s, c.slot, fixed); });
             }
         } else {
             c.name = key;
@@ -146,6 +154,7 @@
             '    <button type="button" class="btn btn-ghost btn-icon" data-act="close" aria-label="Close">' + ICONS.close + "</button>" +
             "  </div>" +
             '  <div class="case-info-body">' +
+            '    <div class="case-info-slots" data-ref="slots" role="group" aria-label="Slot" hidden></div>' +
             '    <div class="case-info-top">' +
             '      <img class="case-info-img" alt="">' +
             '      <canvas class="case-info-img case-info-canvas" hidden aria-hidden="true"></canvas>' +
@@ -172,6 +181,7 @@
             scramble: overlay.querySelector('[data-ref="scramble"]'),
             stats: overlay.querySelector('[data-ref="stats"]'),
             algs: overlay.querySelector('[data-ref="algs"]'),
+            slots: overlay.querySelector('[data-ref="slots"]'),
         };
         overlay.addEventListener("click", function (e) {
             if (e.target === overlay) { close(); return; }
@@ -184,6 +194,7 @@
             else if (act === "play") play(i);
             else if (act === "copy-alg") copy(algText(i), btn);
             else if (act === "main") setMain(i);
+            else if (act === "slot" && window.ZBLSSlots) open(ZBLSSlots.key(state.c.subset, state.c.caseName, btn.dataset.slot));
         });
         // While open, keys belong to this window (not the timer or the cube)
         window.addEventListener("keydown", function (e) {
@@ -343,6 +354,19 @@
         return parseInt((ori || {})[set], 10) || 0;
     }
 
+    // The drawing shows the front-right corner, so a back or left slot would
+    // be out of sight: turn the cube (only for the picture) to bring it round
+    function slotView(c, setup) {
+        if (c.deck !== "ZBLS" || !c.slot || c.slot === "FR" || !window.LSLL || !LSLL.brokenSlots) return "";
+        var turn = "";
+        ["y", "y2", "y'"].some(function (r) {
+            var b = LSLL.brokenSlots(virtualCube.makeCube(setup + " " + r));
+            if (b.length === 1 && b[0] === "FR") { turn = " " + r; return true; }
+            return false;
+        });
+        return turn;
+    }
+
     function fmt(t) { return t == null ? "–" : t.toFixed(2) + "s"; }
 
     function render() {
@@ -350,11 +374,19 @@
         var setup = currentScramble();
         var stats = caseStats(c);
         els.title.textContent = c.name;
+        // ZBLS: the same case in each slot
+        var showSlots = c.deck === "ZBLS" && !!window.ZBLSSlots;
+        els.slots.hidden = !showSlots;
+        if (showSlots) {
+            els.slots.innerHTML = '<span class="case-info-label">Slot</span>' + ZBLSSlots.SLOTS.map(function (s) {
+                return '<button type="button" class="case-info-slot" data-act="slot" data-slot="' + s + '" aria-pressed="' + (s === c.slot) + '">' + s + "</button>";
+            }).join("");
+        }
         // No diagram (ZBLS in another slot): draw the cube for the shown setup
         var drawn = !c.img && setup && window.CubeViews && window.virtualCube;
         els.img.hidden = !!drawn;
         els.canvas.hidden = !drawn;
-        if (drawn) CubeViews.renderTo(els.canvas, "classic", virtualCube.makeCube(setup), 120);
+        if (drawn) CubeViews.renderTo(els.canvas, "classic", virtualCube.makeCube(setup + slotView(c, setup)), 120);
         else els.img.src = encodeURI(c.img);
         els.img.alt = c.name;
         var angle = caseAngle(c.set);
@@ -397,7 +429,11 @@
                     (i === mostUsed ? "You usually use this · " : "Used ") + stats.used[i] + "×</span>");
             }
             var uses = window.AlgSheets && AlgSheets.topUsesOf ? AlgSheets.topUsesOf(c.key, c.algs[i]) : [];
-            if (i >= c.own.length && !uses.length) tags.push('<span class="case-info-tag">From a sheet</span>');
+            // Algs from your own imported sheets are marked; built-in collections aren't
+            if (i >= c.own.length && !uses.length) {
+                var builtIn = window.AlgSheets && AlgSheets.sourceOf && AlgSheets.sourceOf(c.key, c.algs[i]);
+                if (!builtIn) tags.push('<span class="case-info-tag">From a sheet</span>');
+            }
             var text = a.ok
                 ? (a.pre ? '<span class="auf">' + esc(a.pre) + "</span> " : "") + esc(a.core) + (a.post ? ' <span class="auf">' + esc(a.post) + "</span>" : "")
                 : esc(c.algs[i]);

@@ -113,6 +113,18 @@
                                 <a href="controls.html" class="text-link">Keyboard controls reference</a>
                             </section>
 
+                            <!-- LSLL only: which F2L slot the ZBLS can be in (scripts/lsll.js) -->
+                            <section class="settings-section" id="lsllSlotSection" hidden>
+                                <h3 class="section-label">ZBLS slots</h3>
+                                <div class="slot-picks" id="lsllSlotPicks" role="group" aria-label="Slots for the ZBLS">
+                                    <label><input type="checkbox" value="FR"> FR</label>
+                                    <label><input type="checkbox" value="FL"> FL</label>
+                                    <label><input type="checkbox" value="BR"> BR</label>
+                                    <label><input type="checkbox" value="BL"> BL</label>
+                                </div>
+                                <p class="field-hint">Each case puts the last pair in one of the ticked slots, at random. Applies from the next case.</p>
+                            </section>
+
                             <section class="settings-section" id="smartCubeSection">
                                 <h3 class="section-label">Smart cube</h3>
                                 <div class="smart-status">
@@ -344,6 +356,7 @@
     <script src="scripts/lsll.js"></script>
     <script src="scripts/srs.js"></script>
     <script src="scripts/topSolverAlgs.js"></script>
+    <script src="scripts/communityAlgs.js"></script>
     <script src="scripts/algSheets.js"></script>
     <script src="scripts/presetStore.js"></script>
     <script src="scripts/cubeGoals.js"></script>
