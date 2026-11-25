@@ -214,6 +214,8 @@ function loadPreset() {
                 img.style.transform = `rotate(${activeOrientation[set]}deg)`;
             });
         }
+        // Subset names follow the preset's angle (Top, Left, …)
+        if (typeof window.updateSubsetTitles === "function") window.updateSubsetTitles(set);
     });
 
     updateTrainerButtons();

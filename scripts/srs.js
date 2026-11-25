@@ -60,6 +60,14 @@
 
     var SUBSET_ORDER = ["2GLL", "Diag", "3", "4", "5", "6"];
 
+    // Subset names like ZBLL Explorer's, at the angle you picked on the ZBLL page
+    function subsetName(set, sub) {
+        if (!window.ZbllSubsets) return sub;
+        var angle = 0;
+        try { angle = (JSON.parse(sessionStorage.getItem("caseOrientation") || "{}") || {})[set] || 0; } catch (e) {}
+        return ZbllSubsets.label(set, sub, angle);
+    }
+
     function zbllCases() {
         if (typeof zbllAlgs === "undefined") return [];
         var out = [];
@@ -74,6 +82,8 @@
                         key: set + "-" + sub + "-" + c,
                         set: set, subset: sub, caseName: c,
                         group: set + " " + sub,
+                        // Shown name: "T Top" instead of "T 3" (zbllSubsets.js); the group ID stays
+                        groupLabel: set + " " + subsetName(set, sub),
                         name: set + "-" + sub + "-" + c,
                         img: "svg/top/" + set + "-" + sub + "-" + c + ".svg",
                     });

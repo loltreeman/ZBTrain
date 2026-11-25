@@ -60,9 +60,24 @@ const zbllMap = {
   },
 };
 
+// Subset names like ZBLL Explorer's: "T – Top" instead of "T – 3" (zbllSubsets.js),
+// turned with the angle you picked for the set
+function subsetLabel(set, subset) {
+    return window.ZbllSubsets ? ZbllSubsets.label(set, subset, activeOrientation[set] || 0) : subset;
+}
+
+function updateSubsetTitles(set) {
+    document.querySelectorAll(`#subsets-${set} .zbll-card[data-subset]`).forEach((card) => {
+        const title = card.querySelector(".subset-title");
+        if (title) title.textContent = `${set} – ${subsetLabel(set, card.dataset.subset)}`;
+    });
+}
+window.updateSubsetTitles = updateSubsetTitles;
+
 document.querySelectorAll(".zbll-set-container").forEach((setContainer) => {
     const set = setContainer.id.replace("container-", "");
     activeOrientation[set] = 0;
+    updateSubsetTitles(set);
 
     const mainImg = setContainer.querySelector(".main-angle-svg");
     const orientationButtons = setContainer.querySelectorAll(
@@ -92,6 +107,7 @@ document.querySelectorAll(".zbll-set-container").forEach((setContainer) => {
             // update the tracking variable for the modal
             const currentAngle = parseInt(mainImg.dataset.angle) || 0;
             activeOrientation[set] = currentAngle;
+            updateSubsetTitles(set);
 
             // force all subset images to rotate to match the NEW main angle
             setContainer
@@ -349,7 +365,7 @@ function updateZwHeaderSelection(set, coll) {
         .length;
     document.getElementById(
         "zwHeaderMessage"
-    ).textContent = `${set} – ${coll} (${selected}/${total} selected)`;
+    ).textContent = `${set} – ${subsetLabel(set, coll)} (${selected}/${total} selected)`;
     updateSetCount(set);
 }
 

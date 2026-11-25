@@ -32,6 +32,10 @@
         { method: "rotate_Up", label: "u'", category: "Wide Moves" },
         { method: "rotate_D", label: "d", category: "Wide Moves" },
         { method: "rotate_Dp", label: "d'", category: "Wide Moves" },
+        { method: "rotate_F", label: "f", category: "Wide Moves" },
+        { method: "rotate_Fp", label: "f'", category: "Wide Moves" },
+        { method: "rotate_B", label: "b", category: "Wide Moves" },
+        { method: "rotate_Bp", label: "b'", category: "Wide Moves" },
         // Slice moves
         { method: "rotate_m", label: "M", category: "Slice Moves" },
         { method: "rotate_mp", label: "M'", category: "Slice Moves" },
@@ -160,7 +164,7 @@
         var hint = document.createElement("p");
         hint.className = "kb-hint";
         hint.id = "kb-hint-text";
-        hint.textContent = "Click \u201CRebind\u201D next to any move, then press the key you want to assign to it.";
+        hint.textContent = "Click \u201CRebind\u201D next to a move and press a key to use just that key, or \u201C+ Key\u201D to add another key for the same move.";
         card.appendChild(hint);
 
         // ── Move List Body ───────────────────────────────────────────────────
@@ -211,7 +215,7 @@
             editorViewBtn.classList.remove("kb-view-btn-active");
             moveBody.style.display = "";
             editorBody.style.display = "none";
-            hint.textContent = "Click \u201CRebind\u201D next to any move, then press the key you want to assign to it.";
+            hint.textContent = "Click \u201CRebind\u201D next to a move and press a key to use just that key, or \u201C+ Key\u201D to add another key for the same move.";
             card.classList.remove("kb-card-wide");
         });
 
@@ -350,9 +354,22 @@
             var rebindBtn = document.createElement("button");
             rebindBtn.className = "kb-rebind-btn";
             rebindBtn.textContent = "Rebind";
+            rebindBtn.dataset.label = "Rebind";
+            rebindBtn.title = "Replace this move's keys with one key";
             rebindBtn.addEventListener("click", function (e) {
                 e.stopPropagation();
                 startListening(entry, tr, rebindBtn);
+            });
+
+            // Another key for the same move, keeping the ones it has
+            var addBtn = document.createElement("button");
+            addBtn.className = "kb-rebind-btn kb-add-btn";
+            addBtn.textContent = "+ Key";
+            addBtn.dataset.label = "+ Key";
+            addBtn.title = "Add another key for this move";
+            addBtn.addEventListener("click", function (e) {
+                e.stopPropagation();
+                startListening(entry, tr, addBtn, true);
             });
 
             var warnEl = document.createElement("span");
@@ -361,6 +378,7 @@
             tr.appendChild(moveCell);
             tr.appendChild(keyCell);
             tr.appendChild(rebindBtn);
+            tr.appendChild(addBtn);
             tr.appendChild(warnEl);
             body.appendChild(tr);
         });
@@ -376,8 +394,7 @@
             rows.forEach(function (row) {
                 var keyCell = row.querySelector(".kb-key-cell");
                 if (keyCell) renderKeyCell(keyCell, inv[entry.method] || []);
-                var btn = row.querySelector(".kb-rebind-btn");
-                if (btn && btn.textContent !== "Rebind") btn.textContent = "Rebind";
+                row.querySelectorAll(".kb-rebind-btn").forEach(function (btn) { btn.textContent = btn.dataset.label || "Rebind"; });
             });
         });
     }
@@ -507,7 +524,8 @@
             pill.className = "kb-picker-pill" + (entry.method === currentMethod ? " kb-picker-pill-active" : "");
             pill.textContent = entry.label;
             pill.addEventListener("click", function () {
-                vc.setKeybind(selectedKey, entry.method);
+                if (typeof vc.addKeybind === "function") vc.addKeybind(selectedKey, entry.method);
+                else vc.setKeybind(selectedKey, entry.method);
                 refreshEditorAndList(vc, editorBody, kbWrap);
                 if (selectedKeyEl) { selectedKeyEl.classList.remove("kb-key-selected"); selectedKeyEl = null; }
                 picker.style.display = "none";
@@ -564,6 +582,22 @@
                 var badge = document.createElement("span");
                 badge.className = "kb-badge";
                 badge.textContent = keyLabel(k);
+                if (keys.length > 1) {
+                    var x = document.createElement("button");
+                    x.type = "button";
+                    x.className = "kb-badge-remove";
+                    x.textContent = "×";
+                    x.title = "Remove " + keyLabel(k) + " from this move";
+                    x.setAttribute("aria-label", x.title);
+                    x.addEventListener("click", function (e) {
+                        e.stopPropagation();
+                        var vc = getVC();
+                        if (!vc || typeof vc.unbindKey !== "function") return;
+                        vc.unbindKey(k);
+                        refreshMoveList(vc);
+                    });
+                    badge.appendChild(x);
+                }
                 keyCell.appendChild(badge);
             });
         }
@@ -571,10 +605,10 @@
 
     // ─── Rebind (existing flow) ────────────────────────────────────────────────
 
-    function startListening(entry, tr, btn) {
+    function startListening(entry, tr, btn, add) {
         if (listeningRow) stopListening(false);
 
-        listeningRow = { entry: entry, tr: tr, btn: btn };
+        listeningRow = { entry: entry, tr: tr, btn: btn, add: !!add };
         tr.classList.add("kb-listening");
         btn.textContent = "Press a key\u2026";
         btn.classList.add("kb-listening-btn");
@@ -591,7 +625,7 @@
         var btn = listeningRow.btn;
         tr.classList.remove("kb-listening");
         if (resetBtn !== false) {
-            btn.textContent = "Rebind";
+            btn.textContent = btn.dataset.label || "Rebind";
             btn.classList.remove("kb-listening-btn");
             btn.classList.remove("kb-confirm-btn");
         }
@@ -614,6 +648,7 @@
         var targetMethod = listeningRow.entry.method;
         var tr = listeningRow.tr;
         var btn = listeningRow.btn;
+        var add = listeningRow.add;
 
         var conflictMethod = bindings[k];
         if (conflictMethod && conflictMethod !== targetMethod) {
@@ -634,26 +669,27 @@
                 ev.stopPropagation();
                 btn.removeEventListener("click", confirmHandler);
                 btn.classList.remove("kb-confirm-btn");
-                btn.textContent = "Rebind";
+                btn.textContent = btn.dataset.label || "Rebind";
                 warn.textContent = "";
                 warn.classList.remove("kb-warn-visible");
-                applyBind(vc, k, targetMethod);
+                applyBind(vc, k, targetMethod, add);
             };
             btn.addEventListener("click", confirmHandler);
             return;
         }
 
         stopListening();
-        applyBind(vc, k, targetMethod);
+        applyBind(vc, k, targetMethod, add);
     }
 
-    function applyBind(vc, key, method) {
+    function applyBind(vc, key, method, add) {
         var oldBindings = vc.getKeybinds();
         var affectedMethods = {};
         if (oldBindings[key]) affectedMethods[oldBindings[key]] = true;
         affectedMethods[method] = true;
 
-        vc.setKeybind(key, method);
+        if (add && typeof vc.addKeybind === "function") vc.addKeybind(key, method);
+        else vc.setKeybind(key, method);
 
         var newBindings = vc.getKeybinds();
         var newInv = invertMap(newBindings);
@@ -663,8 +699,7 @@
             rows.forEach(function (row) {
                 var keyCell = row.querySelector(".kb-key-cell");
                 renderKeyCell(keyCell, newInv[m] || []);
-                var b = row.querySelector(".kb-rebind-btn");
-                if (b && b.textContent !== "Rebind") b.textContent = "Rebind";
+                row.querySelectorAll(".kb-rebind-btn").forEach(function (b) { b.textContent = b.dataset.label || "Rebind"; });
             });
         });
 

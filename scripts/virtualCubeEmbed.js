@@ -530,6 +530,14 @@
         },
 
         /** Remove a single key binding without replacing it. */
+        /** Bind another key to a move, keeping the keys it already has
+         *  (e.g. M on both 5 and 7). The key is freed from any other move. */
+        addKeybind: function (key, method) {
+            if (key.length === 1) key = key.toLowerCase();
+            cubeActions[key] = method;
+            saveKeybinds(cubeActions);
+        },
+
         unbindKey: function (key) {
             if (key && key.length === 1) key = key.toLowerCase();
             delete cubeActions[key];
