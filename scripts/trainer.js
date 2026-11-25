@@ -3585,10 +3585,17 @@ if (window.virtualCube && window.virtualCube.reset) {
 
 var recallMaskApplied = false;
 
+// The last-layer pieces, taken when the case appears. Pieces move around the
+// cube as whole objects (with their colours), so the mask follows the pieces:
+// if your first move has already moved some of them, the right ones still
+// grey out, and F2L pieces never do.
+var LL_PIECES = ["FLU", "F_U", "FRU", "_RU", "BRU", "B_U", "BLU", "_LU"];
+
 function snapshotRecallStickers() {
     if (!window.cube3) return;
     var uCenter = window.cube3.cubies["__U"];
     window._recallLLColor = uCenter ? uCenter.colors[2] : null;
+    window._recallPieces = LL_PIECES.map(function (k) { return window.cube3.cubies[k]; }).filter(Boolean);
     window._recallSnapshot = true;
 }
 
@@ -3598,40 +3605,17 @@ function applyRecallMask() {
 
     var maskColor = "rgba(128, 128, 128, 0.85)";
     var llColor = window._recallLLColor;
+    var hidden = "rgba(0,0,0,0)";
 
-    // Mask ALL LL stickers (12 side + 9 U-face) except LL color ones
-    var allLLStickers = [
-        { cubie: "FLU", face: 0 },
-        { cubie: "F_U", face: 0 },
-        { cubie: "FRU", face: 0 },
-        { cubie: "FRU", face: 1 },
-        { cubie: "_RU", face: 1 },
-        { cubie: "BRU", face: 1 },
-        { cubie: "BRU", face: 3 },
-        { cubie: "B_U", face: 3 },
-        { cubie: "BLU", face: 3 },
-        { cubie: "BLU", face: 4 },
-        { cubie: "_LU", face: 4 },
-        { cubie: "FLU", face: 4 },
-        { cubie: "FLU", face: 2 },
-        { cubie: "F_U", face: 2 },
-        { cubie: "FRU", face: 2 },
-        { cubie: "_RU", face: 2 },
-        { cubie: "__U", face: 2 },
-        { cubie: "_LU", face: 2 },
-        { cubie: "BLU", face: 2 },
-        { cubie: "B_U", face: 2 },
-        { cubie: "BRU", face: 2 },
-    ];
-
-    allLLStickers.forEach(function (s) {
-        var cubie = window.cube3.cubies[s.cubie];
-        if (!cubie) return;
-        var color = cubie.original_colors
-            ? cubie.original_colors[s.face]
-            : cubie.colors[s.face];
-        if (color !== maskColor && color !== llColor) {
-            cubie.colors[s.face] = maskColor;
+    // Every sticker of the last-layer pieces, wherever they are now, except
+    // the top colour (so you still see the orientation)
+    (window._recallPieces || []).forEach(function (cubie) {
+        if (!cubie || !cubie.colors) return;
+        for (var face = 0; face < cubie.colors.length; face++) {
+            var color = cubie.colors[face];
+            if (color && color !== hidden && color !== maskColor && color !== llColor) {
+                cubie.colors[face] = maskColor;
+            }
         }
     });
 
@@ -3662,6 +3646,7 @@ function removeRecallMask() {
 function resetRecallState() {
     window._recallOriginalColors = null;
     window._recallSnapshot = null;
+    window._recallPieces = null;
     window._recallLLColor = null;
     recallMaskApplied = false;
 }
