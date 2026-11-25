@@ -53,7 +53,7 @@
     var settings = load("bhSettings", {});
     var defaults = {
         mode: "name", view: "3d", twist: false, set: "T", sub: "2GLL", answers: "pictures",
-        angle: "picture", cube: false, hideCube: true,
+        angle: "picture", cube: false, hideCube: true, flash: 0,
         // By pattern
         pSel: PATTERNS.map(function (p) { return p + ":"; }), pSets: null, pAngles: "all", pView: "two",
     };
@@ -383,7 +383,7 @@
         next: $("bhNext"), resetStats: $("bhResetStats"),
         cubePanel: $("bhCubePanel"), useCube: $("bhUseCube"), cubeBody: $("bhCubeBody"),
         cover: $("bhCubeCover"), showCube: $("bhShowCube"), resetCube: $("bhResetCube"), hideCube: $("bhHideCube"),
-        view: $("bhView"), twist: $("bhTwist"), answerStyle: $("bhAnswerStyle"),
+        view: $("bhView"), twist: $("bhTwist"), flash: $("bhFlash"), answerStyle: $("bhAnswerStyle"),
         renameGrid: $("bhRenameGrid"), renameReset: $("bhRenameReset"),
         // By pattern
         pPanel: $("bhPatternPanel"), pSets: $("bhPSets"), pAngles: $("bhPAngles"), pView: $("bhPView"),
@@ -451,6 +451,26 @@
         });
     }
 
+    // ── Flash: the picture hides after a set time ───────────────────────
+    // You answer from memory; it comes back once you have answered.
+    var flashTimer = null;
+
+    function startFlash() {
+        clearTimeout(flashTimer);
+        els.picture.classList.remove("is-flashed");
+        var ms = parseInt(settings.flash, 10) || 0;
+        if (!ms || !q) return;
+        var mine = q;
+        flashTimer = setTimeout(function () {
+            if (q === mine && !q.done && !q.revealed) els.picture.classList.add("is-flashed");
+        }, ms);
+    }
+
+    function endFlash() {
+        clearTimeout(flashTimer);
+        els.picture.classList.remove("is-flashed");
+    }
+
     // ── Name mode ───────────────────────────────────────────────────────
 
     function newNameQuestion() {
@@ -462,12 +482,14 @@
         els.picture.innerHTML = draw(patternStickers(p, twist, q.side), GF.SHOW.bh);
         els.picture.setAttribute("aria-label", "A BH pattern" + (twist ? ", " + twistText(twist) : ""));
         patternButtons();
+        startFlash();
     }
 
     function answerName(p) {
         if (!q || q.done) return;
         q.done = true;
         var right = p === q.answer;
+        endFlash();
         score(right);
         markButtons([q.answer], p);
         setFeedback(right ? "Right: " + nameOf(q.answer) + "." : "It's " + nameOf(q.answer) + (p ? ", not " + nameOf(p) : "") + ".", right ? "good" : "bad");
@@ -497,6 +519,7 @@
             els.picture.setAttribute("aria-label", "BH stickers of a " + settings.set + "-" + settings.sub + " case");
             caseButtons(cases);
             loadCube();
+            startFlash();
         });
     }
 
@@ -517,6 +540,7 @@
         if (!q || q.done) return;
         q.done = true;
         var right = solved || q.right.indexOf(name) >= 0;
+        endFlash();
         score(right);
         markButtons(q.right, name);
         els.answers.classList.add("is-done");
@@ -546,6 +570,7 @@
             els.picture.setAttribute("aria-label", "The whole last layer of " + c.key);
             renderStory();
             patternButtons();
+            startFlash();
         });
     }
 
@@ -567,6 +592,7 @@
         q.given.push(p);
         if (q.given.length === 4) {
             q.done = true;
+            endFlash();
             var right = q.given.every(function (g, i) { return g === q.seq[i]; });
             score(right);
             var same = q.seq.every(function (n) { return n === q.seq[0]; });
@@ -660,12 +686,14 @@
             els.picture.setAttribute("aria-label", "A ZBLL, " + (settings.pView === "two" ? "two sides shown" : settings.pView === "bh" ? "BH stickers shown" : "whole last layer"));
             if (made) els.scramble.innerHTML = "Scramble <code>" + esc(made.scramble) + "</code>";
             loadCube();
+            startFlash();
         });
     }
 
     function revealPattern() {
         if (!q || q.mode !== "pattern" || q.revealed) return;
         q.revealed = true;
+        endFlash();
         var c = q.info;
         els.revealBox.innerHTML = '<div class="bh-reveal-pic" aria-hidden="true">' + GF.draw2D(q.st, null) + "</div>" +
             '<div class="bh-reveal-text"><p class="bh-reveal-case">' + esc(c.key) + "</p>" +
@@ -933,6 +961,11 @@
         q = null;
         next();
     });
+    els.flash.addEventListener("change", function () {
+        settings.flash = parseInt(els.flash.value, 10) || 0;
+        saveSettings();
+        next();
+    });
     els.twist.addEventListener("change", function () {
         settings.twist = els.twist.checked;
         saveSettings();
@@ -970,6 +1003,7 @@
 
     els.view.value = settings.view;
     els.twist.checked = !!settings.twist;
+    els.flash.value = String(settings.flash || 0);
     els.answerStyle.value = settings.answers;
     els.angle.value = settings.angle;
     els.pAngles.value = settings.pAngles;

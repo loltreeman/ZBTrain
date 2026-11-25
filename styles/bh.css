@@ -77,6 +77,27 @@
     aspect-ratio: 1;
 }
 
+/* Flash: the picture has gone; answer from memory */
+.bh-picture {
+    position: relative;
+}
+
+.bh-picture.is-flashed > * {
+    visibility: hidden;
+}
+
+.bh-picture.is-flashed::after {
+    content: "?";
+    position: absolute;
+    inset: 12%;
+    display: grid;
+    place-items: center;
+    border-radius: var(--r-md, 8px);
+    background: var(--surface-2);
+    color: var(--text-3);
+    font: 700 48px / 1 var(--font-sans);
+}
+
 .bh-picture svg,
 .bh-answer-pic svg {
     display: block;

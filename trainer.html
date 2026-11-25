@@ -90,8 +90,19 @@
                                         </span>
                                         <input id="recallModeCheckbox" type="checkbox" class="switch" />
                                     </label>
+                                    <div class="field-row" title="When the last layer greys out. A set time is counted from when the case appears, like a flash card.">
+                                        <label for="recallHideAfterSelect">Hide the case</label>
+                                        <select id="recallHideAfterSelect" class="input">
+                                            <option value="first">On your first alg move</option>
+                                            <option value="100">After 0.1 s</option>
+                                            <option value="250">After 0.25 s</option>
+                                            <option value="500">After 0.5 s</option>
+                                            <option value="1000">After 1 s</option>
+                                            <option value="2000">After 2 s</option>
+                                        </select>
+                                    </div>
                                     <p class="field-hint">
-                                        Last-layer side stickers grey out after your first move, so you train recall instead of recognition. Needs the virtual cube.
+                                        The last layer's stickers grey out (except the top colour), so you train recall instead of recognition. U turns don't count as a first move, so you can look at the case from another side. Needs the virtual cube.
                                     </p>
                                 </div>
 
