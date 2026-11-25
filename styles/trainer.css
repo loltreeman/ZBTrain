@@ -284,6 +284,8 @@ body:has(#slowModeBanner[style*="flex"]) .app-shell {
     user-select: none;
     -webkit-user-select: none;
     -webkit-touch-callout: none;
+    /* No double-tap zoom, so quick taps reach the timer */
+    touch-action: manipulation;
 }
 
 /* The canvas is sized by virtualCubeEmbed.js to exactly fill this box,
@@ -2088,6 +2090,7 @@ img.slow-case-open:hover {
 .learn-card.is-new .learn-badge { background: var(--accent-soft); color: var(--accent-text); }
 .learn-card.is-learning .learn-badge { background: var(--bad-soft); color: var(--bad); }
 .learn-card.is-review .learn-badge { background: var(--good-soft); color: var(--good); }
+.learn-card.is-rating .learn-badge { background: var(--surface-3); color: var(--text-2); }
 
 .learn-card-name {
     font-weight: 600;
@@ -2146,6 +2149,23 @@ img.slow-case-open:hover {
     display: none;
 }
 
+/* Centred variant: shown below the timer in the main training area */
+.learn-rating-center {
+    width: min(480px, 100%);
+    margin: var(--sp-3) auto 0;
+    padding: var(--sp-3) var(--sp-4);
+    border-radius: var(--r-md);
+    background: var(--surface);
+}
+
+/* Case name shown at the top of the rating box */
+.rate-case-name {
+    font-size: var(--fs-sm);
+    font-weight: 700;
+    color: var(--text-2);
+    margin-bottom: var(--sp-1);
+}
+
 /* Waiting for your rating: stands out, and nudges when you try to go on */
 .learn-rating.is-waiting {
     padding: 10px;
@@ -2153,6 +2173,13 @@ img.slow-case-open:hover {
     border-radius: var(--r-md, 8px);
     background: var(--accent-soft);
     box-shadow: 0 0 0 1px var(--accent);
+}
+
+/* Centre variant: already has card styling; use a border highlight instead */
+.learn-rating-center.is-waiting {
+    padding: var(--sp-3) var(--sp-4);
+    margin: var(--sp-3) auto 0;
+    box-shadow: 0 0 0 2px var(--accent);
 }
 
 .learn-rating.is-waiting > label {
@@ -2368,6 +2395,60 @@ body.learn-awaiting-rating #current-scramble {
     margin: 0;
     font-size: var(--fs-xs) !important;
     color: var(--text-3) !important;
+}
+
+/* Save cases to a preset (scripts/presetStore.js) */
+.preset-picker {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+}
+
+.preset-picker .input {
+    flex: 1 1 140px;
+    min-width: 0;
+    height: 32px;
+    font-size: var(--fs-sm);
+}
+
+.preset-picker .input[hidden] {
+    display: none;
+}
+
+.preset-picker-status {
+    flex-basis: 100%;
+    color: var(--text-3);
+    font-size: var(--fs-xs);
+}
+
+.preset-picker-status:empty {
+    display: none;
+}
+
+.recap-preset {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 8px 10px;
+    border-radius: var(--r-md, 8px);
+    background: var(--surface-2);
+}
+
+.add-to-preset {
+    margin-top: 4px;
+    font-size: var(--fs-xs);
+}
+
+.add-to-preset[hidden],
+.add-to-preset-box[hidden] {
+    display: none;
+}
+
+.add-to-preset-box {
+    width: 100%;
+    margin-top: 6px;
+    text-align: left;
 }
 
 .recap-thumb {

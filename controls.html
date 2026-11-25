@@ -567,6 +567,18 @@
                             <td data-method="rotate_Lp"><span class="key">r</span></td>
                             <td><span class="move">l'</span></td>
                         </tr>
+                        <tr>
+                            <td data-method="rotate_U"><span class="key">,</span></td>
+                            <td><span class="move">u</span></td>
+                            <td data-method="rotate_Up"><span class="key">c</span></td>
+                            <td><span class="move">u'</span></td>
+                        </tr>
+                        <tr>
+                            <td data-method="rotate_D"><span class="key">z</span></td>
+                            <td><span class="move">d</span></td>
+                            <td data-method="rotate_Dp"><span class="key">/</span></td>
+                            <td><span class="move">d'</span></td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -618,21 +630,21 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td data-method="rotate_x"><span class="key">b</span> / <span class="key">n</span></td>
+                            <td data-method="rotate_xp"><span class="key">b</span> / <span class="key">n</span></td>
                             <td><span class="move">x</span></td>
-                            <td data-method="rotate_xp"><span class="key">t</span> / <span class="key">y</span></td>
+                            <td data-method="rotate_x"><span class="key">t</span> / <span class="key">y</span></td>
                             <td><span class="move">x'</span></td>
                         </tr>
                         <tr>
-                            <td data-method="rotate_y"><span class="key">a</span></td>
+                            <td data-method="rotate_yp"><span class="key">a</span></td>
                             <td><span class="move">y</span></td>
-                            <td data-method="rotate_yp"><span class="key">;</span></td>
+                            <td data-method="rotate_y"><span class="key">;</span></td>
                             <td><span class="move">y'</span></td>
                         </tr>
                         <tr>
-                            <td data-method="rotate_z"><span class="key">p</span></td>
+                            <td data-method="rotate_zp"><span class="key">p</span></td>
                             <td><span class="move">z</span></td>
-                            <td data-method="rotate_zp"><span class="key">q</span></td>
+                            <td data-method="rotate_z"><span class="key">q</span></td>
                             <td><span class="move">z'</span></td>
                         </tr>
                     </tbody>
@@ -644,14 +656,16 @@
     <script>
         (function () {
             var DEFAULT_CUBE_ACTIONS = {
+                // csTimer keys. Cube3 rotate_x/_y/_z are x'/y'/z', so x is rotate_xp.
                 h: "rotate_f", g: "rotate_fp", i: "rotate_r", k: "rotate_rp",
                 j: "rotate_u", f: "rotate_up", w: "rotate_b", o: "rotate_bp",
                 d: "rotate_l", e: "rotate_lp", s: "rotate_d", l: "rotate_dp",
-                b: "rotate_x", n: "rotate_x", t: "rotate_xp", y: "rotate_xp",
-                a: "rotate_y", ";": "rotate_yp", q: "rotate_z", p: "rotate_zp",
+                t: "rotate_xp", y: "rotate_xp", b: "rotate_x", n: "rotate_x",
+                ";": "rotate_yp", a: "rotate_y", p: "rotate_zp", q: "rotate_z",
                 u: "rotate_R", m: "rotate_Rp", v: "rotate_L", r: "rotate_Lp",
-                "5": "rotate_m", "6": "rotate_mp", "0": "rotate_s", "1": "rotate_sp",
-                "2": "rotate_e", "9": "rotate_ep"
+                ",": "rotate_U", c: "rotate_Up", z: "rotate_D", "/": "rotate_Dp",
+                "5": "rotate_m", "6": "rotate_m", x: "rotate_mp", ".": "rotate_mp",
+                "2": "rotate_e", "9": "rotate_ep", "0": "rotate_s", "1": "rotate_sp"
             };
 
             var METHOD_META = {
@@ -672,6 +686,10 @@
                 rotate_Rp: { label: "r'", cls: "move-wide" },
                 rotate_L: { label: "l", cls: "move-wide" },
                 rotate_Lp: { label: "l'", cls: "move-wide" },
+                rotate_U: { label: "u", cls: "move-wide" },
+                rotate_Up: { label: "u'", cls: "move-wide" },
+                rotate_D: { label: "d", cls: "move-wide" },
+                rotate_Dp: { label: "d'", cls: "move-wide" },
 
                 rotate_m: { label: "M", cls: "move-slice" },
                 rotate_mp: { label: "M'", cls: "move-slice" },
@@ -680,12 +698,12 @@
                 rotate_s: { label: "S", cls: "move-slice" },
                 rotate_sp: { label: "S'", cls: "move-slice" },
 
-                rotate_x: { label: "x", cls: "move-rotation" },
-                rotate_xp: { label: "x'", cls: "move-rotation" },
-                rotate_y: { label: "y", cls: "move-rotation" },
-                rotate_yp: { label: "y'", cls: "move-rotation" },
-                rotate_z: { label: "z", cls: "move-rotation" },
-                rotate_zp: { label: "z'", cls: "move-rotation" },
+                rotate_x: { label: "x'", cls: "move-rotation" },
+                rotate_xp: { label: "x", cls: "move-rotation" },
+                rotate_y: { label: "y'", cls: "move-rotation" },
+                rotate_yp: { label: "y", cls: "move-rotation" },
+                rotate_z: { label: "z'", cls: "move-rotation" },
+                rotate_zp: { label: "z", cls: "move-rotation" },
             };
 
             function loadKeybinds() {

@@ -49,16 +49,20 @@
 
     // ─── Keybind system ────────────────────────────────────────────────────
 
-    /** Default key → cube3 method name. Never mutated at runtime. */
+    /** Default key → cube3 method name. Never mutated at runtime.
+     *  The same keys as csTimer's virtual cube. Note Cube3's rotate_x / _y / _z
+     *  turn the opposite way to standard notation (x' / y' / z'), so x is
+     *  rotate_xp here; M, E, S and the face and wide turns are standard. */
     var DEFAULT_CUBE_ACTIONS = {
-        h: "rotate_f",  g: "rotate_fp", i: "rotate_r",  k: "rotate_rp",
-        j: "rotate_u",  f: "rotate_up", w: "rotate_b",  o: "rotate_bp",
-        d: "rotate_l",  e: "rotate_lp", s: "rotate_d",  l: "rotate_dp",
-        b: "rotate_x",  n: "rotate_x",  t: "rotate_xp", y: "rotate_xp",
-        a: "rotate_y",  ";": "rotate_yp", q: "rotate_z", p: "rotate_zp",
-        u: "rotate_R",  m: "rotate_Rp", v: "rotate_L",  r: "rotate_Lp",
-        "5": "rotate_m", "6": "rotate_mp", "0": "rotate_s", "1": "rotate_sp",
-        "2": "rotate_e", "9": "rotate_ep",
+        h: "rotate_f",   g: "rotate_fp", i: "rotate_r",   k: "rotate_rp",   // F F' R R'
+        j: "rotate_u",   f: "rotate_up", w: "rotate_b",   o: "rotate_bp",   // U U' B B'
+        d: "rotate_l",   e: "rotate_lp", s: "rotate_d",   l: "rotate_dp",   // L L' D D'
+        t: "rotate_xp",  y: "rotate_xp", b: "rotate_x",   n: "rotate_x",    // x x x' x'
+        ";": "rotate_yp", a: "rotate_y", p: "rotate_zp",  q: "rotate_z",    // y y' z z'
+        u: "rotate_R",   m: "rotate_Rp", v: "rotate_L",   r: "rotate_Lp",   // Rw Rw' Lw Lw'
+        ",": "rotate_U", c: "rotate_Up", z: "rotate_D",   "/": "rotate_Dp", // Uw Uw' Dw Dw'
+        "5": "rotate_m", "6": "rotate_m", x: "rotate_mp", ".": "rotate_mp", // M M M' M'
+        "2": "rotate_e", "9": "rotate_ep", "0": "rotate_s", "1": "rotate_sp", // E E' S S'
     };
 
     /** Dvorak-equivalent bindings — same physical key positions as QWERTY defaults,

@@ -21,6 +21,7 @@
         <a href="learn.html">Learn</a>
         <a href="zbll.html">ZBLL</a>
         <a href="zbls.html" aria-current="page">ZBLS</a>
+        <a href="bh.html">BH</a>
         <a href="sheets.html">Sheets</a>
         <a href="guide/index.html">Guide</a>
       </nav>
@@ -69,15 +70,23 @@
         </div>
 
         <div class="control-group">
-          <label class="group-label" for="edgeFix">Edge position</label>
+          <label class="group-label" for="edgeFix">Fixed piece</label>
           <select id="edgeFix" class="input">
-            <option value="any">Any (random AUF)</option>
-            <option value="UF">Fixed at UF</option>
-            <option value="UR">Fixed at UR</option>
-            <option value="UB">Fixed at UB</option>
-            <option value="UL">Fixed at UL</option>
+            <option value="any">None (random AUF)</option>
+            <optgroup label="Edge">
+              <option value="UF">Edge at UF</option>
+              <option value="UR">Edge at UR</option>
+              <option value="UB">Edge at UB</option>
+              <option value="UL">Edge at UL</option>
+            </optgroup>
+            <optgroup label="Corner">
+              <option value="UFR">Corner at UFR</option>
+              <option value="UFL">Corner at UFL</option>
+              <option value="UBR">Corner at UBR</option>
+              <option value="UBL">Corner at UBL</option>
+            </optgroup>
           </select>
-          <p class="side-hint">Fixed: the slot's edge always starts in the same place, so you learn each case from one angle. If the edge is in a slot, the corner starts above the slot instead.</p>
+          <p class="side-hint">The slot's edge or corner always starts in the same place, so you learn each case from one angle. If that piece is in a slot, the other one is placed instead: the corner above the slot, or the edge at the front (back for BR and BL).</p>
         </div>
 
         <p class="side-hint">Click a case to select it. Click the large image to select or clear the whole F2L case.</p>

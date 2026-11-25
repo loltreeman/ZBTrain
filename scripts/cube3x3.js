@@ -230,6 +230,23 @@ Cube3.prototype.rotate_Lp = function() {
     this.rotate_lp(); this.rotate_mp();
 }
 
+// Wide U and D (Uw = U E', Dw = D E)
+Cube3.prototype.rotate_U = function() {
+    this.rotate_u(); this.rotate_ep();
+}
+
+Cube3.prototype.rotate_Up = function() {
+    this.rotate_up(); this.rotate_e();
+}
+
+Cube3.prototype.rotate_D = function() {
+    this.rotate_d(); this.rotate_e();
+}
+
+Cube3.prototype.rotate_Dp = function() {
+    this.rotate_dp(); this.rotate_ep();
+}
+
 Cube3.prototype.draw = function(ctx, px, py) {
 
   ctx.save();

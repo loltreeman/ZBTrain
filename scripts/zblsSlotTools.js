@@ -49,21 +49,37 @@
         }).join(" ");
     }
 
-    // Add a U turn so the slot's edge starts at `target` (UF, UR, UB, UL)
+    // Corner fixed: the slot's corner starts at UFR, UFL, UBR or UBL. If the
+    // corner is in a slot, the edge starts at the front (FR/FL slots) or
+    // back (BR/BL) instead.
+    var CORNER_TARGET = { UFR: "FRU", UFL: "FLU", UBR: "BRU", UBL: "BLU" };
+    var EDGE_BESIDE = { FR: "F_U", FL: "F_U", BR: "B_U", BL: "B_U" };
+
+    // Add a U turn so the slot's edge starts at `target` (UF, UR, UB, UL), or
+    // its corner (UFR, UFL, UBR, UBL)
     function fixEdge(setup, slot, target) {
+        var cornerWant = CORNER_TARGET[target];
         var want = EDGE_TARGET[target];
-        if (!want || !window.LSLL || !LSLL.findPiece) return setup;
+        if ((!want && !cornerWant) || !window.LSLL || !LSLL.findPiece) return setup;
         slot = slot || "FR";
         var aufs = ["", "U", "U2", "U'"];
         var edgeHome = slot;                       // e.g. "FL"
         var cornerHome = "D" + slot;               // e.g. "DFL"
-        var start = LSLL.findPiece(makeCube(setup), edgeHome);
-        var inTop = start && start.charAt(2) === "U";
+        // Which piece to place, and where
+        var piece = cornerWant ? cornerHome : edgeHome;
+        var spot = cornerWant || want;
+        var start = LSLL.findPiece(makeCube(setup), piece);
+        var inTop = start && start.indexOf("U") >= 0 && start.charAt(start.length - 1) === "U";
+        if (!inTop) {
+            // Not in the top layer: place the other piece instead
+            piece = cornerWant ? edgeHome : cornerHome;
+            spot = cornerWant ? EDGE_BESIDE[slot] : CORNER_ABOVE[slot];
+            var other = LSLL.findPiece(makeCube(setup), piece);
+            if (!other || other.charAt(other.length - 1) !== "U") return setup;
+        }
         for (var i = 0; i < aufs.length; i++) {
             var moves = (setup + " " + aufs[i]).trim();
-            var cube = makeCube(moves);
-            if (inTop && LSLL.findPiece(cube, edgeHome) === want) return moves;
-            if (!inTop && LSLL.findPiece(cube, cornerHome) === CORNER_ABOVE[slot]) return moves;
+            if (LSLL.findPiece(makeCube(moves), piece) === spot) return moves;
         }
         return setup;
     }
