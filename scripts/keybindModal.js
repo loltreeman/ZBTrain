@@ -28,6 +28,10 @@
         { method: "rotate_Rp", label: "r'", category: "Wide Moves" },
         { method: "rotate_L", label: "l", category: "Wide Moves" },
         { method: "rotate_Lp", label: "l'", category: "Wide Moves" },
+        { method: "rotate_U", label: "u", category: "Wide Moves" },
+        { method: "rotate_Up", label: "u'", category: "Wide Moves" },
+        { method: "rotate_D", label: "d", category: "Wide Moves" },
+        { method: "rotate_Dp", label: "d'", category: "Wide Moves" },
         // Slice moves
         { method: "rotate_m", label: "M", category: "Slice Moves" },
         { method: "rotate_mp", label: "M'", category: "Slice Moves" },
@@ -35,13 +39,13 @@
         { method: "rotate_ep", label: "E'", category: "Slice Moves" },
         { method: "rotate_s", label: "S", category: "Slice Moves" },
         { method: "rotate_sp", label: "S'", category: "Slice Moves" },
-        // Cube rotations
-        { method: "rotate_x", label: "x", category: "Cube Rotations" },
-        { method: "rotate_xp", label: "x'", category: "Cube Rotations" },
-        { method: "rotate_y", label: "y", category: "Cube Rotations" },
-        { method: "rotate_yp", label: "y'", category: "Cube Rotations" },
-        { method: "rotate_z", label: "z", category: "Cube Rotations" },
-        { method: "rotate_zp", label: "z'", category: "Cube Rotations" },
+        // Cube rotations (Cube3's rotate_x / _y / _z are x' / y' / z' in standard notation)
+        { method: "rotate_xp", label: "x", category: "Cube Rotations" },
+        { method: "rotate_x", label: "x'", category: "Cube Rotations" },
+        { method: "rotate_yp", label: "y", category: "Cube Rotations" },
+        { method: "rotate_y", label: "y'", category: "Cube Rotations" },
+        { method: "rotate_zp", label: "z", category: "Cube Rotations" },
+        { method: "rotate_z", label: "z'", category: "Cube Rotations" },
     ];
 
     // Physical QWERTY rows shown in the keyboard editor

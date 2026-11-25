@@ -264,6 +264,9 @@
                                 <img id="case-img" src="" alt="">
                                 <canvas id="case-canvas" hidden aria-hidden="true"></canvas>
                                 <h2 id="case-name">—</h2>
+                                <!-- Save this case to a preset (scripts/presetStore.js) -->
+                                <button type="button" id="addToPreset" class="btn btn-ghost btn-sm add-to-preset" aria-expanded="false" hidden>+ Add to preset</button>
+                                <div id="addToPresetBox" class="add-to-preset-box" hidden></div>
                             </div>
 
                             <div class="panel-body case-card-footer">
@@ -342,6 +345,7 @@
     <script src="scripts/srs.js"></script>
     <script src="scripts/topSolverAlgs.js"></script>
     <script src="scripts/algSheets.js"></script>
+    <script src="scripts/presetStore.js"></script>
     <script src="scripts/cubeGoals.js"></script>
     <script src="scripts/cube.js"></script>
     <script src="scripts/cube3x3.js"></script>

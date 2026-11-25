@@ -353,6 +353,7 @@ function saveAttempts() {
 
 // render case-specific attempts/stats in the sidebar and under the timer
 function renderCaseAttempts(caseObj) {
+    try { updateAddToPreset(); } catch (e) {}
     var targetCase = caseObj || currentlyDisplayedCase;
     if (!targetCase) {
         // Before your first solve: say what this area is for
@@ -706,7 +707,41 @@ function toggleLastDnf() {
 document.addEventListener("DOMContentLoaded", function () {
     var btn = document.getElementById("dnfToggle");
     if (btn) btn.addEventListener("click", toggleLastDnf);
+    setupAddToPreset();
 });
+
+// ── Add the case on the results panel to a preset ───────────────────────
+function setupAddToPreset() {
+    var btn = document.getElementById("addToPreset");
+    var box = document.getElementById("addToPresetBox");
+    if (!btn || !box || !window.PresetStore || lsllMode) return;
+    var picker = null;
+    btn.addEventListener("click", function () {
+        var open = box.hidden;
+        box.hidden = !open;
+        btn.setAttribute("aria-expanded", String(open));
+        if (!open) return;
+        var c = currentlyDisplayedCase;
+        if (!picker) {
+            picker = PresetStore.picker(box, function () { return currentlyDisplayedCase ? [currentlyDisplayedCase] : []; },
+                { deck: PresetStore.deckOf(toTrain), label: "Add" });
+        } else picker.refresh();
+        var sel = box.querySelector("select");
+        if (sel) sel.focus();
+    });
+}
+
+// Shown once a case is on the results panel
+function updateAddToPreset() {
+    var btn = document.getElementById("addToPreset");
+    if (!btn || !window.PresetStore || lsllMode) return;
+    btn.hidden = !currentlyDisplayedCase;
+    var box = document.getElementById("addToPresetBox");
+    if (box && !box.hidden) {
+        var status = box.querySelector(".preset-picker-status");
+        if (status) status.textContent = "";
+    }
+}
 
 function exportAttemptsCsv() {
     if (!attempts || attempts.length === 0) {
@@ -1223,12 +1258,14 @@ function renderRecapDone() {
         // While it's open, keys don't start the timer or turn the cube
         window.addEventListener("keydown", function (e) {
             if (!recapDoneOpen || document.body.classList.contains("case-info-open")) return;
+            // Typing a preset name
+            if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName) && e.key !== "Escape") return;
             if (e.key === "Escape") { e.preventDefault(); closeRecapDone("train"); }
             if (e.key !== "Tab" && e.key !== "Enter") e.stopPropagation();
             if (e.key === " " && e.target.tagName !== "BUTTON") e.preventDefault();
         }, true);
         window.addEventListener("keyup", function (e) {
-            if (recapDoneOpen) e.stopPropagation();
+            if (recapDoneOpen && !/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) e.stopPropagation();
         }, true);
     }
     var rowsHtml = recapRows.map(function (r, i) {
@@ -1273,6 +1310,9 @@ function renderRecapDone() {
         '<button type="button" class="btn btn-secondary btn-sm" data-act="train-all">Train</button></div>' +
         "</div>" +
         '<p class="recap-next-hint">Recap does each case once. Train keeps giving you cases until you stop.</p>' +
+        (window.PresetStore && !lsllMode
+            ? '<div class="recap-preset"><span class="recap-next-label">Save the ticked cases to a preset</span><div data-ref="recapPreset"></div></div>'
+            : "") +
         '<div class="recap-done-actions">' +
         '<button type="button" class="btn btn-ghost btn-sm" data-act="back" title="Your selection is kept, so you can tick more cases">Add more cases</button>' +
         "</div></div></div>";
@@ -1295,6 +1335,8 @@ function renderRecapDone() {
             try { CubeViews.renderTo(canvas, "classic", virtualCube.makeCube(c.getSetup()), 48); } catch (e) { slot.removeChild(canvas); }
         }
     });
+    var presetBox = overlay.querySelector('[data-ref="recapPreset"]');
+    if (presetBox) PresetStore.picker(presetBox, recapSelected, { deck: PresetStore.deckOf(recapCases) });
     overlay.hidden = false;
     updateRecapPicks();
     var first = overlay.querySelector('[data-act="again-picked"]');
@@ -1418,7 +1460,8 @@ function displayTimer() {
 }
 
 // check if screen held down
-document.addEventListener("touchstart", handleTouchStart, false);
+// passive: false so the timer area can stop text selection (see handleTouchStart)
+document.addEventListener("touchstart", handleTouchStart, { passive: false });
 document.addEventListener("touchend", handleTouchEnd, false);
 document.addEventListener("keydown", handleKeyDown, false);
 document.addEventListener("keyup", handleKeyUp, false);
@@ -1432,10 +1475,12 @@ function handleTouchStart(event) {
         return;
     }
 
-    if (event.target.tagName === "BUTTON") {
-        // do nothing if again button clicked
-        return;
-    }
+    // Buttons, links and fields (and the text inside them) work as usual
+    if (event.target.closest("button, a, input, select, textarea, label")) return;
+
+    // Phones: no text selection, magnifier or copy menu on the tap that stops
+    // the timer, or on the time itself (elsewhere you can still scroll)
+    if (event.cancelable && (timerStatus === "Start" || event.target.closest(".timer-display"))) event.preventDefault();
 
     //start or stop timer depending on value of timerStatus
     if (timerStatus === "Stop") {
@@ -1460,10 +1505,10 @@ function handleTouchEnd(event) {
         return;
     }
 
-    if (event.target.tagName === "BUTTON") {
-        // do nothing if again button clicked
-        return;
-    }
+    if (event.target.closest("button, a, input, select, textarea, label")) return;
+
+    // Anything a long press managed to select anyway
+    try { if (window.getSelection) window.getSelection().removeAllRanges(); } catch (e) {}
 
     timerRef.style.color = "";
 
@@ -2511,15 +2556,14 @@ function renderLearnCard(caseObj, q) {
     if (!box || !learnMode) return;
     renderLearnCounts();
 
-    // While the user hasn't rated the case they just solved, hide the upcoming
-    // case card entirely so they can't peek at the next one.
+    // While you rate the case you just solved, the card shows that case and its
+    // alg (not the next one, so you can't peek). Rating it brings up the next.
     var awaitingRating = !!(learnPending && !learnPending.saved);
+    box.hidden = false;
     if (awaitingRating) {
-        box.hidden = true;
+        renderJustSolvedCard(box, learnPending.caseObj);
         return;
     }
-
-    box.hidden = false;
 
     if (!caseObj) {
         var waiting = q && q.waitingUntil;
@@ -2566,6 +2610,35 @@ function renderLearnCard(caseObj, q) {
             : algHtml);
     rotateLearnImage(caseObj);
     updateContinuousHint();
+}
+
+// The card while you rate: the case you just did, its picture and your main
+// alg (with the AUF for the scramble you had)
+function renderJustSolvedCard(box, caseObj) {
+    if (!caseObj) { box.hidden = true; return; }
+    var algs = caseObj.getAlgsArray() || [];
+    var main = algs[getMainAlgIndex(caseObj)] || algs[0];
+    var algHtml = '<p class="learn-card-text">No alg saved for this case yet.</p>';
+    if (main) {
+        var setup = displayedScramble || window.lastAttemptedScramble || "";
+        var a = window.AlgAuf && setup ? AlgAuf.adjust(setup, main) : { ok: false };
+        algHtml = '<div class="alg-text learn-alg">' + (a.ok
+            ? (a.pre ? '<span class="auf auf-pre">' + a.pre + "</span> " : "") +
+              '<span class="alg-core">' + escapeHtml(a.core) + "</span>" +
+              (a.post ? ' <span class="auf auf-post">' + a.post + "</span>" : "")
+            : escapeHtml(main)) + "</div>";
+    }
+    var img = caseObj.getImg ? caseObj.getImg() : "";
+    box.className = "learn-card is-rating";
+    box.innerHTML =
+        '<div class="learn-card-head">' +
+        '<span class="learn-badge">Just solved</span>' +
+        '<span class="learn-card-name">' + escapeHtml(caseObj.getName()) + "</span>" +
+        "</div>" +
+        '<div class="learn-new">' +
+        (img ? '<img class="learn-new-img" src="' + encodeURI(img) + '" alt="">' : "") +
+        "<div>" + algHtml + '<p class="learn-card-text">How well did you know it? Rate it below to get the next case.</p></div></div>';
+    rotateLearnImage(caseObj);
 }
 
 function rotateLearnImage(caseObj) {
@@ -2623,6 +2696,7 @@ function onLearnAttempt(caseObj, entry) {
     renderLearnRating();
     renderLearnCounts();
     updateRatingGate();
+    renderLearnCard(learnUpcoming && learnUpcoming.caseObj);
 }
 
 // Learning mode: you rate each case before the next one. Until then the next
@@ -2717,7 +2791,8 @@ function renderLearnRating() {
     box.classList.toggle("is-waiting", !p.saved);
     if (p.saved) box.classList.remove("needs-rating");
     box.innerHTML =
-        (caseName ? '<div class="rate-case-name">' + escapeHtml(caseName) + "</div>" : "") +
+        // The case is on the card above while you rate; after that, name it here
+        (caseName && p.saved ? '<div class="rate-case-name">' + escapeHtml(caseName) + "</div>" : "") +
         '<label>' + (p.saved ? "How well did you know it?" : "How well did you know it? Rate it to go on") + "</label>" +
         '<div class="rate-row">' + buttons + "</div>" +
         '<p class="rate-note">' + note + "</p>";
