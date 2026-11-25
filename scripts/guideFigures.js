@@ -191,4 +191,15 @@
     // Pages live in guide/, so the trainer's pictures are one folder up
     var base = /\/guide\//.test(location.pathname) ? "../" : "";
     document.querySelectorAll(".cube-fig").forEach(function (el) { render(el, base); });
+
+    // Also used by the BH trainer (bh.html)
+    window.GuideFigures = {
+        SHOW: SHOW,
+        COLOURS: { grey: GREY, yellow: YELLOW, green: GREEN, blue: BLUE, red: RED, orange: ORANGE },
+        parseCase: parseCase,
+        loadCase: function (key) { return loadCase(key, base); },
+        bhStickers: bhStickers,
+        draw2D: draw2D,
+        draw3D: draw3D,
+    };
 })();
