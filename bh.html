@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BH trainer | ZBTrain</title>
+  <meta name="description" content="Train BH recognition for ZBLL: see only the BH stickers and name the pattern, or pick which case of a subset it is.">
+
+  <link rel="icon" type="image/png" href="images/logo.png" sizes="72x72">
+  <link rel="stylesheet" href="styles/tokens.css">
+  <link rel="stylesheet" href="styles/base.css">
+  <link rel="stylesheet" href="styles/homepage.css">
+  <link rel="stylesheet" href="styles/learn.css">
+  <link rel="stylesheet" href="styles/sheets.css">
+  <link rel="stylesheet" href="styles/bh.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="brand-container">
+      <a href="index.html" class="brand-link" title="ZBTrain home"><img src="images/logo.png" alt="" class="logoimg"><span class="brand-text">ZBTrain</span></a>
+      <nav class="set-switch" aria-label="Algorithm set">
+        <a href="learn.html">Learn</a>
+        <a href="zbll.html">ZBLL</a>
+        <a href="zbls.html">ZBLS</a>
+        <a href="bh.html" aria-current="page">BH</a>
+        <a href="sheets.html">Sheets</a>
+        <a href="guide/index.html">Guide</a>
+      </nav>
+    </div>
+    <button type="button" id="darkModeToggle" class="btn btn-ghost btn-icon dark-mode-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode"></button>
+  </header>
+
+  <main class="learn bh">
+    <div class="learn-intro">
+      <h1>BH trainer</h1>
+      <p>Recognise ZBLL from the BH pattern alone: the top face, the front-right corner and the two edges beside it. Everything else is grey, so you can't fall back on blocks. New to BH? Read <a href="guide/recognition.html#bh">How BH works</a>.</p>
+    </div>
+
+    <section class="deck-card bh-stage" aria-labelledby="bhPrompt">
+      <div class="bh-top">
+        <div class="source-tabs" role="tablist" aria-label="Mode">
+          <button type="button" role="tab" class="source-tab" data-mode="name" aria-selected="true">Name</button>
+          <button type="button" role="tab" class="source-tab" data-mode="case" aria-selected="false">Case</button>
+          <button type="button" role="tab" class="source-tab" data-mode="story" aria-selected="false">Story</button>
+          <button type="button" role="tab" class="source-tab" data-mode="pattern" aria-selected="false">By pattern</button>
+        </div>
+        <p class="bh-stats" id="bhStats" aria-live="polite"></p>
+      </div>
+
+      <div class="bh-subset" id="bhSubsetRow" hidden>
+        <label class="field field-inline">
+          <span>Set</span>
+          <select id="bhSet" class="input"></select>
+        </label>
+        <label class="field field-inline">
+          <span>Subset</span>
+          <select id="bhSub" class="input"></select>
+        </label>
+        <label class="field field-inline" id="bhAngleField">
+          <span>Angle</span>
+          <select id="bhAngle" class="input">
+            <option value="picture">Case picture</option>
+            <option value="standard">Standard angle</option>
+            <option value="any">Any angle</option>
+          </select>
+        </label>
+      </div>
+
+      <h2 class="section-title bh-prompt" id="bhPrompt">Which BH pattern is this?</h2>
+
+      <div class="bh-question">
+        <div class="bh-picture" id="bhPicture" role="img" aria-label="BH pattern"></div>
+        <div class="bh-story" id="bhStory" hidden></div>
+      </div>
+
+      <p class="bh-scramble" id="bhScramble" hidden></p>
+      <div class="bh-reveal" id="bhRevealBox" hidden></div>
+
+      <p class="bh-feedback" id="bhFeedback" role="status"></p>
+
+      <div class="bh-actions">
+        <button type="button" class="btn btn-secondary" id="bhReveal" hidden>Show answer <kbd>Enter</kbd></button>
+        <div class="bh-grade" id="bhGrade" hidden>
+          <button type="button" class="btn btn-secondary" id="bhKnew">I knew it</button>
+          <button type="button" class="btn btn-secondary" id="bhMissed">I didn't</button>
+        </div>
+      </div>
+
+      <form class="bh-type" id="bhTypeForm" autocomplete="off">
+        <label class="visually-hidden" for="bhTyped">Type the name</label>
+        <input type="text" id="bhTyped" class="input input-mono" placeholder="Type the name, e.g. CsA" spellcheck="false" autocapitalize="off">
+        <button type="submit" class="btn btn-secondary">Check</button>
+      </form>
+
+      <div class="bh-answers" id="bhAnswers" role="group" aria-label="Answers"></div>
+
+      <div class="bh-actions">
+        <button type="button" class="btn btn-primary" id="bhNext">Next <kbd>Enter</kbd></button>
+        <button type="button" class="btn btn-ghost" id="bhResetStats">Reset score</button>
+      </div>
+
+      <!-- By pattern: the 36 front-right patterns as presets -->
+      <div class="bh-pattern" id="bhPatternPanel" hidden>
+        <div class="bh-subset">
+          <div class="bh-chips" id="bhPSets" role="group" aria-label="Sets"></div>
+        </div>
+        <div class="bh-subset">
+          <label class="field field-inline">
+            <span>Angles</span>
+            <select id="bhPAngles" class="input">
+              <option value="all">All 4 angles</option>
+              <option value="standard">Standard angles</option>
+            </select>
+          </label>
+          <label class="field field-inline">
+            <span>Show</span>
+            <select id="bhPView" class="input">
+              <option value="two">Two sides (front and right)</option>
+              <option value="bh">BH stickers only</option>
+              <option value="whole">Whole last layer</option>
+            </select>
+          </label>
+        </div>
+        <details class="bh-p-details" open>
+          <summary>Front-right patterns <span class="bh-p-count" id="bhPCount"></span></summary>
+          <p class="setting-hint">Each pattern is the front-right corner with the front and right edges. Pick the ones to train: you get every ZBLL, at every angle you chose, that shows one of them. Under each pattern: how many case angles have it, and how often you got it right.</p>
+          <div class="bh-actions">
+            <button type="button" class="btn btn-ghost" id="bhPAll">Select all 36</button>
+            <button type="button" class="btn btn-ghost" id="bhPNone">Clear</button>
+          </div>
+          <div id="bhPGrid"></div>
+        </details>
+      </div>
+
+      <!-- Case mode: solve it on the virtual cube or a smart cube -->
+      <div class="bh-cube" id="bhCubePanel" hidden>
+        <label class="check-inline">
+          <input type="checkbox" class="switch" id="bhUseCube"> Solve it on the virtual cube or a smart cube
+        </label>
+        <div class="bh-cube-body" id="bhCubeBody" hidden>
+          <p class="setting-hint">The cube is set to the case in the picture, so you don't need to scramble. Solve it with your alg: a solve counts as a right answer. Keyboard turning uses your <a href="controls.html">trainer keybinds</a>.</p>
+          <div class="bh-cube-wrap">
+            <div id="virtualCubeContainer">
+              <canvas id="canvas" width="400" height="300"></canvas>
+            </div>
+            <div class="bh-cube-cover" id="bhCubeCover">
+              <span>Cube hidden until you answer</span>
+              <button type="button" class="btn btn-secondary" id="bhShowCube">Show cube</button>
+            </div>
+          </div>
+          <div class="bh-actions">
+            <button type="button" class="btn btn-secondary" id="bhResetCube">Reset case</button>
+            <label class="check-inline">
+              <input type="checkbox" id="bhHideCube" checked> Hide the cube until I answer
+            </label>
+          </div>
+          <section class="bh-smart" id="smartCubeSection">
+            <div class="smart-status">
+              <span class="smart-dot" id="smartCubeDot" aria-hidden="true"></span>
+              <span id="smartCubeStatus">Not connected</span>
+            </div>
+            <div class="bh-smart-row">
+              <button type="button" class="btn btn-secondary" id="smartCubeConnect"><span>Connect smart cube</span></button>
+              <label class="field field-inline">
+                <span>Grip</span>
+                <select id="smartCubeGrip" class="input">
+                  <option value="auto">Same as screen</option>
+                </select>
+              </label>
+            </div>
+            <p class="setting-hint" id="smartCubeHint">Solve on your smart cube; it turns the case on screen. Works in Chrome or Edge.</p>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <section class="deck-card" aria-labelledby="bhSettingsTitle">
+      <h2 class="section-title" id="bhSettingsTitle">Settings</h2>
+      <div class="bh-settings">
+        <label class="field field-inline">
+          <span>Picture</span>
+          <select id="bhView" class="input">
+            <option value="3d">3D (front and right)</option>
+            <option value="2d">Top view</option>
+          </select>
+        </label>
+        <label class="check-inline" id="bhTwistRow">
+          <input type="checkbox" id="bhTwist"> Name mode: include twisted corners
+        </label>
+        <label class="field field-inline" id="bhAnswerStyleRow">
+          <span>Case mode answers</span>
+          <select id="bhAnswerStyle" class="input">
+            <option value="pictures">Case pictures</option>
+            <option value="names">Case names</option>
+          </select>
+        </label>
+      </div>
+
+      <details class="bh-rename">
+        <summary>Rename the 12 patterns</summary>
+        <p class="setting-hint">Use whatever names you learnt the patterns by. They're saved in this browser and used in Name and Story mode.</p>
+        <div class="bh-rename-grid" id="bhRenameGrid"></div>
+        <button type="button" class="btn btn-ghost" id="bhRenameReset">Back to the default names</button>
+      </details>
+    </section>
+
+    <section class="deck-card bh-help" aria-labelledby="bhHelpTitle">
+      <h2 class="section-title" id="bhHelpTitle">The modes</h2>
+      <ul>
+        <li><strong>Name:</strong> a random BH pattern. Click its picture or type its name.</li>
+        <li><strong>Case:</strong> pick a subset (one COLL). You see one of its cases at the angle of its case picture, with only the BH stickers, and pick which case it is.</li>
+        <li><strong>Angles:</strong> your standard angle is: T and U with the oriented corners in front; L with the oriented corner front-right and the other front corner's yellow facing you; Sune and Antisune with the oriented corner front-right; H and Pi with "chameleon eyes", the front corners' yellow facing left and right. H has two such angles. "Any angle" asks from all 4.</li>
+        <li><strong>By pattern:</strong> use the 36 front-right patterns (12 patterns, each with the corner oriented or twisted either way) as presets. You get every ZBLL, at your standard angles or all 4, that shows a pattern you picked, and you recognise it from two sides. Solve it on the virtual cube or a smart cube, or use the scramble on a real cube, then show the answer.</li>
+        <li><strong>Story:</strong> a whole ZBLL. Name the BH pattern at each corner, going round anticlockwise from the front-right corner (front-right, back-right, back-left, front-left). Look at each corner as if it were in front-right.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-row">
+      <a href="index.html" class="footer-link">Home</a>
+      <span class="footer-separator" aria-hidden="true">·</span>
+      <a href="guide/recognition.html#bh-patterns" class="footer-link">The 12 BH patterns</a>
+    </div>
+  </footer>
+
+  <script src="scripts/scrambles.js"></script>
+  <script src="scripts/algorithms.js"></script>
+  <script src="scripts/cubeGoals.js"></script>
+  <script src="scripts/cube.js"></script>
+  <script src="scripts/cube3x3.js"></script>
+  <script src="scripts/cubeViews.js"></script>
+  <script src="scripts/virtualCubeEmbed.js"></script>
+  <script src="scripts/algAuf.js"></script>
+  <script src="scripts/guideFigures.js"></script>
+  <script src="scripts/bh.js"></script>
+  <script type="module" src="scripts/smartCube.js"></script>
+  <script src="scripts/darkmode.js"></script>
+</body>
+</html>
