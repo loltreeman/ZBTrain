@@ -2030,6 +2030,8 @@ function beginSolve(isVirtualOn) {
     timerStatus = "Start";
     awaitingNext = false;
     revealed = true;
+    // Recall mode with a set time: the case greys out that long from now
+    if (isVirtualOn) scheduleRecallFlash();
     updateContinuousHint();
 }
 
@@ -3470,17 +3472,52 @@ document.addEventListener("cubeAUFMove", function (e) {
             '<span class="split-divider">|</span>' +
             '<span class="split-item split-exec is-pending">Waiting for alg</span>';
     }
-
-    var recallCheckbox = document.getElementById("recallModeCheckbox");
-    if (recallCheckbox && recallCheckbox.checked && !recallMaskApplied) {
-        applyRecallMask();
-        var banner = document.getElementById("recallBanner");
-        if (banner) {
-            banner.style.display = "flex";
-            banner.style.opacity = "1";
-        }
-    }
+    // Recall mode: a U turn is still recognising (looking from another side),
+    // so the stickers stay until the first move of the alg (cubeFirstMove)
 });
+
+// ── Recall mode: hide the case after a set time ─────────────────────────
+// "first" (default): when you make your first alg move. A number of ms: that
+// long after the case appears on the cube, like a flash card.
+var recallFlashTimeout = null;
+
+function recallHideAfter() {
+    var v = localStorage.getItem("recallHideAfter") || "first";
+    return v === "first" ? null : parseInt(v, 10) || null;
+}
+
+function showRecallBanner() {
+    var banner = document.getElementById("recallBanner");
+    if (banner) {
+        banner.style.display = "flex";
+        banner.style.opacity = "1";
+    }
+}
+
+// Called when a new case is put on the virtual cube (beginSolve)
+function scheduleRecallFlash() {
+    if (recallFlashTimeout) { clearTimeout(recallFlashTimeout); recallFlashTimeout = null; }
+    var recallCheckbox = document.getElementById("recallModeCheckbox");
+    var ms = recallHideAfter();
+    if (!recallCheckbox || !recallCheckbox.checked || ms == null) return;
+    recallFlashTimeout = setTimeout(function () {
+        recallFlashTimeout = null;
+        if (timerStatus !== "Start" || recallMaskApplied) return;
+        applyRecallMask();
+        showRecallBanner();
+    }, ms);
+}
+
+(function () {
+    var sel = document.getElementById("recallHideAfterSelect");
+    if (!sel) return;
+    sel.value = localStorage.getItem("recallHideAfter") || "first";
+    if (!sel.value) sel.value = "first";
+    sel.addEventListener("change", function () {
+        localStorage.setItem("recallHideAfter", sel.value);
+        sel.blur();
+    });
+})();
 
 var recallCb = document.getElementById("recallModeCheckbox");
 if (recallCb) {
