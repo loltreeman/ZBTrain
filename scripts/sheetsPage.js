@@ -12,10 +12,33 @@
     }
 
     // "ZBLS-12-3" → "F2L 12-3", "ZBLS-FL-12-3" → "F2L 12-3 (FL)"
-    function caseLabel(key) {
-        var m = /^ZBLS-(?:(FL|BR|BL)-)?(\d+)-(\d+)$/.exec(key);
-        return m ? "F2L " + m[2] + "-" + m[3] + (m[1] ? " (" + m[1] + ")" : "") : key;
+    // "T-3-AsC" → "T-Top-AsC", "ZBLS-12-3" → "F2L 12-3"
+    function caseLabel(key) { return AlgSheets.caseName(key); }
+
+    // Case keys in the order ZBTrain lists them (T, U, L… then F2L 1, 2…)
+    var keyOrder = null;
+    function orderOf(key) {
+        if (!keyOrder) {
+            keyOrder = {};
+            Srs.deckCases("ZBLL").concat(Srs.deckCases("ZBLS")).forEach(function (c, i) { keyOrder[c.key] = i; });
+        }
+        var base = key.replace(/^ZBLS-(FL|BR|BL)-/, "ZBLS-");
+        var slot = { FL: 1, BR: 2, BL: 3 }[(/^ZBLS-(FL|BR|BL)-/.exec(key) || [])[1]] || 0;
+        return (keyOrder[base] != null ? keyOrder[base] : 1e5) + slot * 1e6;
     }
+
+    // [{ key, alg }] → one card per case for AlgSheets.exportExcelCards
+    function cardsFrom(pairs, statsOf) {
+        var by = {}, keys = [];
+        pairs.forEach(function (p) {
+            if (!by[p.key]) { by[p.key] = []; keys.push(p.key); }
+            if (by[p.key].indexOf(p.alg) < 0) by[p.key].push(p.alg);
+        });
+        keys.sort(function (a, b) { return orderOf(a) - orderOf(b); });
+        return keys.map(function (k) { return { key: k, algs: by[k], stats: statsOf ? statsOf(k) : null }; });
+    }
+
+    function excelError(e) { alert(e.message); }
 
     // ── Your sheets ─────────────────────────────────────────────────────
 
@@ -53,7 +76,7 @@
         });
         var rows = function () {
             var out = [["Case", "Alg", "Used by", "Reconstructions"]];
-            Object.keys(data).sort().forEach(function (key) {
+            Object.keys(data).sort(function (a, b) { return orderOf(a) - orderOf(b); }).forEach(function (key) {
                 AlgSheets.topAlgs(key).forEach(function (e) {
                     var names = [];
                     e.recons.forEach(function (r) { if (names.indexOf(r.name) < 0) names.push(r.name); });
@@ -63,7 +86,18 @@
             return out;
         };
         li.querySelector('[data-act="xlsx"]').addEventListener("click", function () {
-            AlgSheets.exportExcel(rows(), "Top_solvers_algs", "Top solvers").catch(function (e) { alert(e.message); });
+            var pairs = [], usedBy = {};
+            Object.keys(data).forEach(function (key) {
+                AlgSheets.topAlgs(key).forEach(function (e) {
+                    pairs.push({ key: key, alg: e.alg });
+                    e.recons.forEach(function (r) {
+                        var u = usedBy[key] || (usedBy[key] = []);
+                        if (u.indexOf(r.name) < 0) u.push(r.name);
+                    });
+                });
+            });
+            AlgSheets.exportExcelCards(cardsFrom(pairs, function (k) { return usedBy[k] ? "Used by " + usedBy[k].join(", ") : null; }),
+                "Top_solvers_algs", { title: "Top solvers' algs", subtitle: "Algs used in reconstructed solves, from reco.nz" }).catch(excelError);
         });
         li.querySelector('[data-act="csv"]').addEventListener("click", function () {
             AlgSheets.exportCSV(rows(), "Top_solvers_algs");
@@ -102,13 +136,17 @@
         });
         var rows = function () {
             var out = [["Case", "Alg"]];
-            Object.keys(b.algs || {}).sort().forEach(function (key) {
+            Object.keys(b.algs || {}).sort(function (a, b) { return orderOf(a) - orderOf(b); }).forEach(function (key) {
                 b.algs[key].forEach(function (a) { out.push([caseLabel(key), a]); });
             });
             return out;
         };
         li.querySelector('[data-act="xlsx"]').addEventListener("click", function () {
-            AlgSheets.exportExcel(rows(), fileName(b.name), b.name.slice(0, 30)).catch(function (e) { alert(e.message); });
+            var pairs = [];
+            Object.keys(b.algs || {}).forEach(function (key) {
+                b.algs[key].forEach(function (a) { pairs.push({ key: key, alg: a }); });
+            });
+            AlgSheets.exportExcelCards(cardsFrom(pairs), fileName(b.name), { title: b.name, subtitle: "By " + b.by }).catch(excelError);
         });
         li.querySelector('[data-act="csv"]').addEventListener("click", function () {
             AlgSheets.exportCSV(rows(), fileName(b.name));
@@ -169,7 +207,9 @@
 
     function sheetRows(s) {
         var rows = [["Case", "Alg"]];
-        (s.entries || []).forEach(function (e) { rows.push([caseLabel(e.key), e.alg]); });
+        cardsFrom(s.entries || []).forEach(function (c) {
+            c.algs.forEach(function (a) { rows.push([caseLabel(c.key), a]); });
+        });
         return rows;
     }
 
@@ -185,7 +225,7 @@
         } else if (act === "csv") {
             AlgSheets.exportCSV(sheetRows(s), fileName(s.name));
         } else if (act === "xlsx") {
-            AlgSheets.exportExcel(sheetRows(s), fileName(s.name), s.name).catch(function (e) { alert(e.message); });
+            AlgSheets.exportExcelCards(cardsFrom(s.entries || []), fileName(s.name), { title: s.name }).catch(excelError);
         } else if (act === "refresh") {
             btn.disabled = true;
             btn.textContent = "Refreshing…";
@@ -328,6 +368,8 @@
         var deck = $("exportDeck").value;
         var all = $("exportWhich").value === "all";
         var withSheets = $("exportSheets").checked;
+        var withStats = $("exportStats").checked;
+        var stats = withStats ? AlgSheets.caseStats() : {};
         var cases = Srs.deckCases(deck);
         var rows = [];
         var width = 1;
@@ -339,15 +381,24 @@
             var main = algs[mainIdx] || algs[0] || "";
             var list = all ? [main].concat(algs.filter(function (a, i) { return i !== mainIdx && a !== main; })) : [main];
             width = Math.max(width, list.length);
-            rows.push({ c: c, algs: list });
+            rows.push({ c: c, name: caseLabel(key), algs: list, stats: stats[key] || null });
         });
         var header = ["Case"];
+        if (withStats) header.push("Solves", "Avg (s)", "Best (s)", "Recognition (s)", "Execution (s)", "TPS", "DNFs", "Last solve");
         for (var i = 0; i < width; i++) header.push(width === 1 ? "Alg" : i === 0 ? "Main alg" : "Alg " + (i + 1));
+        function num(v, d) { return v == null ? "" : Number(v.toFixed(d)); }
         return {
             deck: deck,
             all: all,
+            withStats: withStats,
             items: rows,
-            table: [header].concat(rows.map(function (r) { return [r.c.name].concat(r.algs); })),
+            table: [header].concat(rows.map(function (r) {
+                var st = r.stats || {};
+                var cells = [r.name];
+                if (withStats) cells.push(st.solves || 0, num(st.avg, 2), num(st.best, 2), num(st.recog, 2), num(st.exec, 2),
+                    num(st.tps, 1), st.dnfs || 0, st.last ? st.last.slice(0, 10) : "");
+                return cells.concat(r.algs);
+            })),
         };
     }
 
@@ -363,7 +414,16 @@
     $("exportXlsx").addEventListener("click", function () {
         var d = exportData();
         exportStatus("Preparing Excel file…");
-        AlgSheets.exportExcel(d.table, exportName(d), d.deck).then(function () { exportStatus(""); })
+        var cards = d.items.map(function (r) {
+            return { key: r.c.key, img: r.c.img, algs: r.algs, stats: d.withStats ? (AlgSheets.statsText(r.stats) || "No solves yet") : null };
+        });
+        AlgSheets.exportExcelCards(cards, exportName(d), {
+            title: "ZBTrain · " + d.deck + " algs",
+            subtitle: (d.all ? "Main alg in bold, then your other algs." : "Your main alg for each case.") +
+                (d.withStats ? " Stats are your solves in the trainer, times in seconds." : "") +
+                " Exported " + new Date().toLocaleDateString() + ".",
+            boldFirst: d.all,
+        }).then(function () { exportStatus(""); })
             .catch(function (e) { exportStatus(e.message); });
     });
 
@@ -374,7 +434,8 @@
         if (!w) { exportStatus("Allow pop-ups for this page to export a PDF."); return; }
         var base = location.href.replace(/[^\/]*$/, "");
         var rows = d.items.map(function (r) {
-            return "<tr><td class=\"img\"><img src=\"" + esc(encodeURI(r.c.img)) + "\" alt=\"\"></td><td class=\"name\">" + esc(r.c.name) +
+            return "<tr><td class=\"img\"><img src=\"" + esc(encodeURI(r.c.img)) + "\" alt=\"\"></td><td class=\"name\">" + esc(r.name) +
+                (d.withStats && r.stats ? '<div class="stats">' + esc(AlgSheets.statsText(r.stats) || "") + "</div>" : "") +
                 "</td><td>" + r.algs.map(function (a, i) {
                     return '<div class="alg' + (i === 0 && d.all ? " main" : "") + '">' + esc(a) + "</div>";
                 }).join("") + "</td></tr>";
@@ -387,7 +448,7 @@
             "table{width:100%;border-collapse:collapse}" +
             "tr{break-inside:avoid}td{border-bottom:1px solid #ddd;padding:6px 8px;vertical-align:middle}" +
             "td.img{width:64px}td.img img{width:56px;height:56px;object-fit:contain}" +
-            "td.name{width:130px;font-weight:600}" +
+            "td.name{width:130px;font-weight:600}.stats{font-weight:400;font-size:11px;color:#666}" +
             ".alg{font-family:ui-monospace,Consolas,monospace;font-size:12px}.alg+.alg{color:#555}.alg.main{font-weight:700}" +
             "@page{margin:14mm}" +
             "</style></head><body><h1>ZBTrain · " + esc(d.deck) + " algs</h1><p>" +

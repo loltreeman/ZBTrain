@@ -515,7 +515,8 @@ function getRecordedSolve(peek) {
         var tok = AlgDetect.methodNotation[m.method];
         if (tok) out.push([tok, Math.max(0, Math.round(m.time - start))]);
     });
-    return out.length ? { setup: setup, moves: out } : null;
+    var source = moves.some(function (m) { return m.source === "smartcube"; }) ? "smart cube" : "virtual cube";
+    return out.length ? { setup: setup, moves: out, source: source } : null;
 }
 
 // Turns, TPS and fluidity for a case, plus where you struggle in your main alg
@@ -654,6 +655,8 @@ function logAttempt(caseObj, timeStr, result) {
 
     // Moves you did and when (for replays and TPS / fluidity stats)
     var recorded = getRecordedSolve();
+    // What you solved on: the timer only, the virtual cube or a smart cube
+    entry.input = recorded ? recorded.source : "timer";
     if (recorded) {
         entry.setup = recorded.setup;
         entry.moves = recorded.moves;
@@ -782,32 +785,63 @@ function exportAttemptsCsv() {
         alert("No attempts to export");
         return;
     }
+    // One row per solve, newest last. Case names are the ones ZBTrain shows
+    // ("T-Top-AsC", "F2L 12-3"); the case ID columns stay the same for scripts.
     var headers = [
-        "timestamp",
-        "set",
-        "subset",
-        "caseId",
-        "caseName",
-        "orientation",
-        "time",
-        "recogTime",
-        "execTime",
-        "result",
-        "solvedByVirtualCube",
+        "Date", "Time of day", "Set", "Case", "Group", "Case ID", "Slot", "Angle",
+        "Time (s)", "Recognition (s)", "Execution (s)", "Result", "Input",
+        "Turns", "TPS", "Fluidity (%)", "Pauses", "Longest pause (s)", "Corrections",
+        "What you did", "Setup",
     ];
-    var rows = attempts.map((a) =>
-        headers.map((h) => JSON.stringify(a[h] || "")).join(",")
-    );
+    function displayName(a) {
+        if (a.lsll) return "LSLL";
+        if (a.set && a.subset && a.caseId) {
+            var key = a.set + "-" + a.subset + "-" + a.caseId;
+            if (a.set === "ZBLS") return "F2L " + a.subset + "-" + a.caseId + (a.slot && a.slot !== "FR" ? " (" + a.slot + ")" : "");
+            if (window.ZbllSubsets) return a.set + "-" + ZbllSubsets.label(a.set, a.subset, 0) + "-" + a.caseId;
+            return key;
+        }
+        return a.caseName || "";
+    }
+    function group(a) {
+        if (a.set === "ZBLS") return "F2L " + a.subset;
+        if (a.set && a.subset) return a.set + " " + (window.ZbllSubsets ? ZbllSubsets.label(a.set, a.subset, 0) : a.subset);
+        return "";
+    }
+    function n(v, d) { return v == null || v === "" || isNaN(v) ? "" : Number(Number(v).toFixed(d)); }
+    function cell(v) {
+        v = v == null ? "" : String(v);
+        return /[",\n\r]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
+    }
+    var rows = attempts.map(function (a) {
+        var d = a.timestamp ? new Date(a.timestamp) : null;
+        var st = window.SolveStats && a.moves ? SolveStats.analyze(a) : null;
+        var did = "";
+        if (a.moves && window.AlgDetect && AlgDetect.detectNotation) {
+            try { did = AlgDetect.detectNotation(a.moves.map(function (m) { return m[0]; }), [], 0).cleaned; } catch (e) {}
+        }
+        // Older solves didn't save the input: moves mean a virtual or smart cube
+        var input = a.input || (a.moves ? "virtual or smart cube" : a.solvedByVirtualCube ? "virtual cube" : "timer");
+        return [
+            d ? d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0") : "",
+            d ? d.toTimeString().slice(0, 8) : "",
+            a.lsll ? "LSLL" : a.set === "ZBLS" ? "ZBLS" : a.set ? "ZBLL" : "",
+            displayName(a), group(a),
+            a.set && a.subset && a.caseId ? a.set + "-" + a.subset + "-" + a.caseId : "",
+            a.slot || "", a.orientation != null ? a.orientation : "",
+            n(a.time, 2), n(a.recogTime, 2), n(a.execTime, 2), a.result || "OK", input,
+            st ? st.turns : "", st ? n(st.tps, 2) : "", st ? Math.round(st.fluidity * 100) : "",
+            st ? st.pauses : "", st ? n(st.longestPause, 2) : "", st ? st.mistakes : "",
+            did, a.setup || "",
+        ].map(cell).join(",");
+    });
     rows.unshift(headers.join(","));
-    var csv = rows.join("\n");
-    var blob = new Blob([csv], { type: "text/csv" });
+    var csv = "﻿" + rows.join("\r\n"); // BOM so Excel reads it as UTF-8
+    var blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
     var url = URL.createObjectURL(blob);
     var a = document.createElement("a");
     a.href = url;
-    a.download =
-        "zbll_attempts_" +
-        new Date().toISOString().replace(/[:.]/g, "-") +
-        ".csv";
+    a.download = "ZBTrain_solves_" + new Date().toISOString().slice(0, 10) + ".csv";
     document.body.appendChild(a);
     a.click();
     a.remove();
