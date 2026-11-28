@@ -40,7 +40,7 @@
                 nav.appendChild(block);
             }
             var a = el("a", "docs-nav-link", p.title);
-            a.href = p.file;
+            a.href = p.file === "index.html" ? "./" : p.file;
             if (p === page) a.setAttribute("aria-current", "page");
             block.appendChild(a);
         });
@@ -54,7 +54,7 @@
     var crumbs = document.getElementById("docsBreadcrumb");
     if (crumbs) {
         crumbs.innerHTML =
-            '<a href="index.html">Guide</a><span aria-hidden="true">›</span>' +
+            '<a href="./">Guide</a><span aria-hidden="true">›</span>' +
             "<span>" + page.section + '</span><span aria-hidden="true">›</span>' +
             '<span aria-current="page">' + page.title + "</span>";
     }

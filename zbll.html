@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZBLL Trainer</title>
+    <title>ZBLL trainer: choose your cases | ZBTrain</title>
 
     <link rel="icon" type="image/png" href="images/logo.png" sizes="72x72">
     <link rel="stylesheet" href="styles/tokens.css">
@@ -12,12 +12,14 @@
     <link rel="stylesheet" href="styles/modal.css">
     <link rel="stylesheet" href="styles/player.css">
     <link rel="stylesheet" href="styles/caseInfo.css">
-  </head>
+  <meta name="description" content="Pick ZBLL cases by set and subset (T, U, L, H, Pi, Sune, Antisune) and drill them with a virtual cube or a smart cube.">
+  <link rel="canonical" href="https://zbtrain.vercel.app/zbll.html">
+</head>
   <body>
 
     <header class="site-header">
       <div class="brand-container">
-        <a href="index.html" class="brand-link" title="ZBTrain home"><img src="images/logo.png" alt="" class="logoimg"><span class="brand-text">ZBTrain</span></a>
+        <a href="./" class="brand-link" title="ZBTrain home"><img src="images/logo-64.png" alt="" class="logoimg" width="32" height="32"><span class="brand-text">ZBTrain</span></a>
         <nav class="set-switch" aria-label="Algorithm set">
           <a href="learn.html">Learn</a>
           <a href="zbll.html" aria-current="page">ZBLL</a>
@@ -25,7 +27,7 @@
           <a href="trainer.html?lsll">LSLL</a>
           <a href="bh.html">BH</a>
           <a href="sheets.html">Sheets</a>
-          <a href="guide/index.html">Guide</a>
+          <a href="guide/">Guide</a>
         </nav>
       </div>
       <button type="button" id="darkModeToggle" class="btn btn-ghost btn-icon dark-mode-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode"></button>
@@ -33,6 +35,7 @@
 
     <div class="layout">
       <main class="left-column">
+      <h1 class="visually-hidden">ZBLL trainer: choose your cases</h1>
 
         <!-- This container is purely for the T ZBLL set-->
         <div class="zbll-set-container" id="container-T">
@@ -60,13 +63,13 @@
                 <p class="orientation-label">Other angles</p>
                 <div class="orientation-options" id="orientations-T">
                   <button class="case-trigger" data-angle="90">
-                    <img src="svg/T.svg" style="transform: rotate(90deg)">
+                    <img src="svg/T.svg" alt="T OCLL shape turned 90°" style="transform: rotate(90deg)">
                   </button>
                   <button class="case-trigger" data-angle="180">
-                    <img src="svg/T.svg" style="transform: rotate(180deg)">
+                    <img src="svg/T.svg" alt="T OCLL shape turned 180°" style="transform: rotate(180deg)">
                   </button>
                   <button class="case-trigger" data-angle="270">
-                    <img src="svg/T.svg" style="transform: rotate(270deg)">
+                    <img src="svg/T.svg" alt="T OCLL shape turned 270°" style="transform: rotate(270deg)">
                   </button>
                 </div>
               </div>
@@ -77,7 +80,7 @@
               <div class="zbll-card" data-subset="2GLL">
                 <p class="subset-title">T – 2GLL</p>
                 <div class="main-image-container">
-                  <img src="svg/top/T-2GLL.svg" class="main-case-svg subset-orientation">
+                  <img src="svg/top/T-2GLL.svg" alt="T 2GLL ZBLL subset" class="main-case-svg subset-orientation">
                 </div>
               </div>
 
@@ -85,7 +88,7 @@
               <div class="zbll-card" data-subset="Diag">
                 <p class="subset-title">T – Diag</p>
                 <div class="main-image-container">
-                  <img src="svg/top/T-Diag.svg" class="main-case-svg subset-orientation">
+                  <img src="svg/top/T-Diag.svg" alt="T Diag ZBLL subset" class="main-case-svg subset-orientation">
                 </div>
               </div>
 
@@ -93,7 +96,7 @@
               <div class="zbll-card" data-subset="3">
                 <p class="subset-title">T – 3</p>
                 <div class="main-image-container">
-                  <img src="svg/top/T-3.svg" class="main-case-svg subset-orientation">
+                  <img src="svg/top/T-3.svg" alt="T 3 ZBLL subset" class="main-case-svg subset-orientation">
                 </div>
               </div>
 
@@ -101,7 +104,7 @@
               <div class="zbll-card" data-subset="4">
                 <p class="subset-title">T – 4</p>
                 <div class="main-image-container">
-                  <img src="svg/top/T-4.svg" class="main-case-svg subset-orientation">
+                  <img src="svg/top/T-4.svg" alt="T 4 ZBLL subset" class="main-case-svg subset-orientation">
                 </div>
               </div>
 
@@ -109,7 +112,7 @@
               <div class="zbll-card" data-subset="5">
                 <p class="subset-title">T – 5</p>
                 <div class="main-image-container">
-                  <img src="svg/top/T-5.svg" class="main-case-svg subset-orientation">
+                  <img src="svg/top/T-5.svg" alt="T 5 ZBLL subset" class="main-case-svg subset-orientation">
                 </div>
               </div>
 
@@ -117,7 +120,7 @@
               <div class="zbll-card" data-subset="6">
                 <p class="subset-title">T – 6</p>
                 <div class="main-image-container">
-                  <img src="svg/top/T-6.svg" class="main-case-svg subset-orientation">
+                  <img src="svg/top/T-6.svg" alt="T 6 ZBLL subset" class="main-case-svg subset-orientation">
                 </div>
               </div>
             
@@ -152,13 +155,13 @@
                 <p class="orientation-label">Other angles</p>
                 <div class="orientation-options" id="orientations-U">
                   <button class="case-trigger" data-angle="90">
-                    <img src="svg/U.svg" style="transform: rotate(90deg)">
+                    <img src="svg/U.svg" alt="U OCLL shape turned 90°" style="transform: rotate(90deg)">
                   </button>
                   <button class="case-trigger" data-angle="180">
-                    <img src="svg/U.svg" style="transform: rotate(180deg)">
+                    <img src="svg/U.svg" alt="U OCLL shape turned 180°" style="transform: rotate(180deg)">
                   </button>
                   <button class="case-trigger" data-angle="270">
-                    <img src="svg/U.svg" style="transform: rotate(270deg)">
+                    <img src="svg/U.svg" alt="U OCLL shape turned 270°" style="transform: rotate(270deg)">
                   </button>
                 </div>
               </div>
@@ -168,14 +171,14 @@
               <div class="zbll-card" data-subset="2GLL">
                 <p class="subset-title">U – 2GLL</p>
                 <div class="main-image-container">
-                  <img src="svg/top/U-2GLL.svg" class="main-case-svg subset-orientation">
+                  <img src="svg/top/U-2GLL.svg" alt="U 2GLL ZBLL subset" class="main-case-svg subset-orientation">
                 </div>
               </div>
 
               <div class="zbll-card" data-subset="Diag">
                 <p class="subset-title">U – Diag</p>
                 <div class="main-image-container">
-                  <img src="svg/top/U-Diag.svg" class="main-case-svg subset-orientation">
+                  <img src="svg/top/U-Diag.svg" alt="U Diag ZBLL subset" class="main-case-svg subset-orientation">
                 </div>
               </div>
 
@@ -183,7 +186,7 @@
               <div class="zbll-card" data-subset="3">
                 <p class="subset-title">U – 3</p>
                 <div class="main-image-container">
-                  <img src="svg/top/U-3.svg" class="main-case-svg subset-orientation">
+                  <img src="svg/top/U-3.svg" alt="U 3 ZBLL subset" class="main-case-svg subset-orientation">
                 </div>
               </div>
 
@@ -191,7 +194,7 @@
               <div class="zbll-card" data-subset="4">
                 <p class="subset-title">U – 4</p>
                 <div class="main-image-container">
-                  <img src="svg/top/U-4.svg" class="main-case-svg subset-orientation">
+                  <img src="svg/top/U-4.svg" alt="U 4 ZBLL subset" class="main-case-svg subset-orientation">
                 </div>
               </div>
 
@@ -199,7 +202,7 @@
               <div class="zbll-card" data-subset="5">
                 <p class="subset-title">U – 5</p>
                 <div class="main-image-container">
-                  <img src="svg/top/U-5.svg" class="main-case-svg subset-orientation">
+                  <img src="svg/top/U-5.svg" alt="U 5 ZBLL subset" class="main-case-svg subset-orientation">
                 </div>
               </div>
 
@@ -207,7 +210,7 @@
               <div class="zbll-card" data-subset="6">
                 <p class="subset-title">U – 6</p>
                 <div class="main-image-container">
-                  <img src="svg/top/U-6.svg" class="main-case-svg subset-orientation">
+                  <img src="svg/top/U-6.svg" alt="U 6 ZBLL subset" class="main-case-svg subset-orientation">
                 </div>
               </div>
 
@@ -241,13 +244,13 @@
                 <p class="orientation-label">Other angles</p>
                 <div class="orientation-options" id="orientations-L">
                   <button class="case-trigger" data-angle="90">
-                    <img src="svg/L.svg" style="transform: rotate(90deg)">
+                    <img src="svg/L.svg" alt="L OCLL shape turned 90°" style="transform: rotate(90deg)">
                   </button>
                   <button class="case-trigger" data-angle="180">
-                    <img src="svg/L.svg" style="transform: rotate(180deg)">
+                    <img src="svg/L.svg" alt="L OCLL shape turned 180°" style="transform: rotate(180deg)">
                   </button>
                   <button class="case-trigger" data-angle="270">
-                    <img src="svg/L.svg" style="transform: rotate(270deg)">
+                    <img src="svg/L.svg" alt="L OCLL shape turned 270°" style="transform: rotate(270deg)">
                   </button>
                 </div>
               </div>
@@ -257,14 +260,14 @@
               <div class="zbll-card" data-subset="2GLL">
                 <p class="subset-title">L – 2GLL</p>
                 <div class="main-image-container">
-                  <img src="svg/top/L-2GLL.svg" class="main-case-svg subset-orientation">
+                  <img src="svg/top/L-2GLL.svg" alt="L 2GLL ZBLL subset" class="main-case-svg subset-orientation">
                 </div>
               </div>
 
               <div class="zbll-card" data-subset="Diag">
                 <p class="subset-title">L – Diag</p>
                 <div class="main-image-container">
-                  <img src="svg/top/L-Diag.svg" class="main-case-svg subset-orientation">
+                  <img src="svg/top/L-Diag.svg" alt="L Diag ZBLL subset" class="main-case-svg subset-orientation">
                 </div>
               </div>
 
@@ -272,7 +275,7 @@
               <div class="zbll-card" data-subset="3">
                 <p class="subset-title">L – 3</p>
                 <div class="main-image-container">
-                  <img src="svg/top/L-3.svg" class="main-case-svg subset-orientation">
+                  <img src="svg/top/L-3.svg" alt="L 3 ZBLL subset" class="main-case-svg subset-orientation">
                 </div>
               </div>
 
@@ -280,7 +283,7 @@
               <div class="zbll-card" data-subset="4">
                 <p class="subset-title">L – 4</p>
                 <div class="main-image-container">
-                  <img src="svg/top/L-4.svg" class="main-case-svg subset-orientation">
+                  <img src="svg/top/L-4.svg" alt="L 4 ZBLL subset" class="main-case-svg subset-orientation">
                 </div>
               </div>
 
@@ -288,7 +291,7 @@
               <div class="zbll-card" data-subset="5">
                 <p class="subset-title">L – 5</p>
                 <div class="main-image-container">
-                  <img src="svg/top/L-5.svg" class="main-case-svg subset-orientation">
+                  <img src="svg/top/L-5.svg" alt="L 5 ZBLL subset" class="main-case-svg subset-orientation">
                 </div>
               </div>
 
@@ -296,7 +299,7 @@
               <div class="zbll-card" data-subset="6">
                 <p class="subset-title">L – 6</p>
                 <div class="main-image-container">
-                  <img src="svg/top/L-6.svg" class="main-case-svg subset-orientation">
+                  <img src="svg/top/L-6.svg" alt="L 6 ZBLL subset" class="main-case-svg subset-orientation">
                 </div>
               </div>
 
@@ -330,13 +333,13 @@
                 <p class="orientation-label">Other angles</p>
                 <div class="orientation-options" id="orientations-H">
                   <button class="case-trigger" data-angle="90">
-                    <img src="svg/H.svg" style="transform: rotate(90deg)">
+                    <img src="svg/H.svg" alt="H OCLL shape turned 90°" style="transform: rotate(90deg)">
                   </button>
                   <button class="case-trigger" data-angle="180">
-                    <img src="svg/H.svg" style="transform: rotate(180deg)">
+                    <img src="svg/H.svg" alt="H OCLL shape turned 180°" style="transform: rotate(180deg)">
                   </button>
                   <button class="case-trigger" data-angle="270">
-                    <img src="svg/H.svg" style="transform: rotate(270deg)">
+                    <img src="svg/H.svg" alt="H OCLL shape turned 270°" style="transform: rotate(270deg)">
                   </button>
                 </div>
               </div>
@@ -346,14 +349,14 @@
               <div class="zbll-card" data-subset="2GLL">
                 <p class="subset-title">H – 2GLL</p>
                 <div class="main-image-container">
-                  <img src="svg/top/H-2GLL.svg" class="main-case-svg subset-orientation">
+                  <img src="svg/top/H-2GLL.svg" alt="H 2GLL ZBLL subset" class="main-case-svg subset-orientation">
                 </div>
               </div>
 
               <div class="zbll-card" data-subset="Diag">
                 <p class="subset-title">H – Diag</p>
                 <div class="main-image-container">
-                  <img src="svg/top/H-Diag.svg" class="main-case-svg subset-orientation">
+                  <img src="svg/top/H-Diag.svg" alt="H Diag ZBLL subset" class="main-case-svg subset-orientation">
                 </div>
               </div>
 
@@ -361,7 +364,7 @@
               <div class="zbll-card" data-subset="3">
                 <p class="subset-title">H – 3</p>
                 <div class="main-image-container">
-                  <img src="svg/top/H-3.svg" class="main-case-svg subset-orientation">
+                  <img src="svg/top/H-3.svg" alt="H 3 ZBLL subset" class="main-case-svg subset-orientation">
                 </div>
               </div>
 
@@ -369,7 +372,7 @@
               <div class="zbll-card" data-subset="4">
                 <p class="subset-title">H – 4</p>
                 <div class="main-image-container">
-                  <img src="svg/top/H-4.svg" class="main-case-svg subset-orientation">
+                  <img src="svg/top/H-4.svg" alt="H 4 ZBLL subset" class="main-case-svg subset-orientation">
                 </div>
               </div>
 
@@ -403,13 +406,13 @@
                 <p class="orientation-label">Other angles</p>
                 <div class="orientation-options" id="orientations-Pi">
                   <button class="case-trigger" data-angle="90">
-                    <img src="svg/Pi.svg" style="transform: rotate(90deg)">
+                    <img src="svg/Pi.svg" alt="Pi OCLL shape turned 90°" style="transform: rotate(90deg)">
                   </button>
                   <button class="case-trigger" data-angle="180">
-                    <img src="svg/Pi.svg" style="transform: rotate(180deg)">
+                    <img src="svg/Pi.svg" alt="Pi OCLL shape turned 180°" style="transform: rotate(180deg)">
                   </button>
                   <button class="case-trigger" data-angle="270">
-                    <img src="svg/Pi.svg" style="transform: rotate(270deg)">
+                    <img src="svg/Pi.svg" alt="Pi OCLL shape turned 270°" style="transform: rotate(270deg)">
                   </button>
                 </div>
               </div>
@@ -419,14 +422,14 @@
               <div class="zbll-card" data-subset="2GLL">
                 <p class="subset-title">Pi – 2GLL</p>
                 <div class="main-image-container">
-                  <img src="svg/top/Pi-2GLL.svg" class="main-case-svg subset-orientation">
+                  <img src="svg/top/Pi-2GLL.svg" alt="Pi 2GLL ZBLL subset" class="main-case-svg subset-orientation">
                 </div>
               </div>
 
               <div class="zbll-card" data-subset="Diag">
                 <p class="subset-title">Pi – Diag</p>
                 <div class="main-image-container">
-                  <img src="svg/top/Pi-Diag.svg" class="main-case-svg subset-orientation">
+                  <img src="svg/top/Pi-Diag.svg" alt="Pi Diag ZBLL subset" class="main-case-svg subset-orientation">
                 </div>
               </div>
 
@@ -434,7 +437,7 @@
               <div class="zbll-card" data-subset="3">
                 <p class="subset-title">Pi – 3</p>
                 <div class="main-image-container">
-                  <img src="svg/top/Pi-3.svg" class="main-case-svg subset-orientation">
+                  <img src="svg/top/Pi-3.svg" alt="Pi 3 ZBLL subset" class="main-case-svg subset-orientation">
                 </div>
               </div>
 
@@ -442,7 +445,7 @@
               <div class="zbll-card" data-subset="4">
                 <p class="subset-title">Pi – 4</p>
                 <div class="main-image-container">
-                  <img src="svg/top/Pi-4.svg" class="main-case-svg subset-orientation">
+                  <img src="svg/top/Pi-4.svg" alt="Pi 4 ZBLL subset" class="main-case-svg subset-orientation">
                 </div>
               </div>
 
@@ -450,7 +453,7 @@
               <div class="zbll-card" data-subset="5">
                 <p class="subset-title">Pi – 5</p>
                 <div class="main-image-container">
-                  <img src="svg/top/Pi-5.svg" class="main-case-svg subset-orientation">
+                  <img src="svg/top/Pi-5.svg" alt="Pi 5 ZBLL subset" class="main-case-svg subset-orientation">
                 </div>
               </div>
 
@@ -458,7 +461,7 @@
               <div class="zbll-card" data-subset="6">
                 <p class="subset-title">Pi – 6</p>
                 <div class="main-image-container">
-                  <img src="svg/top/Pi-6.svg" class="main-case-svg subset-orientation">
+                  <img src="svg/top/Pi-6.svg" alt="Pi 6 ZBLL subset" class="main-case-svg subset-orientation">
                 </div>
               </div>
 
@@ -492,13 +495,13 @@
                 <p class="orientation-label">Other angles</p>
                 <div class="orientation-options" id="orientations-Sune">
                   <button class="case-trigger" data-angle="90">
-                    <img src="svg/S.svg" style="transform: rotate(90deg)">
+                    <img src="svg/S.svg" alt="Sune OCLL shape turned 90°" style="transform: rotate(90deg)">
                   </button>
                   <button class="case-trigger" data-angle="180">
-                    <img src="svg/S.svg" style="transform: rotate(180deg)">
+                    <img src="svg/S.svg" alt="Sune OCLL shape turned 180°" style="transform: rotate(180deg)">
                   </button>
                   <button class="case-trigger" data-angle="270">
-                    <img src="svg/S.svg" style="transform: rotate(270deg)">
+                    <img src="svg/S.svg" alt="Sune OCLL shape turned 270°" style="transform: rotate(270deg)">
                   </button>
                 </div>
               </div>
@@ -508,14 +511,14 @@
               <div class="zbll-card" data-subset="2GLL">
                 <p class="subset-title">Sune – 2GLL</p>
                 <div class="main-image-container">
-                  <img src="svg/top/Sune-2GLL.svg" class="main-case-svg subset-orientation">
+                  <img src="svg/top/Sune-2GLL.svg" alt="Sune 2GLL ZBLL subset" class="main-case-svg subset-orientation">
                 </div>
               </div>
 
               <div class="zbll-card" data-subset="Diag">
                 <p class="subset-title">Sune – Diag</p>
                 <div class="main-image-container">
-                  <img src="svg/top/Sune-Diag.svg" class="main-case-svg subset-orientation">
+                  <img src="svg/top/Sune-Diag.svg" alt="Sune Diag ZBLL subset" class="main-case-svg subset-orientation">
                 </div>
               </div>
 
@@ -523,7 +526,7 @@
               <div class="zbll-card" data-subset="3">
                 <p class="subset-title">Sune – 3</p>
                 <div class="main-image-container">
-                  <img src="svg/top/Sune-3.svg" class="main-case-svg subset-orientation">
+                  <img src="svg/top/Sune-3.svg" alt="Sune 3 ZBLL subset" class="main-case-svg subset-orientation">
                 </div>
               </div>
 
@@ -531,7 +534,7 @@
               <div class="zbll-card" data-subset="4">
                 <p class="subset-title">Sune – 4</p>
                 <div class="main-image-container">
-                  <img src="svg/top/Sune-4.svg" class="main-case-svg subset-orientation">
+                  <img src="svg/top/Sune-4.svg" alt="Sune 4 ZBLL subset" class="main-case-svg subset-orientation">
                 </div>
               </div>
 
@@ -539,7 +542,7 @@
               <div class="zbll-card" data-subset="5">
                 <p class="subset-title">Sune – 5</p>
                 <div class="main-image-container">
-                  <img src="svg/top/Sune-5.svg" class="main-case-svg subset-orientation">
+                  <img src="svg/top/Sune-5.svg" alt="Sune 5 ZBLL subset" class="main-case-svg subset-orientation">
                 </div>
               </div>
 
@@ -547,7 +550,7 @@
               <div class="zbll-card" data-subset="6">
                 <p class="subset-title">Sune – 6</p>
                 <div class="main-image-container">
-                  <img src="svg/top/Sune-6.svg" class="main-case-svg subset-orientation">
+                  <img src="svg/top/Sune-6.svg" alt="Sune 6 ZBLL subset" class="main-case-svg subset-orientation">
                 </div>
               </div>
 
@@ -581,13 +584,13 @@
                 <p class="orientation-label">Other angles</p>
                 <div class="orientation-options" id="orientations-U">
                   <button class="case-trigger" data-angle="90">
-                    <img src="svg/aS.svg" style="transform: rotate(90deg)">
+                    <img src="svg/aS.svg" alt="Antisune OCLL shape turned 90°" style="transform: rotate(90deg)">
                   </button>
                   <button class="case-trigger" data-angle="180">
-                    <img src="svg/aS.svg" style="transform: rotate(180deg)">
+                    <img src="svg/aS.svg" alt="Antisune OCLL shape turned 180°" style="transform: rotate(180deg)">
                   </button>
                   <button class="case-trigger" data-angle="270">
-                    <img src="svg/aS.svg" style="transform: rotate(270deg)">
+                    <img src="svg/aS.svg" alt="Antisune OCLL shape turned 270°" style="transform: rotate(270deg)">
                   </button>
                 </div>
               </div>
@@ -597,14 +600,14 @@
               <div class="zbll-card" data-subset="2GLL">
                 <p class="subset-title">Antisune – 2GLL</p>
                 <div class="main-image-container">
-                  <img src="svg/top/Antisune-2GLL.svg" class="main-case-svg subset-orientation">
+                  <img src="svg/top/Antisune-2GLL.svg" alt="Antisune 2GLL ZBLL subset" class="main-case-svg subset-orientation">
                 </div>
               </div>
 
               <div class="zbll-card" data-subset="Diag">
                 <p class="subset-title">Antisune – Diag</p>
                 <div class="main-image-container">
-                  <img src="svg/top/Antisune-Diag.svg" class="main-case-svg subset-orientation">
+                  <img src="svg/top/Antisune-Diag.svg" alt="Antisune Diag ZBLL subset" class="main-case-svg subset-orientation">
                 </div>
               </div>
 
@@ -612,7 +615,7 @@
               <div class="zbll-card" data-subset="3">
                 <p class="subset-title">Antisune – 3</p>
                 <div class="main-image-container">
-                  <img src="svg/top/Antisune-3.svg" class="main-case-svg subset-orientation">
+                  <img src="svg/top/Antisune-3.svg" alt="Antisune 3 ZBLL subset" class="main-case-svg subset-orientation">
                 </div>
               </div>
 
@@ -620,7 +623,7 @@
               <div class="zbll-card" data-subset="4">
                 <p class="subset-title">Antisune – 4</p>
                 <div class="main-image-container">
-                  <img src="svg/top/Antisune-4.svg" class="main-case-svg subset-orientation">
+                  <img src="svg/top/Antisune-4.svg" alt="Antisune 4 ZBLL subset" class="main-case-svg subset-orientation">
                 </div>
               </div>
 
@@ -628,7 +631,7 @@
               <div class="zbll-card" data-subset="5">
                 <p class="subset-title">Antisune – 5</p>
                 <div class="main-image-container">
-                  <img src="svg/top/Antisune-5.svg" class="main-case-svg subset-orientation">
+                  <img src="svg/top/Antisune-5.svg" alt="Antisune 5 ZBLL subset" class="main-case-svg subset-orientation">
                 </div>
               </div>
 
@@ -636,7 +639,7 @@
               <div class="zbll-card" data-subset="6">
                 <p class="subset-title">Antisune – 6</p>
                 <div class="main-image-container">
-                  <img src="svg/top/Antisune-6.svg" class="main-case-svg subset-orientation">
+                  <img src="svg/top/Antisune-6.svg" alt="Antisune 6 ZBLL subset" class="main-case-svg subset-orientation">
                 </div>
               </div>
 
