@@ -2933,8 +2933,6 @@ function getAlgList() {
     }
 
     var mainIdx = getMainAlgIndex(currentlyDisplayedCase);
-    // Algs from your list can be removed; ones from alg sheets come and go with the sheet
-    var ownCount = ((currentlyDisplayedCase.getOwnAlgs || currentlyDisplayedCase.getAlgsArray).call(currentlyDisplayedCase) || []).length;
     var detected = getDetectedAlg(algs, mainIdx);
     var usedIdx = detected ? detected.result.index : -1;
 
@@ -2980,11 +2978,9 @@ function getAlgList() {
                 '<button class="alg-note-btn" onclick="handleToggleNote(' +
                 item.idx +
                 ')" title="Note" aria-label="Note"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg></button>' +
-                (item.idx < ownCount
-                    ? '<button class="alg-remove-btn" onclick="handleRemoveAlg(' +
-                      item.idx +
-                      ')" title="Remove" aria-label="Remove this algorithm"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v6M14 11v6"/></svg></button>'
-                    : "") +
+                '<button class="alg-remove-btn" onclick="handleRemoveAlg(' +
+                item.idx +
+                ')" title="Remove" aria-label="Remove this algorithm"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v6M14 11v6"/></svg></button>' +
                 "</div>" +
                 renderAdjustedAlg(item.alg, item.idx) +
                 '<div class="alg-note-row" id="alg-note-row-' +
@@ -3010,7 +3006,22 @@ function getAlgList() {
 }
 
 function addAlgButton() {
-    return '<button type="button" class="alg-add-btn" onclick="handleAddAlg()">+ Add your own alg</button>';
+    var hidden = currentlyDisplayedCase && window.AlgSheets && AlgSheets.hiddenCount
+        ? AlgSheets.hiddenCount(caseStoreKey(currentlyDisplayedCase)) : 0;
+    return '<div class="alg-list-actions">' +
+        '<button type="button" class="alg-add-btn" onclick="handleAddAlg()">+ Add your own alg</button>' +
+        (hidden ? '<button type="button" class="alg-add-btn" onclick="handleShowHiddenAlgs()">Show ' +
+            hidden + " hidden alg" + (hidden === 1 ? "" : "s") + "</button>" : "") +
+        "</div>";
+}
+
+// Bring back the sheet and collection algs you hid for this case
+function handleShowHiddenAlgs() {
+    if (!currentlyDisplayedCase || !window.AlgSheets) return;
+    keepAlgsInPlace(currentlyDisplayedCase, -1, function () {
+        AlgSheets.unhideAll(caseStoreKey(currentlyDisplayedCase));
+    });
+    document.querySelector("#case-algs").innerHTML = getAlgList();
 }
 
 // Type in an alg of your own for this case. It's checked against the case
@@ -3056,31 +3067,57 @@ function handleAddAlg() {
     document.querySelector("#case-algs").innerHTML = getAlgList();
 }
 
-// Take an alg out of your list for this case. The main alg and the notes
-// stay with their algs as the ones below move up.
+// Take an alg out of the list for this case. One from your list is deleted;
+// one from an alg sheet or a built-in collection is hidden for this case
+// (bring it back with "Show hidden algs").
 function handleRemoveAlg(index) {
     if (!currentlyDisplayedCase) return;
     var c = currentlyDisplayedCase;
     var own = (c.getOwnAlgs || c.getAlgsArray).call(c) || [];
-    if (index < 0 || index >= own.length) return;
-    if (!confirm("Remove this alg from " + c.getName() + "?\n\n" + own[index])) return;
+    var all = c.getAlgsArray() || [];
+    if (index < 0 || index >= all.length) return;
+    var alg = all[index];
+    var caseKey = caseStoreKey(c);
 
+    if (index < own.length) {
+        if (!confirm("Remove this alg from " + c.getName() + "?\n\n" + alg)) return;
+        keepAlgsInPlace(c, index, function () {
+            var savedAlgs = JSON.parse(localStorage.getItem("customAlgs") || "{}");
+            savedAlgs[caseKey] = own.slice();
+            savedAlgs[caseKey].splice(index, 1);
+            localStorage.setItem("customAlgs", JSON.stringify(savedAlgs));
+            // The same alg in a sheet would now show up again: hide that too
+            if (window.AlgSheets && AlgSheets.hideAlg) {
+                AlgSheets.extraAlgs(caseKey, savedAlgs[caseKey]).forEach(function (a) {
+                    if (AlgSheets.sameAlg(a, alg)) AlgSheets.hideAlg(caseKey, a);
+                });
+            }
+        });
+    } else {
+        if (!window.AlgSheets || !AlgSheets.hideAlg) return;
+        var from = AlgSheets.sourceOf ? AlgSheets.sourceOf(caseKey, alg) : "";
+        if (!confirm("Hide this alg for " + c.getName() + "?\n\n" + alg + "\n\nIt comes from " +
+            (from || "your alg sheets or the top solvers' algs") +
+            ", so it's hidden rather than deleted. \"Show hidden algs\" under the list brings it back.")) return;
+        keepAlgsInPlace(c, index, function () { AlgSheets.hideAlg(caseKey, alg); });
+    }
+    document.querySelector("#case-algs").innerHTML = getAlgList();
+}
+
+// Change the case's alg list (change()), keeping the main alg and the notes
+// on the same algs as they move. removed: the index that goes away, or -1.
+function keepAlgsInPlace(c, removed, change) {
     var before = c.getAlgsArray() || [];
     var mainIdx = getMainAlgIndex(c);
-    var mainAlg = mainIdx === index ? null : before[mainIdx];
+    var mainAlg = mainIdx === removed ? null : before[mainIdx];
     var notes = before.map(function (a, i) { return getAlgNote(c, i); });
 
-    var caseKey = caseStoreKey(c);
-    var savedAlgs = JSON.parse(localStorage.getItem("customAlgs") || "{}");
-    savedAlgs[caseKey] = own.slice();
-    savedAlgs[caseKey].splice(index, 1);
-    localStorage.setItem("customAlgs", JSON.stringify(savedAlgs));
+    change();
 
-    // Put each note back on its alg at the alg's new place
     var after = c.getAlgsArray() || [];
     before.forEach(function (a, i) { localStorage.removeItem(getNoteKey(c, i)); });
     before.forEach(function (a, i) {
-        if (i === index || !notes[i]) return;
+        if (i === removed || !notes[i]) return;
         var j = after.indexOf(a);
         if (j >= 0) localStorage.setItem(getNoteKey(c, j), notes[i]);
     });
@@ -3088,8 +3125,6 @@ function handleRemoveAlg(index) {
     var newMain = mainAlg != null ? after.indexOf(mainAlg) : -1;
     if (newMain >= 0) setMainAlg(c, newMain);
     else localStorage.removeItem(getMainAlgKey(c));
-
-    document.querySelector("#case-algs").innerHTML = getAlgList();
 }
 
 function getNoteKey(caseObj, index) {

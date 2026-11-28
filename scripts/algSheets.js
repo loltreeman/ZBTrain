@@ -172,13 +172,44 @@
         return algId(a) === algId(b);
     }
 
+    // Sheet and collection algs you hid for one case: { caseKey: [alg, …] }
+    var HIDDEN_KEY = "hiddenSheetAlgs";
+
+    function hiddenMap() {
+        try { return JSON.parse(localStorage.getItem(HIDDEN_KEY)) || {}; } catch (e) { return {}; }
+    }
+
+    function hiddenAlgs(key) { return hiddenMap()[key] || []; }
+
+    function hideAlg(key, alg) {
+        var map = hiddenMap();
+        map[key] = (map[key] || []).concat([alg]);
+        try { localStorage.setItem(HIDDEN_KEY, JSON.stringify(map)); } catch (e) {}
+    }
+
+    function unhideAll(key) {
+        var map = hiddenMap();
+        delete map[key];
+        try { localStorage.setItem(HIDDEN_KEY, JSON.stringify(map)); } catch (e) {}
+    }
+
+    // How many of a case's sheet algs are hidden right now
+    function hiddenCount(key) {
+        var extra = sheetAlgs()[key] || [];
+        var hidden = hiddenAlgs(key);
+        return extra.filter(function (a) { return hidden.indexOf(a) >= 0; }).length;
+    }
+
     // Algs from your sheets for one case, leaving out ones you already have
+    // and ones you hid
     function extraAlgs(key, own) {
         var extra = sheetAlgs()[key];
         if (!extra || !extra.length) return [];
         var out = [];
         var have = (own || []).slice();
+        var hidden = hiddenAlgs(key);
         extra.forEach(function (a) {
+            if (hidden.indexOf(a) >= 0) return;
             if (have.some(function (b) { return sameAlg(a, b); })) return;
             have.push(a);
             out.push(a);
@@ -509,6 +540,9 @@
         update: update,
         remove: remove,
         extraAlgs: extraAlgs,
+        hideAlg: hideAlg,
+        unhideAll: unhideAll,
+        hiddenCount: hiddenCount,
         builtinLists: builtinLists,
         sourceOf: sourceOf,
         builtinOn: builtinOn,
