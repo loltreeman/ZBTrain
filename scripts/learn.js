@@ -129,7 +129,7 @@
         } else if (nothingYet && deck === "ZBLL") {
             card.appendChild(el("p", "path-hint",
                 'New to ZB? The beginner path picks your first cases for you, 3 a day, in the usual learning order. ' +
-                '<a href="guide/index.html">Read the guide</a> to see why.'));
+                '<a href="guide/">Read the guide</a> to see why.'));
         }
 
         // Progress

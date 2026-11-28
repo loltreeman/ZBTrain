@@ -12,12 +12,13 @@
   <link rel="stylesheet" href="styles/homepage.css">
   <link rel="stylesheet" href="styles/learn.css">
   <link rel="stylesheet" href="styles/sheets.css">
+  <link rel="canonical" href="https://zbtrain.vercel.app/sheets.html">
 </head>
 <body>
 
   <header class="site-header">
     <div class="brand-container">
-      <a href="index.html" class="brand-link" title="ZBTrain home"><img src="images/logo.png" alt="" class="logoimg"><span class="brand-text">ZBTrain</span></a>
+      <a href="./" class="brand-link" title="ZBTrain home"><img src="images/logo-64.png" alt="" class="logoimg" width="32" height="32"><span class="brand-text">ZBTrain</span></a>
       <nav class="set-switch" aria-label="Algorithm set">
         <a href="learn.html">Learn</a>
         <a href="zbll.html">ZBLL</a>
@@ -25,7 +26,7 @@
         <a href="trainer.html?lsll">LSLL</a>
         <a href="bh.html">BH</a>
         <a href="sheets.html" aria-current="page">Sheets</a>
-        <a href="guide/index.html">Guide</a>
+        <a href="guide/">Guide</a>
       </nav>
     </div>
     <button type="button" id="darkModeToggle" class="btn btn-ghost btn-icon dark-mode-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode"></button>
@@ -125,6 +126,9 @@
         <label class="check-inline">
           <input type="checkbox" id="exportSheets"> Include algs from sheets that are on
         </label>
+        <label class="check-inline">
+          <input type="checkbox" id="exportStats" checked> Include my stats
+        </label>
       </div>
       <div class="add-actions">
         <button type="button" class="btn btn-secondary" id="exportXlsx">Excel</button>
@@ -132,13 +136,13 @@
         <button type="button" class="btn btn-secondary" id="exportPdf">PDF</button>
         <span class="add-status" id="exportStatus" role="status"></span>
       </div>
-      <p class="setting-hint">PDF opens a printable page: choose "Save as PDF" in the print dialog. Main algs are the ones you set as main in the trainer.</p>
+      <p class="setting-hint">Excel puts each case picture above its name, your stats and its algs, one tab per set. CSV is one row per case. PDF opens a printable page: choose "Save as PDF" in the print dialog. Main algs are the ones you set as main in the trainer. Stats come from your solves in the trainer.</p>
     </section>
   </main>
 
   <footer class="site-footer">
     <div class="footer-row">
-      <a href="index.html" class="footer-link">Home</a>
+      <a href="./" class="footer-link">Home</a>
       <span class="footer-separator" aria-hidden="true">·</span>
       <span>Excel files are read and written with SheetJS</span>
     </div>
@@ -154,6 +158,8 @@
   <script src="scripts/algDetect.js"></script>
   <script src="scripts/virtualCubeEmbed.js"></script>
   <script src="scripts/lsll.js"></script>
+  <script src="scripts/zbllSubsets.js"></script>
+  <script src="scripts/solveStats.js"></script>
   <script src="scripts/srs.js"></script>
   <script src="scripts/topSolverAlgs.js"></script>
   <script src="scripts/communityAlgs.js"></script>

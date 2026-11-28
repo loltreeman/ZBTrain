@@ -420,7 +420,7 @@
     window.CASE_SETS.LSLL = {
         label: "LSLL",
         goal: "zbll",
-        selectPage: "index.html",
+        selectPage: "./",
         dynamic: true, // cases are generated (generateSetup), not picked from a list
         algs: {},
         scrambles: {},
