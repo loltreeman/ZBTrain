@@ -309,10 +309,104 @@
                 });
             });
         }
+        // H's side names have a slash in them ("H-Top/Bottom-AsC")
+        s = s.replace(/top\s*\/\s*bottom/i, "TopBottom").replace(/left\s*\/\s*right/i, "LeftRight");
         var parts = s.split(/[\s\-_\/]+/).filter(Boolean);
         if (parts.length !== 3) return null;
         var set = SET_NAMES[parts[0].toLowerCase()] || parts[0];
-        return zbllNameIndex[(set + " " + parts[1] + " " + parts[2]).toLowerCase()] || null;
+        var sub = subsetFromLabel(set, parts[1]) || parts[1];
+        return zbllNameIndex[(set + " " + sub + " " + parts[2]).toLowerCase()] || null;
+    }
+
+    // "Top" → "3" for T (zbllSubsets.js), so names like "T-Top-AsC" are read too
+    function subsetFromLabel(set, text) {
+        if (!window.ZbllSubsets || typeof zbllAlgs === "undefined" || !zbllAlgs[set]) return null;
+        var want = String(text).toLowerCase().replace(/\//g, "");
+        var hit = null;
+        Object.keys(zbllAlgs[set]).forEach(function (sub) {
+            if (ZbllSubsets.label(set, sub, 0).toLowerCase().replace(/\//g, "") === want) hit = sub;
+        });
+        return hit;
+    }
+
+    // ── Case names and pictures for exports ─────────────────────────────
+
+    // Case key → the name ZBTrain shows: "T-3-AsC" → "T-Top-AsC",
+    // "ZBLS-12-3" → "F2L 12-3", "ZBLS-FL-12-3" → "F2L 12-3 (FL)".
+    // Subset names are for the standard picture angle, like the exported pictures.
+    function caseName(key) {
+        var m = /^ZBLS-(?:(FL|BR|BL)-)?(\d+)-(\d+)$/.exec(key);
+        if (m) return "F2L " + m[2] + "-" + m[3] + (m[1] ? " (" + m[1] + ")" : "");
+        var z = /^(\w+)-(\w+)-(\w+)$/.exec(key);
+        if (z && window.ZbllSubsets) return z[1] + "-" + ZbllSubsets.label(z[1], z[2], 0) + "-" + z[3];
+        return key;
+    }
+
+    // Case key → its picture (ZBLS slots other than FR use the FR picture)
+    function caseImg(key) {
+        var m = /^ZBLS-(?:(?:FL|BR|BL)-)?(\d+)-(\d+)$/.exec(key);
+        if (m) return "images/ZBLS/F2L " + m[1] + "-" + m[2] + ".png";
+        return /^\w+-\w+-\w+$/.test(key) ? "svg/top/" + key + ".svg" : "";
+    }
+
+    // Case key → the group it's shown under: "T Top", "F2L 12"
+    function caseGroup(key) {
+        var m = /^ZBLS-(?:(FL|BR|BL)-)?(\d+)-\d+$/.exec(key);
+        if (m) return "F2L " + m[2] + (m[1] ? " (" + m[1] + ")" : "");
+        var z = /^(\w+)-(\w+)-\w+$/.exec(key);
+        if (z) return z[1] + " " + (window.ZbllSubsets ? ZbllSubsets.label(z[1], z[2], 0) : z[2]);
+        return "";
+    }
+
+    // Your saved solves (trainer, "zbllAttempts") → stats per case key:
+    // { solves, dnfs, avg, best, recog, exec, tps, last }. Times in seconds.
+    // ZBLS solves in every slot count for the case.
+    function caseStats() {
+        var attempts = [];
+        try { attempts = JSON.parse(localStorage.getItem("zbllAttempts") || "[]"); } catch (e) {}
+        var by = {};
+        attempts.forEach(function (a) {
+            if (!a || !a.set || !a.subset || !a.caseId) return;
+            var key = (a.set === "ZBLS" ? "ZBLS" : a.set) + "-" + a.subset + "-" + a.caseId;
+            var s = by[key] || (by[key] = { solves: 0, dnfs: 0, times: [], recog: [], exec: [], tps: [], last: null });
+            if (!s.last || a.timestamp > s.last) s.last = a.timestamp;
+            if (a.result === "DNF") { s.dnfs++; return; }
+            if (!(a.time > 0)) return;
+            s.solves++;
+            s.times.push(a.time);
+            if (a.recogTime > 0) s.recog.push(a.recogTime);
+            if (a.execTime > 0) s.exec.push(a.execTime);
+            var st = window.SolveStats && a.moves ? SolveStats.analyze(a) : null;
+            if (st && st.tps > 0) s.tps.push(st.tps);
+        });
+        function avg(list) { return list.length ? list.reduce(function (x, y) { return x + y; }, 0) / list.length : null; }
+        Object.keys(by).forEach(function (k) {
+            var s = by[k];
+            by[k] = {
+                solves: s.solves, dnfs: s.dnfs, last: s.last,
+                avg: avg(s.times), best: s.times.length ? Math.min.apply(null, s.times) : null,
+                recog: avg(s.recog), exec: avg(s.exec), tps: avg(s.tps),
+            };
+        });
+        return by;
+    }
+
+    // One line for a case card: "14 solves · avg 2.41 · best 1.88 · 6.2 TPS"
+    function statsText(s) {
+        if (!s || (!s.solves && !s.dnfs)) return null;
+        var parts = [s.solves + (s.solves === 1 ? " solve" : " solves")];
+        if (s.avg != null) parts.push("avg " + s.avg.toFixed(2));
+        if (s.best != null) parts.push("best " + s.best.toFixed(2));
+        if (s.recog != null) parts.push("recog " + s.recog.toFixed(2));
+        if (s.tps != null) parts.push(s.tps.toFixed(1) + " TPS");
+        if (s.dnfs) parts.push(s.dnfs + " DNF");
+        return parts.join(" · ");
+    }
+
+    // Case key → its tab in an Excel export: the ZBLL set, or ZBLS
+    function caseTab(key) {
+        if (/^ZBLS-/.test(key)) return "ZBLS";
+        return (/^(\w+)-/.exec(key) || [])[1] || "Algs";
     }
 
     // ── Tables ──────────────────────────────────────────────────────────
@@ -534,6 +628,177 @@
         });
     }
 
+    // ── Excel with pictures ─────────────────────────────────────────────
+    // SheetJS can't put pictures in a file, so these use ExcelJS (MIT), loaded
+    // only when you export.
+    var EXCELJS_URL = "https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js";
+    var excelJsPromise = null;
+    function loadExcelJS() {
+        if (window.ExcelJS) return Promise.resolve(window.ExcelJS);
+        if (!excelJsPromise) {
+            excelJsPromise = new Promise(function (resolve, reject) {
+                var s = document.createElement("script");
+                s.src = EXCELJS_URL;
+                s.onload = function () { resolve(window.ExcelJS); };
+                s.onerror = function () { excelJsPromise = null; reject(new Error("Couldn't load the Excel writer. Check your connection, or export as CSV.")); };
+                document.head.appendChild(s);
+            });
+        }
+        return excelJsPromise;
+    }
+
+    var IMG_PX = 120;      // picture size in the file
+    var CARDS_PER_ROW = 6; // cases side by side
+
+    // A picture (SVG or PNG) → PNG as base64, drawn at IMG_PX (Excel can't show SVG)
+    var pngCache = {};
+    function pngOf(src) {
+        if (!src) return Promise.resolve(null);
+        if (!pngCache[src]) {
+            pngCache[src] = new Promise(function (resolve) {
+                var img = new Image();
+                img.onload = function () {
+                    var scale = 2; // sharp when zoomed in
+                    var c = document.createElement("canvas");
+                    c.width = c.height = IMG_PX * scale;
+                    var g = c.getContext("2d");
+                    var w = img.naturalWidth || IMG_PX, h = img.naturalHeight || IMG_PX;
+                    var k = Math.min(c.width / w, c.height / h);
+                    g.drawImage(img, (c.width - w * k) / 2, (c.height - h * k) / 2, w * k, h * k);
+                    try { resolve(c.toDataURL("image/png").split(",")[1]); } catch (e) { resolve(null); }
+                };
+                img.onerror = function () { resolve(null); };
+                img.src = encodeURI(src);
+            });
+        }
+        return pngCache[src];
+    }
+
+    // cases: [{ key, algs: [..], stats: "text" or null }] in the order to show.
+    // Each case is a card like a printed alg sheet:
+    //     picture
+    //     name
+    //     your stats (if any)
+    //     algs (the first one in bold when boldFirst)
+    // One tab per ZBLL set (or ZBLS), a heading per group ("T Top", "F2L 12"),
+    // and CARDS_PER_ROW cards side by side.
+    function exportExcelCards(cases, filename, opts) {
+        opts = opts || {};
+        return loadExcelJS().then(function (ExcelJS) {
+            return Promise.all(cases.map(function (c) { return pngOf(c.img || caseImg(c.key)); })).then(function (pngs) {
+                var wb = new ExcelJS.Workbook();
+                wb.creator = "ZBTrain";
+                wb.created = new Date();
+                var tabs = {}, order = [];
+                cases.forEach(function (c, i) {
+                    var t = opts.tab ? opts.tab : caseTab(c.key);
+                    if (!tabs[t]) { tabs[t] = []; order.push(t); }
+                    tabs[t].push({ c: c, png: pngs[i] });
+                });
+                order.forEach(function (t) { addCardTab(wb, t, tabs[t], opts); });
+                if (!order.length) addCardTab(wb, opts.tab || "Algs", [], opts);
+                return wb.xlsx.writeBuffer();
+            }).then(function (buf) {
+                downloadBlob(new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), filename + ".xlsx");
+            });
+        });
+    }
+
+    function addCardTab(wb, name, items, opts) {
+        var ws = wb.addWorksheet(String(name).replace(/[\\\/?*\[\]:]/g, " ").slice(0, 31), {
+            views: [{ showGridLines: false }],
+        });
+        var cols = [];
+        for (var i = 0; i < CARDS_PER_ROW; i++) cols.push({ width: 46 });
+        ws.columns = cols;
+
+        var mono = { name: "Consolas", size: 10 };
+        var row = 1;
+        if (opts.title) {
+            ws.getCell(row, 1).value = opts.title;
+            ws.getCell(row, 1).font = { bold: true, size: 14 };
+            row++;
+            if (opts.subtitle) {
+                ws.getCell(row, 1).value = opts.subtitle;
+                ws.getCell(row, 1).font = { color: { argb: "FF666666" }, size: 10 };
+                row++;
+            }
+            row++;
+        }
+
+        // Group the cards ("T Top", "F2L 12"), keeping their order
+        var groups = [], byGroup = {};
+        items.forEach(function (it) {
+            var g = caseGroup(it.c.key) || name;
+            if (!byGroup[g]) { byGroup[g] = []; groups.push(g); }
+            byGroup[g].push(it);
+        });
+
+        groups.forEach(function (g) {
+            var list = byGroup[g];
+            ws.getCell(row, 1).value = g;
+            ws.getCell(row, 1).font = { bold: true, size: 13, color: { argb: "FF1D4ED8" } };
+            row++;
+            for (var start = 0; start < list.length; start += CARDS_PER_ROW) {
+                var band = list.slice(start, start + CARDS_PER_ROW);
+                var algRows = band.reduce(function (n, it) { return Math.max(n, it.c.algs.length); }, 1);
+                var hasStats = band.some(function (it) { return it.c.stats; });
+
+                // Picture row
+                ws.getRow(row).height = IMG_PX * 0.75 + 8; // points
+                band.forEach(function (it, i) {
+                    if (!it.png) return;
+                    var id = wb.addImage({ base64: it.png, extension: "png" });
+                    // Centred in its column: a width of 46 characters is about 327px (9525 EMU per px)
+                    var EMU = 9525, colPx = 46 * 7 + 5;
+                    ws.addImage(id, {
+                        tl: { nativeCol: i, nativeColOff: Math.round(Math.max(0, colPx - IMG_PX) / 2 * EMU), nativeRow: row - 1, nativeRowOff: 4 * EMU },
+                        ext: { width: IMG_PX, height: IMG_PX },
+                        editAs: "oneCell",
+                    });
+                });
+                row++;
+
+                // Name row
+                band.forEach(function (it, i) {
+                    var cell = ws.getCell(row, i + 1);
+                    cell.value = caseName(it.c.key);
+                    cell.font = { bold: true, size: 12 };
+                    cell.alignment = { horizontal: "center" };
+                    cell.border = { bottom: { style: "thin", color: { argb: "FFCCCCCC" } } };
+                });
+                row++;
+
+                // Stats row
+                if (hasStats) {
+                    band.forEach(function (it, i) {
+                        var cell = ws.getCell(row, i + 1);
+                        cell.value = it.c.stats || "No solves yet";
+                        cell.font = { italic: true, size: 9, color: { argb: "FF666666" } };
+                        cell.alignment = { horizontal: "center", wrapText: true };
+                    });
+                    ws.getRow(row).height = 26;
+                    row++;
+                }
+
+                // Alg rows
+                for (var a = 0; a < algRows; a++) {
+                    band.forEach(function (it, i) {
+                        var alg = it.c.algs[a];
+                        if (!alg) return;
+                        var cell = ws.getCell(row, i + 1);
+                        cell.value = alg;
+                        cell.font = Object.assign({}, mono, a === 0 && opts.boldFirst ? { bold: true } : {});
+                        cell.alignment = { wrapText: true, vertical: "top" };
+                    });
+                    row++;
+                }
+                row++; // space between bands
+            }
+            row++;
+        });
+    }
+
     window.AlgSheets = {
         list: list,
         add: add,
@@ -566,5 +831,11 @@
         readFile: readFile,
         exportCSV: exportCSV,
         exportExcel: exportExcel,
+        exportExcelCards: exportExcelCards,
+        caseName: caseName,
+        caseImg: caseImg,
+        caseGroup: caseGroup,
+        caseStats: caseStats,
+        statsText: statsText,
     };
 })(window);
