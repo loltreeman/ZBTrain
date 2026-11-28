@@ -525,6 +525,12 @@ body:has(#slowModeBanner[style*="flex"]) .app-shell {
     transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease);
 }
 
+.alg-list-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
 .alg-add-btn {
     align-self: flex-start;
     padding: 6px 10px;
