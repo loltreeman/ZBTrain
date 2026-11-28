@@ -2602,3 +2602,9 @@ body.learn-awaiting-rating #current-scramble {
     flex-wrap: wrap;
     gap: var(--sp-2);
 }
+
+/* Recall mode needs the virtual cube (trainer.js, syncRecallAvailability) */
+.toggle-row.is-unavailable {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
