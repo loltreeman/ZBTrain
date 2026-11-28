@@ -222,7 +222,8 @@ function trainerSetup() {
     if (localStorage.getItem("virtualCubeEnabled") === "true") {
         cb.checked = true;
     }
-    
+    syncRecallAvailability();
+
     if (cb) {
         if (cb.checked) {
             container.style.display = "block";
@@ -309,6 +310,7 @@ fullCNCheckbox.addEventListener("change", function () {
 
 function onVirtualCheckboxChange(e) {
     localStorage.setItem("virtualCubeEnabled", e.target.checked);
+    syncRecallAvailability();
     var container = document.getElementById("virtualCubeContainer");
     if (!container) return;
 
@@ -3662,12 +3664,33 @@ function scheduleRecallFlash() {
     });
 })();
 
+// Recall mode needs the virtual cube: it greys out the stickers on it. With
+// only the timer it would just add an extra Space press after every solve,
+// so it's off (and greyed out) until the virtual cube is on. Your choice is
+// kept and comes back when you turn the virtual cube on.
+function syncRecallAvailability() {
+    var cb = document.getElementById("recallModeCheckbox");
+    if (!cb) return;
+    var vc = document.getElementById("virtualCubeCheckbox");
+    var available = !!(vc && vc.checked);
+    cb.disabled = !available;
+    cb.checked = available && localStorage.getItem("recallMode") === "true";
+    var sel = document.getElementById("recallHideAfterSelect");
+    if (sel) sel.disabled = !available;
+    var row = document.getElementById("recallToggleRow");
+    if (row) {
+        row.classList.toggle("is-unavailable", !available);
+        row.title = available ? "" : "Turn on the virtual cube to use recall mode";
+    }
+    if (!available && recallMaskApplied) removeRecallMask();
+}
+
 var recallCb = document.getElementById("recallModeCheckbox");
 if (recallCb) {
-    recallCb.checked = localStorage.getItem("recallMode") === "true";
     recallCb.addEventListener("change", function () {
         localStorage.setItem("recallMode", this.checked);
     });
+    syncRecallAvailability();
 }
 
 if (useUserDefinedMask) {
