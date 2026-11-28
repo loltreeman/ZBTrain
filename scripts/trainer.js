@@ -2929,10 +2929,12 @@ function getAlgList() {
 
     var algs = currentlyDisplayedCase.getAlgsArray();
     if (!algs || algs.length === 0) {
-        return "<p class='no-algs'>No algorithms found.</p>";
+        return "<p class='no-algs'>No algorithms found.</p>" + addAlgButton();
     }
 
     var mainIdx = getMainAlgIndex(currentlyDisplayedCase);
+    // Algs from your list can be removed; ones from alg sheets come and go with the sheet
+    var ownCount = ((currentlyDisplayedCase.getOwnAlgs || currentlyDisplayedCase.getAlgsArray).call(currentlyDisplayedCase) || []).length;
     var detected = getDetectedAlg(algs, mainIdx);
     var usedIdx = detected ? detected.result.index : -1;
 
@@ -2978,6 +2980,11 @@ function getAlgList() {
                 '<button class="alg-note-btn" onclick="handleToggleNote(' +
                 item.idx +
                 ')" title="Note" aria-label="Note"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg></button>' +
+                (item.idx < ownCount
+                    ? '<button class="alg-remove-btn" onclick="handleRemoveAlg(' +
+                      item.idx +
+                      ')" title="Remove" aria-label="Remove this algorithm"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v6M14 11v6"/></svg></button>'
+                    : "") +
                 "</div>" +
                 renderAdjustedAlg(item.alg, item.idx) +
                 '<div class="alg-note-row" id="alg-note-row-' +
@@ -2999,7 +3006,90 @@ function getAlgList() {
                 "</div>"
             );
         })
-        .join("");
+        .join("") + addAlgButton();
+}
+
+function addAlgButton() {
+    return '<button type="button" class="alg-add-btn" onclick="handleAddAlg()">+ Add your own alg</button>';
+}
+
+// Type in an alg of your own for this case. It's checked against the case
+// (any AUF) and saved to your list, the same place edits go.
+function handleAddAlg() {
+    if (!currentlyDisplayedCase) return;
+    var text = prompt("Add an algorithm for " + currentlyDisplayedCase.getName() + ":", "");
+    if (text === null) return;
+    text = text.replace(/[‘’′´`]/g, "'").replace(/\s+/g, " ").trim();
+    if (!text) return;
+
+    var tokens = window.AlgAuf ? AlgAuf.tokenize(text) : [];
+    if (!tokens || !tokens.length) {
+        alert("Couldn't read that alg. Use moves like R U R' U', with spaces between them.");
+        return;
+    }
+    var algs = currentlyDisplayedCase.getAlgsArray() || [];
+    var same = window.AlgSheets && AlgSheets.sameAlg
+        ? function (a, b) { return AlgSheets.sameAlg(a, b); }
+        : function (a, b) { return a.replace(/\s+/g, " ").trim() === b; };
+    if (algs.some(function (a) { return same(a, text); })) {
+        alert("That alg is already in the list.");
+        return;
+    }
+    if (window.AlgAuf && displayedScramble && !AlgAuf.adjust(displayedScramble, text).ok &&
+        !confirm("This alg doesn't solve the case from the current setup (with any AUF). Add it anyway?")) {
+        return;
+    }
+
+    // Keep the main alg the main one, even if the list order shifts
+    var mainAlg = algs[getMainAlgIndex(currentlyDisplayedCase)];
+    var caseKey = caseStoreKey(currentlyDisplayedCase);
+    var own = (currentlyDisplayedCase.getOwnAlgs || currentlyDisplayedCase.getAlgsArray).call(currentlyDisplayedCase) || [];
+    var savedAlgs = JSON.parse(localStorage.getItem("customAlgs") || "{}");
+    if (!savedAlgs[caseKey]) savedAlgs[caseKey] = own.slice();
+    savedAlgs[caseKey].push(text);
+    localStorage.setItem("customAlgs", JSON.stringify(savedAlgs));
+    if (mainAlg !== undefined) {
+        var newIdx = currentlyDisplayedCase.getAlgsArray().indexOf(mainAlg);
+        if (newIdx >= 0) setMainAlg(currentlyDisplayedCase, newIdx);
+    }
+
+    document.querySelector("#case-algs").innerHTML = getAlgList();
+}
+
+// Take an alg out of your list for this case. The main alg and the notes
+// stay with their algs as the ones below move up.
+function handleRemoveAlg(index) {
+    if (!currentlyDisplayedCase) return;
+    var c = currentlyDisplayedCase;
+    var own = (c.getOwnAlgs || c.getAlgsArray).call(c) || [];
+    if (index < 0 || index >= own.length) return;
+    if (!confirm("Remove this alg from " + c.getName() + "?\n\n" + own[index])) return;
+
+    var before = c.getAlgsArray() || [];
+    var mainIdx = getMainAlgIndex(c);
+    var mainAlg = mainIdx === index ? null : before[mainIdx];
+    var notes = before.map(function (a, i) { return getAlgNote(c, i); });
+
+    var caseKey = caseStoreKey(c);
+    var savedAlgs = JSON.parse(localStorage.getItem("customAlgs") || "{}");
+    savedAlgs[caseKey] = own.slice();
+    savedAlgs[caseKey].splice(index, 1);
+    localStorage.setItem("customAlgs", JSON.stringify(savedAlgs));
+
+    // Put each note back on its alg at the alg's new place
+    var after = c.getAlgsArray() || [];
+    before.forEach(function (a, i) { localStorage.removeItem(getNoteKey(c, i)); });
+    before.forEach(function (a, i) {
+        if (i === index || !notes[i]) return;
+        var j = after.indexOf(a);
+        if (j >= 0) localStorage.setItem(getNoteKey(c, j), notes[i]);
+    });
+
+    var newMain = mainAlg != null ? after.indexOf(mainAlg) : -1;
+    if (newMain >= 0) setMainAlg(c, newMain);
+    else localStorage.removeItem(getMainAlgKey(c));
+
+    document.querySelector("#case-algs").innerHTML = getAlgList();
 }
 
 function getNoteKey(caseObj, index) {

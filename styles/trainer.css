@@ -525,6 +525,23 @@ body:has(#slowModeBanner[style*="flex"]) .app-shell {
     transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease);
 }
 
+.alg-add-btn {
+    align-self: flex-start;
+    padding: 6px 10px;
+    border: 1px dashed var(--border);
+    border-radius: var(--r-sm);
+    background: transparent;
+    color: var(--text-2);
+    font: 500 12px var(--font-sans);
+    cursor: pointer;
+    transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+
+.alg-add-btn:hover {
+    background: var(--surface-2);
+    color: var(--text);
+}
+
 .alg-set-main-btn:hover {
     background: var(--surface-3);
     color: var(--text);
@@ -532,7 +549,8 @@ body:has(#slowModeBanner[style*="flex"]) .app-shell {
 
 .alg-edit-btn,
 .alg-copy-btn,
-.alg-note-btn {
+.alg-note-btn,
+.alg-remove-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -553,7 +571,8 @@ body:has(#slowModeBanner[style*="flex"]) .app-shell {
 
 .alg-edit-btn .icon,
 .alg-copy-btn .icon,
-.alg-note-btn .icon {
+.alg-note-btn .icon,
+.alg-remove-btn .icon {
     width: 14px;
     height: 14px;
 }
@@ -563,6 +582,11 @@ body:has(#slowModeBanner[style*="flex"]) .app-shell {
 .alg-note-btn:hover {
     background: var(--surface-3);
     color: var(--text);
+}
+
+.alg-remove-btn:hover {
+    background: var(--bad-soft);
+    color: var(--bad);
 }
 
 .alg-entry:has(.alg-note-input:not([value=""])) .alg-note-btn {
